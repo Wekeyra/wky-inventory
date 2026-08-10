@@ -33,10 +33,6 @@ class StockMovement extends Model
 
     public function labelJenis(): string
     {
-        return match ($this->jenis) {
-            'masuk' => 'Stok Masuk',
-            'keluar' => 'Stok Keluar',
-            default => 'Pelarasan',
-        };
+        return __('wky.stok.' . ($this->jenis === 'pelarasan' ? 'pelarasan' : $this->jenis));
     }
 }

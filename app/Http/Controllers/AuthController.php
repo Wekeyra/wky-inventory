@@ -24,7 +24,7 @@ class AuthController extends Controller
 
         if (! Auth::attempt($kelayakan, $request->boolean('ingat_saya'))) {
             throw ValidationException::withMessages([
-                'email' => 'Emel atau kata laluan tidak sah.',
+                'email' => __('auth.failed'),
             ]);
         }
 

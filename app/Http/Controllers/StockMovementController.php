@@ -58,7 +58,9 @@ class StockMovementController extends Controller
                 };
 
                 if ($selepas < 0) {
-                    throw new \RuntimeException("Stok tidak mencukupi. Baki semasa: {$sebelum} {$product->unit}.");
+                    throw new \RuntimeException(
+                        __('wky.flash.stok_tidak_cukup', ['baki' => $sebelum, 'unit' => $product->unit])
+                    );
                 }
 
                 $product->update(['stok' => $selepas]);
@@ -81,6 +83,6 @@ class StockMovementController extends Controller
         // Borang pantas dipanggil dari dashboard, jadi pengguna dikembalikan ke sana.
         $destinasi = $request->input('sumber') === 'pantas' ? 'dashboard' : 'stock.index';
 
-        return redirect()->route($destinasi)->with('status', 'Pergerakan stok berjaya direkodkan.');
+        return redirect()->route($destinasi)->with('status', __('wky.flash.stok_direkod'));
     }
 }

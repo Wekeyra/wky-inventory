@@ -47,7 +47,7 @@ class ProductController extends Controller
     {
         Product::create($this->validated($request));
 
-        return redirect()->route('products.index')->with('status', 'Produk berjaya ditambah.');
+        return redirect()->route('products.index')->with('status', __('wky.flash.produk_tambah'));
     }
 
     public function show(Product $product): View
@@ -73,14 +73,14 @@ class ProductController extends Controller
     {
         $product->update($this->validated($request, $product));
 
-        return redirect()->route('products.index')->with('status', 'Produk berjaya dikemas kini.');
+        return redirect()->route('products.index')->with('status', __('wky.flash.produk_kemas_kini'));
     }
 
     public function destroy(Product $product): RedirectResponse
     {
         $product->delete();
 
-        return redirect()->route('products.index')->with('status', 'Produk berjaya dipadam.');
+        return redirect()->route('products.index')->with('status', __('wky.flash.produk_padam'));
     }
 
     private function validated(Request $request, ?Product $product = null): array

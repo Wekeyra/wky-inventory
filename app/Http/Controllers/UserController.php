@@ -36,7 +36,7 @@ class UserController extends Controller
         $data['password'] = Hash::make($data['password']);
         User::create($data);
 
-        return redirect()->route('users.index')->with('status', 'Pengguna berjaya ditambah.');
+        return redirect()->route('users.index')->with('status', __('wky.flash.pengguna_tambah'));
     }
 
     public function edit(User $user): View
@@ -61,17 +61,17 @@ class UserController extends Controller
 
         $user->update($data);
 
-        return redirect()->route('users.index')->with('status', 'Pengguna berjaya dikemas kini.');
+        return redirect()->route('users.index')->with('status', __('wky.flash.pengguna_kemas_kini'));
     }
 
     public function destroy(Request $request, User $user): RedirectResponse
     {
         if ($request->user()->is($user)) {
-            return back()->with('ralat', 'Anda tidak boleh memadam akaun sendiri.');
+            return back()->with('ralat', __('wky.flash.pengguna_padam_sendiri'));
         }
 
         $user->delete();
 
-        return redirect()->route('users.index')->with('status', 'Pengguna berjaya dipadam.');
+        return redirect()->route('users.index')->with('status', __('wky.flash.pengguna_padam'));
     }
 }

@@ -31,7 +31,7 @@ class CategoryController extends Controller
     {
         Category::create($this->validated($request));
 
-        return redirect()->route('categories.index')->with('status', 'Kategori berjaya ditambah.');
+        return redirect()->route('categories.index')->with('status', __('wky.flash.kategori_tambah'));
     }
 
     public function edit(Category $category): View
@@ -43,18 +43,18 @@ class CategoryController extends Controller
     {
         $category->update($this->validated($request, $category));
 
-        return redirect()->route('categories.index')->with('status', 'Kategori berjaya dikemas kini.');
+        return redirect()->route('categories.index')->with('status', __('wky.flash.kategori_kemas_kini'));
     }
 
     public function destroy(Category $category): RedirectResponse
     {
         if ($category->products()->exists()) {
-            return back()->with('ralat', 'Kategori ini masih digunakan oleh produk dan tidak boleh dipadam.');
+            return back()->with('ralat', __('wky.flash.kategori_digunakan'));
         }
 
         $category->delete();
 
-        return redirect()->route('categories.index')->with('status', 'Kategori berjaya dipadam.');
+        return redirect()->route('categories.index')->with('status', __('wky.flash.kategori_padam'));
     }
 
     private function validated(Request $request, ?Category $category = null): array

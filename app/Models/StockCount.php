@@ -53,11 +53,7 @@ class StockCount extends Model
 
     public function labelStatus(): string
     {
-        return match ($this->status) {
-            'draf' => 'Draf',
-            'selesai' => 'Selesai',
-            default => 'Dibatalkan',
-        };
+        return __('wky.kiraan.status_' . $this->status);
     }
 
     public function warnaStatus(): string

@@ -47,7 +47,7 @@ class StockCountController extends Controller
             ->get(['id', 'stok']);
 
         if ($produk->isEmpty()) {
-            return back()->withInput()->with('ralat', 'Tiada produk aktif untuk dikira dalam pilihan tersebut.');
+            return back()->withInput()->with('ralat', __('wky.flash.kiraan_tiada_produk'));
         }
 
         $sesi = DB::transaction(function () use ($data, $request, $produk) {
@@ -70,7 +70,7 @@ class StockCountController extends Controller
         });
 
         return redirect()->route('stock-counts.show', $sesi)
-            ->with('status', "Sesi kiraan {$sesi->kod} dibuka dengan {$produk->count()} produk.");
+            ->with('status', __('wky.flash.kiraan_dibuka', ['kod' => $sesi->kod, 'bil' => $produk->count()]));
     }
 
     public function show(StockCount $stockCount): View
@@ -107,7 +107,7 @@ class StockCountController extends Controller
             }
         });
 
-        return back()->with('status', "Kiraan disimpan sebagai draf ({$dikira} produk telah dikira).");
+        return back()->with('status', __('wky.flash.kiraan_draf_disimpan', ['bil' => $dikira]));
     }
 
     /** Mengesahkan sesi: setiap perbezaan menjana pergerakan stok jenis pelarasan. */
@@ -116,7 +116,7 @@ class StockCountController extends Controller
         $this->pastikanDraf($stockCount);
 
         if ($stockCount->items()->whereNotNull('kuantiti_fizikal')->doesntExist()) {
-            return back()->with('ralat', 'Masukkan sekurang-kurangnya satu kuantiti fizikal sebelum mengesahkan.');
+            return back()->with('ralat', __('wky.flash.kiraan_perlu_kuantiti'));
         }
 
         $dilaraskan = 0;
@@ -164,7 +164,7 @@ class StockCountController extends Controller
         });
 
         return redirect()->route('stock-counts.show', $stockCount)
-            ->with('status', "Sesi {$stockCount->kod} disahkan. {$dilaraskan} produk dilaraskan.");
+            ->with('status', __('wky.flash.kiraan_disahkan', ['kod' => $stockCount->kod, 'bil' => $dilaraskan]));
     }
 
     public function destroy(StockCount $stockCount): RedirectResponse
@@ -174,14 +174,17 @@ class StockCountController extends Controller
         $stockCount->update(['status' => 'dibatalkan']);
 
         return redirect()->route('stock-counts.index')
-            ->with('status', "Sesi {$stockCount->kod} dibatalkan. Tiada stok dilaraskan.");
+            ->with('status', __('wky.flash.kiraan_dibatalkan', ['kod' => $stockCount->kod]));
     }
 
     private function pastikanDraf(StockCount $stockCount): void
     {
         if (! $stockCount->isDraf()) {
             throw ValidationException::withMessages([
-                'status' => "Sesi {$stockCount->kod} sudah {$stockCount->labelStatus()} dan tidak boleh diubah lagi.",
+                'status' => __('wky.flash.kiraan_terkunci', [
+                    'kod' => $stockCount->kod,
+                    'status' => mb_strtolower($stockCount->labelStatus()),
+                ]),
             ]);
         }
     }

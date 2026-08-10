@@ -79,6 +79,28 @@ php artisan test
   stok (termasuk penolakan stok keluar yang melebihi baki), dan laporan bulanan.
 - `tests/Feature/StockCountTest.php` — aliran kiraan stok: gambaran baki, penapisan kategori,
   draf yang tidak mengubah stok, pelarasan selepas pengesahan, dan sekatan pada sesi yang selesai.
+- `tests/Feature/LocaleTest.php` — penukaran BM/EN, kekekalan pilihan merentas halaman,
+  terjemahan mesej flash dan pengesahan, serta keselarian kunci antara dua fail bahasa.
+
+## Dwibahasa (BM / EN)
+
+Antara muka tersedia dalam Bahasa Melayu (lalai) dan English. Butang **BM / EN** di bar atas
+setiap halaman — termasuk halaman log masuk — menukar bahasa serta-merta. Pilihan disimpan
+dalam sesi, jadi ia kekal sehingga pengguna menukarnya semula.
+
+| Fail | Kandungan |
+|---|---|
+| `lang/{ms,en}/wky.php` | Semua teks antara muka: menu, tajuk, label medan, butang, mesej |
+| `lang/ms/validation.php` | Mesej pengesahan BM + nama medan (`attributes`) |
+| `lang/ms/{auth,pagination}.php` | Mesej log masuk dan pautan penomboran |
+| `config/bahasa.php` | Senarai bahasa yang disokong |
+
+Untuk menambah bahasa ketiga: salin folder `lang/ms` ke kod locale baharu, terjemah isinya,
+dan tambah satu baris dalam `config/bahasa.php`. Tiada perubahan pada view diperlukan.
+
+Kunci yang tiada dalam satu bahasa akan jatuh semula kepada `APP_FALLBACK_LOCALE` (English),
+jadi tiada teks yang hilang. Ujian `test_kedua_dua_fail_bahasa_mempunyai_kunci_yang_sama`
+memastikan kedua-dua fail `wky.php` sentiasa selari.
 
 ## Nota teknikal
 

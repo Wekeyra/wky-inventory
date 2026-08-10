@@ -36,7 +36,7 @@ class SupplierController extends Controller
     {
         Supplier::create($this->validated($request));
 
-        return redirect()->route('suppliers.index')->with('status', 'Pembekal berjaya ditambah.');
+        return redirect()->route('suppliers.index')->with('status', __('wky.flash.pembekal_tambah'));
     }
 
     public function show(Supplier $supplier): View
@@ -55,18 +55,18 @@ class SupplierController extends Controller
     {
         $supplier->update($this->validated($request, $supplier));
 
-        return redirect()->route('suppliers.index')->with('status', 'Pembekal berjaya dikemas kini.');
+        return redirect()->route('suppliers.index')->with('status', __('wky.flash.pembekal_kemas_kini'));
     }
 
     public function destroy(Supplier $supplier): RedirectResponse
     {
         if ($supplier->products()->exists()) {
-            return back()->with('ralat', 'Pembekal ini masih dikaitkan dengan produk dan tidak boleh dipadam.');
+            return back()->with('ralat', __('wky.flash.pembekal_digunakan'));
         }
 
         $supplier->delete();
 
-        return redirect()->route('suppliers.index')->with('status', 'Pembekal berjaya dipadam.');
+        return redirect()->route('suppliers.index')->with('status', __('wky.flash.pembekal_padam'));
     }
 
     private function validated(Request $request, ?Supplier $supplier = null): array

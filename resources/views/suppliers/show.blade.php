@@ -7,12 +7,12 @@
             <div class="card kad-stat">
                 <div class="card-body">
                     <dl class="row mb-0 small">
-                        <dt class="col-5">Kod</dt><dd class="col-7"><code>{{ $supplier->kod }}</code></dd>
-                        <dt class="col-5">Pegawai</dt><dd class="col-7">{{ $supplier->pegawai_perhubungan ?? '—' }}</dd>
-                        <dt class="col-5">Telefon</dt><dd class="col-7">{{ $supplier->telefon ?? '—' }}</dd>
-                        <dt class="col-5">Emel</dt><dd class="col-7">{{ $supplier->emel ?? '—' }}</dd>
-                        <dt class="col-5">Status</dt>
-                        <dd class="col-7"><span class="badge bg-{{ $supplier->aktif ? 'success' : 'secondary' }}">{{ $supplier->aktif ? 'Aktif' : 'Tidak aktif' }}</span></dd>
+                        <dt class="col-5">{{ __('wky.medan.kod') }}</dt><dd class="col-7"><code>{{ $supplier->kod }}</code></dd>
+                        <dt class="col-5">{{ __('wky.medan.pegawai_perhubungan') }}</dt><dd class="col-7">{{ $supplier->pegawai_perhubungan ?? __('wky.umum.kosong') }}</dd>
+                        <dt class="col-5">{{ __('wky.medan.telefon') }}</dt><dd class="col-7">{{ $supplier->telefon ?? __('wky.umum.kosong') }}</dd>
+                        <dt class="col-5">{{ __('wky.medan.emel') }}</dt><dd class="col-7">{{ $supplier->emel ?? __('wky.umum.kosong') }}</dd>
+                        <dt class="col-5">{{ __('wky.medan.status') }}</dt>
+                        <dd class="col-7"><span class="badge bg-{{ $supplier->aktif ? 'success' : 'secondary' }}">{{ $supplier->aktif ? __('wky.umum.aktif') : __('wky.umum.tidak_aktif') }}</span></dd>
                     </dl>
                     @if ($supplier->alamat)
                         <hr>
@@ -20,19 +20,24 @@
                     @endif
                 </div>
                 <div class="card-footer d-flex gap-2">
-                    <a class="btn btn-sm btn-primary" href="{{ route('suppliers.edit', $supplier) }}"><i class="bi bi-pencil"></i> Kemas Kini</a>
-                    <a class="btn btn-sm btn-outline-secondary ms-auto" href="{{ route('suppliers.index') }}">Kembali</a>
+                    <a class="btn btn-sm btn-primary" href="{{ route('suppliers.edit', $supplier) }}"><i class="bi bi-pencil"></i> {{ __('wky.aksi.kemas_kini') }}</a>
+                    <a class="btn btn-sm btn-outline-secondary ms-auto" href="{{ route('suppliers.index') }}">{{ __('wky.aksi.kembali') }}</a>
                 </div>
             </div>
         </div>
 
         <div class="col-lg-8">
             <div class="card kad-stat">
-                <div class="card-header fw-semibold"><i class="bi bi-box me-1"></i>Produk daripada Pembekal Ini</div>
+                <div class="card-header fw-semibold"><i class="bi bi-box me-1"></i>{{ __('wky.pembekal.produk_daripada') }}</div>
                 <div class="table-responsive">
                     <table class="table table-sm align-middle mb-0">
                         <thead>
-                            <tr><th>SKU</th><th>Nama</th><th class="text-end">Harga Kos</th><th class="text-end">Stok</th></tr>
+                            <tr>
+                                <th>{{ __('wky.medan.sku') }}</th>
+                                <th>{{ __('wky.medan.nama') }}</th>
+                                <th class="text-end">{{ __('wky.medan.harga_kos') }}</th>
+                                <th class="text-end">{{ __('wky.medan.stok') }}</th>
+                            </tr>
                         </thead>
                         <tbody>
                         @forelse ($supplier->products as $produk)
@@ -43,7 +48,7 @@
                                 <td class="text-end">{{ $produk->stok }} {{ $produk->unit }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="4" class="text-center text-secondary py-4">Tiada produk dikaitkan dengan pembekal ini.</td></tr>
+                            <tr><td colspan="4" class="text-center text-secondary py-4">{{ __('wky.pembekal.tiada_produk') }}</td></tr>
                         @endforelse
                         </tbody>
                     </table>
