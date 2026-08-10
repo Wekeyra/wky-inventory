@@ -11,6 +11,7 @@ kategori, pembekal, dan setiap pergerakan stok masuk/keluar dengan jejak audit p
 | **Produk** | CRUD produk dengan SKU, harga kos/jual, unit, paras stok minimum |
 | **Kategori** | Pengelasan produk. Tidak boleh dipadam selagi masih digunakan produk |
 | **Pembekal** | Maklumat pembekal dan senarai produk yang dibekalkan |
+| **Imbas Invois** | Muat naik foto atau PDF invois — AI membaca baris barang, memadankannya dengan produk, dan merekod stok masuk selepas disahkan |
 | **Kiraan Stok** | Sesi kiraan fizikal (stock take): sistem simpan gambaran baki, staf masukkan kiraan sebenar, sistem tunjuk perbezaan dan laraskan stok selepas disahkan |
 | **Pergerakan Stok** | Rekod stok masuk, keluar, dan pelarasan — setiap satu menyimpan baki sebelum/selepas |
 | **Laporan Bulanan** | Pecahan masuk/keluar per produk mengikut bulan, perubahan bersih, dan susun atur mesra cetak |
@@ -87,6 +88,57 @@ php artisan test
   draf yang tidak mengubah stok, pelarasan selepas pengesahan, dan sekatan pada sesi yang selesai.
 - `tests/Feature/LocaleTest.php` — penukaran BM/EN, kekekalan pilihan merentas halaman,
   terjemahan mesej flash dan pengesahan, serta keselarian kunci antara dua fail bahasa.
+- `tests/Feature/InvoiceScanTest.php` — imbasan invois: padanan SKU dan nama, baris tanpa
+  padanan, pemilihan manual, baris dilangkau, pengesahan yang merekod stok masuk, dan
+  pengendalian ralat AI. Menggunakan pengekstrak palsu — tiada panggilan API sebenar.
+
+## Imbas Invois (AI)
+
+Muat naik foto atau PDF invois; Claude membaca baris barangnya dan sistem memadankannya
+dengan produk sedia ada. **Stok tidak berubah semasa imbasan** — anda melihat skrin semakan
+dahulu, dan hanya menekan *Sahkan & Rekod Stok Masuk* yang menjana pergerakan stok.
+
+### Persediaan
+
+1. Daftar di https://console.anthropic.com dan jana kunci API.
+2. Masukkan dalam `.env`:
+
+   ```
+   ANTHROPIC_API_KEY=sk-ant-...
+   ```
+
+3. `php artisan config:clear`
+
+Tanpa kunci, halaman Imbas Invois masih boleh dibuka tetapi memaparkan arahan persediaan
+dan butang imbas dilumpuhkan — tiada permintaan dihantar.
+
+> ⚠️ **Imej invois dihantar ke pelayan Anthropic** untuk dibaca. Jangan imbas dokumen yang
+> mengandungi maklumat yang tidak boleh keluar dari organisasi anda.
+
+### Padanan produk
+
+Padanan dibuat mengikut turutan: **SKU tepat**, kemudian **nama tepat**. Kedua-duanya
+dinormalkan (huruf kecil, tanda baca dan ruang dibuang), jadi `ELK-001`, `elk 001`, dan
+`ELK_001` dianggap sama.
+
+Padanan kabur **tidak** digunakan. Padanan yang salah akan menambah stok pada produk yang
+tidak berkaitan tanpa disedari, jadi baris yang tidak padan sengaja ditinggalkan kepada
+pengguna untuk dipilih sendiri daripada senarai jatuh. Padanan yang ditukar oleh pengguna
+ditanda *Dipilih manual* supaya jelas mana satu datang daripada AI.
+
+### Konfigurasi
+
+| Kunci `.env` | Lalai | Kegunaan |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | — | Kunci API; wajib untuk mengimbas |
+| `ANTHROPIC_MODEL` | `claude-opus-5` | Model yang digunakan |
+| `ANTHROPIC_EFFORT` | `medium` | Tahap usaha — naikkan ke `high` untuk invois yang sukar dibaca |
+| `ANTHROPIC_TIMEOUT` | `180` | Had masa panggilan (saat); juga menaikkan had masa PHP |
+| `ANTHROPIC_SAIZ_MAKS_KB` | `10240` | Saiz maksimum fail yang dimuat naik |
+
+[`InvoiceExtractor`](app/Services/Invoice/InvoiceExtractor.php) ialah antara muka, jadi
+pembekal AI boleh ditukar tanpa menyentuh controller — dan ujian menggantikannya dengan
+pelaksanaan palsu supaya suite ujian tidak pernah memanggil API sebenar.
 
 ## Dwibahasa (BM / EN)
 

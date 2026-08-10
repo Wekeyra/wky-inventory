@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InvoiceScanController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportController;
@@ -39,6 +40,17 @@ Route::middleware('auth')->group(function () {
         Route::put('{stockCount}', 'update')->name('update');
         Route::post('{stockCount}/sahkan', 'confirm')->name('confirm');
         Route::delete('{stockCount}', 'destroy')->name('destroy');
+    });
+
+    Route::controller(InvoiceScanController::class)->prefix('imbas-invois')->name('invoice-scans.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('{invoiceScan}', 'show')->name('show');
+        Route::get('{invoiceScan}/fail', 'file')->name('file');
+        Route::put('{invoiceScan}', 'update')->name('update');
+        Route::post('{invoiceScan}/sahkan', 'confirm')->name('confirm');
+        Route::delete('{invoiceScan}', 'destroy')->name('destroy');
     });
 
     Route::get('stock', [StockMovementController::class, 'index'])->name('stock.index');

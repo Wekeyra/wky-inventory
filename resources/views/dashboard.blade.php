@@ -25,7 +25,11 @@
 
     <div class="grid gap-4 xl:grid-cols-12">
         <div class="space-y-4 xl:col-span-7">
-            <div class="tanpa-cetak grid gap-4 sm:grid-cols-2">
+            <div class="tanpa-cetak grid gap-4 sm:grid-cols-3">
+                <a href="{{ route('invoice-scans.create') }}" class="btn-wky py-3">
+                    <x-ikon nama="imbas" />
+                    {{ __('wky.imbas.butang') }}
+                </a>
                 <button type="button" class="btn-wky py-3" data-modal-buka="modal-stok-pantas">
                     <x-ikon nama="tambah-bulat" />
                     {{ __('wky.dashboard.tambah_stok_pantas') }}
