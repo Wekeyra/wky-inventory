@@ -35,4 +35,14 @@ class StockMovement extends Model
     {
         return __('wky.stok.' . ($this->jenis === 'pelarasan' ? 'pelarasan' : $this->jenis));
     }
+
+    /** Nama kelas penuh supaya Tailwind dapat mengesannya semasa membina CSS. */
+    public function kelasJenis(): string
+    {
+        return match ($this->jenis) {
+            'masuk' => 'lencana-hijau',
+            'keluar' => 'lencana-merah',
+            default => 'lencana-kuning',
+        };
+    }
 }

@@ -11,6 +11,8 @@ export default defineConfig({
             fonts: [
                 bunny('Instrument Sans', {
                     weights: [400, 500, 600],
+                    // Memerlukan pakej "fontaine" yang tidak dipasang; dimatikan supaya binaan bersih.
+                    optimizedFallbacks: false,
                 }),
             ],
         }),

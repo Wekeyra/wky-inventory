@@ -56,12 +56,13 @@ class StockCount extends Model
         return __('wky.kiraan.status_' . $this->status);
     }
 
-    public function warnaStatus(): string
+    /** Nama kelas penuh supaya Tailwind dapat mengesannya semasa membina CSS. */
+    public function kelasStatus(): string
     {
         return match ($this->status) {
-            'draf' => 'warning',
-            'selesai' => 'success',
-            default => 'secondary',
+            'draf' => 'lencana-kuning',
+            'selesai' => 'lencana-hijau',
+            default => 'lencana-kelabu',
         };
     }
 }

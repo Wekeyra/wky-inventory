@@ -38,6 +38,7 @@ atau dibatalkan tidak boleh diubah lagi.
 - PHP 8.3+
 - MySQL 8
 - Composer
+- Node.js 20+ dan npm (untuk membina aset antara muka)
 
 ## Pemasangan
 
@@ -45,8 +46,10 @@ atau dibatalkan tidak boleh diubah lagi.
 git clone https://github.com/Wekeyra/wky-inventory.git
 cd wky-inventory
 composer install
+npm install
 cp .env.example .env
 php artisan key:generate
+npm run build
 ```
 
 Cipta database, kemudian jalankan migration dan seeder:
@@ -59,6 +62,9 @@ CREATE DATABASE wky_inventory CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 php artisan migrate --seed
 php artisan serve
 ```
+
+Semasa membangunkan antara muka, jalankan `npm run dev` dalam terminal berasingan supaya
+perubahan CSS dan Blade dimuat semula secara automatik.
 
 ## Akaun contoh (daripada seeder)
 
@@ -102,11 +108,31 @@ Kunci yang tiada dalam satu bahasa akan jatuh semula kepada `APP_FALLBACK_LOCALE
 jadi tiada teks yang hilang. Ujian `test_kedua_dua_fail_bahasa_mempunyai_kunci_yang_sama`
 memastikan kedua-dua fail `wky.php` sentiasa selari.
 
+## Antara muka
+
+Dibina dengan **Tailwind CSS v4** melalui Vite. Tiada CDN — CSS, JavaScript, dan fon semuanya
+dibungkus ke dalam `public/build`, jadi sistem berfungsi sepenuhnya tanpa sambungan internet.
+
+| Fail | Peranan |
+|---|---|
+| `resources/css/app.css` | Token warna `@theme` dan kelas komponen (`.kad`, `.btn-utama`, `.jadual`, `.lencana-*`) |
+| `resources/js/app.js` | Menu jatuh, modal, tutup amaran, dan Chart.js — pengganti Bootstrap JS |
+| `resources/views/components/ikon.blade.php` | Ikon SVG terbaris (`<x-ikon nama="kotak" />`) |
+
+Palet keseluruhan sistem dikawal oleh token `--color-*` di bahagian atas `app.css`. Tukar nilai
+di situ dan jalankan `npm run build` untuk menukar rupa seluruh aplikasi.
+
+Dua perkara yang perlu diberi perhatian apabila menyunting:
+
+- `@apply` dalam Tailwind v4 hanya menerima **utiliti**, bukan kelas komponen tersuai. Kelas
+  seperti `.btn-utama` ditulis penuh dan tidak saling `@apply` antara satu sama lain.
+- Nama kelas mesti muncul sebagai teks penuh supaya Tailwind dapat mengesannya. Sebab itu
+  `StockCount::kelasStatus()` dan `StockMovement::kelasJenis()` memulangkan nama kelas lengkap
+  (`lencana-kuning`) dan bukan potongan yang dicantum (`lencana-` . `$warna`).
+
 ## Nota teknikal
 
-- Antara muka menggunakan Bootstrap 5 dan Chart.js melalui CDN — tiada langkah `npm run build` diperlukan.
-- Tema gelap dengan aksen merah ditakrifkan dalam [`public/css/tema.css`](public/css/tema.css). Ia menulis
-  ganti pemboleh ubah CSS Bootstrap 5.3 (`--bs-*`), jadi komponen standard mewarisi tema tanpa kelas tambahan.
-  Tukar nilai `--wky-*` di bahagian atas fail itu untuk menukar palet keseluruhan sistem.
 - Kemas kini stok dibungkus dalam transaksi dengan `lockForUpdate()` untuk mengelak dua
   pengguna mengubah baki produk yang sama secara serentak.
+- `public/build` tidak disimpan dalam Git. Selepas `git clone` atau `git pull` yang menyentuh
+  antara muka, jalankan `npm run build` semula.

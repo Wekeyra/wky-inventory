@@ -2,57 +2,59 @@
 @section('tajuk', __('wky.stok.rekod_tajuk'))
 
 @section('kandungan')
-    <div class="card kad-stat" style="max-width: 40rem;">
-        <form method="POST" action="{{ route('stock.store') }}">
-            @csrf
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label" for="product_id">{{ __('wky.medan.produk') }} <span class="text-danger">*</span></label>
-                    <select class="form-select @error('product_id') is-invalid @enderror" id="product_id" name="product_id" required>
-                        <option value="">{{ __('wky.umum.pilih_produk') }}</option>
-                        @foreach ($products as $produk)
-                            <option value="{{ $produk->id }}" @selected(old('product_id', $terpilih) == $produk->id)>
-                                {{ $produk->nama }} ({{ $produk->sku }}) — {{ __('wky.stok.baki') }} {{ $produk->stok }} {{ $produk->unit }}
-                            </option>
-                        @endforeach
+    <form method="POST" action="{{ route('stock.store') }}" class="kad max-w-2xl">
+        @csrf
+
+        <div class="kad-badan space-y-4">
+            <div>
+                <label for="product_id" class="mb-1 block font-medium">{{ __('wky.medan.produk') }} <span class="text-merah">*</span></label>
+                <select id="product_id" name="product_id" required @error('product_id') class="medan-ralat" @enderror>
+                    <option value="">{{ __('wky.umum.pilih_produk') }}</option>
+                    @foreach ($products as $produk)
+                        <option value="{{ $produk->id }}" @selected(old('product_id', $terpilih) == $produk->id)>
+                            {{ $produk->nama }} ({{ $produk->sku }}) — {{ __('wky.stok.baki') }} {{ $produk->stok }} {{ $produk->unit }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('product_id') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label for="jenis" class="mb-1 block font-medium">{{ __('wky.medan.jenis') }} <span class="text-merah">*</span></label>
+                    <select id="jenis" name="jenis" required @error('jenis') class="medan-ralat" @enderror>
+                        <option value="masuk" @selected(old('jenis') === 'masuk')>{{ __('wky.stok.masuk_tambah') }}</option>
+                        <option value="keluar" @selected(old('jenis') === 'keluar')>{{ __('wky.stok.keluar_tolak') }}</option>
+                        <option value="pelarasan" @selected(old('jenis') === 'pelarasan')>{{ __('wky.stok.pelarasan_set') }}</option>
                     </select>
-                    @error('product_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    @error('jenis') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
                 </div>
 
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label" for="jenis">{{ __('wky.medan.jenis') }} <span class="text-danger">*</span></label>
-                        <select class="form-select @error('jenis') is-invalid @enderror" id="jenis" name="jenis" required>
-                            <option value="masuk" @selected(old('jenis') === 'masuk')>{{ __('wky.stok.masuk_tambah') }}</option>
-                            <option value="keluar" @selected(old('jenis') === 'keluar')>{{ __('wky.stok.keluar_tolak') }}</option>
-                            <option value="pelarasan" @selected(old('jenis') === 'pelarasan')>{{ __('wky.stok.pelarasan_set') }}</option>
-                        </select>
-                        @error('jenis') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label" for="kuantiti">{{ __('wky.medan.kuantiti') }} <span class="text-danger">*</span></label>
-                        <input class="form-control @error('kuantiti') is-invalid @enderror" type="number" min="1" id="kuantiti" name="kuantiti" value="{{ old('kuantiti') }}" required>
-                        @error('kuantiti') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label" for="rujukan">{{ __('wky.medan.rujukan') }}</label>
-                    <input class="form-control" id="rujukan" name="rujukan" value="{{ old('rujukan') }}" placeholder="{{ __('wky.stok.rujukan_placeholder') }}">
-                </div>
-                <div class="mb-0">
-                    <label class="form-label" for="catatan">{{ __('wky.medan.catatan') }}</label>
-                    <textarea class="form-control" id="catatan" name="catatan" rows="2">{{ old('catatan') }}</textarea>
-                </div>
-
-                <div class="alert alert-info small mt-3 mb-0">
-                    {!! __('wky.stok.nota_pelarasan', ['pelarasan' => '<strong>' . e(__('wky.stok.pelarasan')) . '</strong>']) !!}
+                <div>
+                    <label for="kuantiti" class="mb-1 block font-medium">{{ __('wky.medan.kuantiti') }} <span class="text-merah">*</span></label>
+                    <input type="number" min="1" id="kuantiti" name="kuantiti" value="{{ old('kuantiti') }}" required @error('kuantiti') class="medan-ralat" @enderror>
+                    @error('kuantiti') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
                 </div>
             </div>
-            <div class="card-footer d-flex gap-2">
-                <button class="btn btn-primary" type="submit">{{ __('wky.aksi.rekod') }}</button>
-                <a class="btn btn-outline-secondary" href="{{ route('stock.index') }}">{{ __('wky.aksi.batal') }}</a>
+
+            <div>
+                <label for="rujukan" class="mb-1 block font-medium">{{ __('wky.medan.rujukan') }}</label>
+                <input id="rujukan" name="rujukan" value="{{ old('rujukan') }}" placeholder="{{ __('wky.stok.rujukan_placeholder') }}">
             </div>
-        </form>
-    </div>
+
+            <div>
+                <label for="catatan" class="mb-1 block font-medium">{{ __('wky.medan.catatan') }}</label>
+                <textarea id="catatan" name="catatan" rows="2">{{ old('catatan') }}</textarea>
+            </div>
+
+            <div class="amaran-info">
+                <span>{!! __('wky.stok.nota_pelarasan', ['pelarasan' => '<strong>' . e(__('wky.stok.pelarasan')) . '</strong>']) !!}</span>
+            </div>
+        </div>
+
+        <div class="kad-kaki">
+            <button type="submit" class="btn-utama">{{ __('wky.aksi.rekod') }}</button>
+            <a href="{{ route('stock.index') }}" class="btn-garis">{{ __('wky.aksi.batal') }}</a>
+        </div>
+    </form>
 @endsection

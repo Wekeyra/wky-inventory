@@ -2,42 +2,53 @@
 @section('tajuk', __('wky.pengguna.tajuk'))
 
 @section('kandungan')
-    <div class="card kad-stat">
-        <div class="card-header d-flex justify-content-end">
-            <a class="btn btn-primary" href="{{ route('users.create') }}"><i class="bi bi-plus-lg"></i> {{ __('wky.pengguna.tambah') }}</a>
+    <div class="kad">
+        <div class="kad-kepala justify-end">
+            <a href="{{ route('users.create') }}" class="btn-utama"><x-ikon nama="tambah" kelas="size-4" /> {{ __('wky.pengguna.tambah') }}</a>
         </div>
 
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+        <div class="overflow-x-auto">
+            <table class="jadual">
                 <thead>
                     <tr>
                         <th>{{ __('wky.medan.nama') }}</th>
                         <th>{{ __('wky.medan.emel') }}</th>
                         <th>{{ __('wky.medan.peranan') }}</th>
                         <th>{{ __('wky.pengguna.didaftar') }}</th>
-                        <th class="text-end">{{ __('wky.medan.tindakan') }}</th>
+                        <th class="text-right">{{ __('wky.medan.tindakan') }}</th>
                     </tr>
                 </thead>
                 <tbody>
                 @foreach ($users as $pengguna)
                     <tr>
-                        <td class="fw-medium">
+                        <td class="font-medium">
                             {{ $pengguna->name }}
                             @if ($pengguna->is(auth()->user()))
-                                <span class="badge bg-info ms-1">{{ __('wky.umum.anda') }}</span>
+                                <span class="lencana-biru ml-1">{{ __('wky.umum.anda') }}</span>
                             @endif
                         </td>
-                        <td>{{ $pengguna->email }}</td>
-                        <td><span class="badge bg-{{ $pengguna->isAdmin() ? 'primary' : 'secondary' }}">{{ __('wky.pengguna.' . $pengguna->peranan) }}</span></td>
-                        <td class="small text-secondary">{{ $pengguna->created_at->format('d/m/Y') }}</td>
-                        <td class="text-end text-nowrap">
-                            <a class="btn btn-sm btn-outline-primary" href="{{ route('users.edit', $pengguna) }}" title="{{ __('wky.aksi.kemas_kini') }}"><i class="bi bi-pencil"></i></a>
-                            @unless ($pengguna->is(auth()->user()))
-                                <form class="d-inline" method="POST" action="{{ route('users.destroy', $pengguna) }}" onsubmit="return confirm('{{ __('wky.pengguna.sahkan_padam', ['nama' => $pengguna->name]) }}')">
-                                    @csrf @method('DELETE')
-                                    <button class="btn btn-sm btn-outline-danger" type="submit" title="{{ __('wky.aksi.padam') }}"><i class="bi bi-trash"></i></button>
-                                </form>
-                            @endunless
+                        <td class="break-all">{{ $pengguna->email }}</td>
+                        <td>
+                            <span class="{{ $pengguna->isAdmin() ? 'lencana-merah' : 'lencana-kelabu' }}">
+                                {{ __('wky.pengguna.' . $pengguna->peranan) }}
+                            </span>
+                        </td>
+                        <td class="whitespace-nowrap text-malap">{{ $pengguna->created_at->format('d/m/Y') }}</td>
+                        <td>
+                            <div class="flex justify-end gap-1">
+                                <a href="{{ route('users.edit', $pengguna) }}" class="btn-garis btn-ikon" title="{{ __('wky.aksi.kemas_kini') }}">
+                                    <x-ikon nama="pensel" kelas="size-4" />
+                                </a>
+                                @unless ($pengguna->is(auth()->user()))
+                                    <form method="POST" action="{{ route('users.destroy', $pengguna) }}"
+                                          onsubmit="return confirm('{{ __('wky.pengguna.sahkan_padam', ['nama' => $pengguna->name]) }}')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="btn-bahaya btn-ikon" title="{{ __('wky.aksi.padam') }}">
+                                            <x-ikon nama="tong-sampah" kelas="size-4" />
+                                        </button>
+                                    </form>
+                                @endunless
+                            </div>
                         </td>
                     </tr>
                 @endforeach
@@ -46,7 +57,7 @@
         </div>
 
         @if ($users->hasPages())
-            <div class="card-footer">{{ $users->links() }}</div>
+            <div class="kad-kaki penomboran block">{{ $users->links() }}</div>
         @endif
     </div>
 @endsection

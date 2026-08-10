@@ -2,47 +2,54 @@
 @section('tajuk', __('wky.kiraan.tajuk'))
 
 @section('kandungan')
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <span class="fw-semibold"><i class="bi bi-clipboard-check me-1"></i>{{ __('wky.kiraan.tajuk_sesi') }}</span>
-            <a class="btn btn-primary btn-sm" href="{{ route('stock-counts.create') }}"><i class="bi bi-plus-lg"></i> {{ __('wky.kiraan.buka_sesi_baru') }}</a>
+    <div class="kad">
+        <div class="kad-kepala">
+            <span class="flex items-center gap-2 font-semibold">
+                <x-ikon nama="papan-klip" kelas="size-5 text-merah" />
+                {{ __('wky.kiraan.tajuk_sesi') }}
+            </span>
+            <a href="{{ route('stock-counts.create') }}" class="btn-utama btn-kecil">
+                <x-ikon nama="tambah" kelas="size-4" /> {{ __('wky.kiraan.buka_sesi_baru') }}
+            </a>
         </div>
 
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+        <div class="overflow-x-auto">
+            <table class="jadual">
                 <thead>
                     <tr>
                         <th>{{ __('wky.medan.kod') }}</th>
                         <th>{{ __('wky.medan.status') }}</th>
                         <th>{{ __('wky.kiraan.skop') }}</th>
-                        <th class="text-end">{{ __('wky.medan.produk') }}</th>
+                        <th class="text-right">{{ __('wky.medan.produk') }}</th>
                         <th>{{ __('wky.dashboard.dibuka_oleh') }}</th>
                         <th>{{ __('wky.kiraan.tarikh_buka') }}</th>
                         <th>{{ __('wky.kiraan.disahkan') }}</th>
-                        <th class="text-end">{{ __('wky.medan.tindakan') }}</th>
+                        <th class="text-right">{{ __('wky.medan.tindakan') }}</th>
                     </tr>
                 </thead>
                 <tbody>
                 @forelse ($sesi as $item)
                     <tr>
                         <td><code>{{ $item->kod }}</code></td>
-                        <td><span class="badge bg-{{ $item->warnaStatus() }}">{{ $item->labelStatus() }}</span></td>
+                        <td><span class="{{ $item->kelasStatus() }}">{{ $item->labelStatus() }}</span></td>
                         <td>{{ $item->category?->nama ?? __('wky.umum.semua_kategori') }}</td>
-                        <td class="text-end">{{ $item->items_count }}</td>
+                        <td class="text-right">{{ $item->items_count }}</td>
                         <td>{{ $item->pembuka?->name ?? __('wky.umum.kosong') }}</td>
-                        <td class="small text-secondary text-nowrap">{{ $item->created_at->format('d/m/Y H:i') }}</td>
-                        <td class="small text-secondary text-nowrap">{{ $item->disahkan_pada?->format('d/m/Y H:i') ?? __('wky.umum.kosong') }}</td>
-                        <td class="text-end text-nowrap">
-                            <a class="btn btn-sm btn-outline-primary" href="{{ route('stock-counts.show', $item) }}">
-                                <i class="bi bi-{{ $item->isDraf() ? 'pencil-square' : 'eye' }}"></i>
-                                {{ $item->isDraf() ? __('wky.aksi.teruskan') : __('wky.aksi.lihat') }}
-                            </a>
+                        <td class="whitespace-nowrap text-malap">{{ $item->created_at->format('d/m/Y H:i') }}</td>
+                        <td class="whitespace-nowrap text-malap">{{ $item->disahkan_pada?->format('d/m/Y H:i') ?? __('wky.umum.kosong') }}</td>
+                        <td>
+                            <div class="flex justify-end">
+                                <a href="{{ route('stock-counts.show', $item) }}" class="btn-garis btn-kecil">
+                                    <x-ikon :nama="$item->isDraf() ? 'pensel' : 'mata'" kelas="size-4" />
+                                    {{ $item->isDraf() ? __('wky.aksi.teruskan') : __('wky.aksi.lihat') }}
+                                </a>
+                            </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="text-center text-secondary py-4">
-                            {!! __('wky.kiraan.tiada_sesi', ['butang' => '<strong>' . e(__('wky.kiraan.buka_sesi_baru')) . '</strong>']) !!}
+                        <td colspan="8" class="py-10 text-center text-malap">
+                            {!! __('wky.kiraan.tiada_sesi', ['butang' => '<strong class="text-teks">' . e(__('wky.kiraan.buka_sesi_baru')) . '</strong>']) !!}
                         </td>
                     </tr>
                 @endforelse
@@ -51,7 +58,7 @@
         </div>
 
         @if ($sesi->hasPages())
-            <div class="card-footer">{{ $sesi->links() }}</div>
+            <div class="kad-kaki penomboran block">{{ $sesi->links() }}</div>
         @endif
     </div>
 @endsection

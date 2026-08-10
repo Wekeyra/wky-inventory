@@ -1,68 +1,85 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-bs-theme="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('tajuk', __('wky.nav.dashboard')) &middot; {{ config('app.name') }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="{{ asset('css/tema.css') }}" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('kepala')
 </head>
-<body>
-<div class="container-fluid">
-    <div class="row">
-        <nav class="col-md-3 col-lg-2 d-md-block sidebar p-3">
-            <a href="{{ route('dashboard') }}" class="jenama d-flex align-items-center mb-4">
-                <i class="bi bi-box-seam fs-4 me-2"></i>
-                <span class="fs-5 fw-semibold">{{ config('app.name') }}</span>
-            </a>
-            <ul class="nav nav-pills flex-column gap-1">
-                <li><a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>{{ __('wky.nav.dashboard') }}</a></li>
-                <li><a class="nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}" href="{{ route('products.index') }}"><i class="bi bi-box me-2"></i>{{ __('wky.nav.produk') }}</a></li>
-                <li><a class="nav-link {{ request()->routeIs('categories.*') ? 'active' : '' }}" href="{{ route('categories.index') }}"><i class="bi bi-tags me-2"></i>{{ __('wky.nav.kategori') }}</a></li>
-                <li><a class="nav-link {{ request()->routeIs('suppliers.*') ? 'active' : '' }}" href="{{ route('suppliers.index') }}"><i class="bi bi-truck me-2"></i>{{ __('wky.nav.pembekal') }}</a></li>
-                <li><a class="nav-link {{ request()->routeIs('stock-counts.*') ? 'active' : '' }}" href="{{ route('stock-counts.index') }}"><i class="bi bi-clipboard-check me-2"></i>{{ __('wky.nav.kiraan_stok') }}</a></li>
-                <li><a class="nav-link {{ request()->routeIs('stock.*') ? 'active' : '' }}" href="{{ route('stock.index') }}"><i class="bi bi-arrow-left-right me-2"></i>{{ __('wky.nav.pergerakan_stok') }}</a></li>
-                <li><a class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}" href="{{ route('reports.monthly') }}"><i class="bi bi-file-earmark-bar-graph me-2"></i>{{ __('wky.nav.laporan_bulanan') }}</a></li>
-                @if (auth()->user()->isAdmin())
-                    <li><a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}"><i class="bi bi-people me-2"></i>{{ __('wky.nav.pengguna') }}</a></li>
-                @endif
-            </ul>
+<body class="min-h-screen">
+@php
+    $menu = [
+        ['dashboard', 'dashboard', 'dashboard', 'nav.dashboard'],
+        ['products.index', 'products.*', 'kotak', 'nav.produk'],
+        ['categories.index', 'categories.*', 'tag', 'nav.kategori'],
+        ['suppliers.index', 'suppliers.*', 'trak', 'nav.pembekal'],
+        ['stock-counts.index', 'stock-counts.*', 'papan-klip', 'nav.kiraan_stok'],
+        ['stock.index', 'stock.*', 'anak-panah-dua-arah', 'nav.pergerakan_stok'],
+        ['reports.monthly', 'reports.*', 'dokumen-carta', 'nav.laporan_bulanan'],
+    ];
+
+    if (auth()->user()->isAdmin()) {
+        $menu[] = ['users.index', 'users.*', 'pengguna-ramai', 'nav.pengguna'];
+    }
+@endphp
+
+<div class="flex min-h-screen">
+    <aside class="bar-sisi hidden w-64 shrink-0 border-r border-bingkai bg-[#121215] p-4 md:block">
+        <a href="{{ route('dashboard') }}" class="mb-6 flex items-center gap-2 text-white">
+            <x-ikon nama="kotak-jenama" kelas="size-7 text-merah" />
+            <span class="text-lg font-semibold">{{ config('app.name') }}</span>
+        </a>
+
+        <nav class="flex flex-col gap-1">
+            @foreach ($menu as [$laluan, $corak, $ikon, $label])
+                <a href="{{ route($laluan) }}"
+                   class="nav-pautan {{ request()->routeIs($corak) ? 'nav-pautan-aktif' : '' }}"
+                   @if (request()->routeIs($corak)) aria-current="page" @endif>
+                    <x-ikon :nama="$ikon" />
+                    {{ __('wky.' . $label) }}
+                </a>
+            @endforeach
         </nav>
+    </aside>
 
-        <main class="col-md-9 col-lg-10 px-md-4 py-4">
-            <div class="tajuk-halaman d-flex flex-wrap gap-2 justify-content-between align-items-center pb-3 mb-4">
-                <h1 class="h3 mb-0 text-white">@yield('tajuk', __('wky.nav.dashboard'))</h1>
-                <div class="d-flex align-items-center gap-2">
-                    @include('partials.bahasa')
+    <main class="min-w-0 flex-1 px-4 py-6 md:px-8">
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-bingkai pb-4">
+            <h1 class="text-2xl font-semibold text-white">@yield('tajuk', __('wky.nav.dashboard'))</h1>
 
-                    <div class="dropdown tanpa-cetak">
-                        <button class="btn btn-wky dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle me-1"></i>{{ auth()->user()->name }}
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><span class="dropdown-item-text small text-secondary">{{ __('wky.pengguna.' . auth()->user()->peranan) }}</span></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button class="dropdown-item text-danger" type="submit"><i class="bi bi-box-arrow-right me-1"></i>{{ __('wky.nav.log_keluar') }}</button>
-                                </form>
-                            </li>
-                        </ul>
+            <div class="flex items-center gap-2">
+                @include('partials.bahasa')
+
+                <div class="relative tanpa-cetak">
+                    <button type="button" class="btn-wky" data-jatuh="menu-pengguna" aria-expanded="false" aria-haspopup="true">
+                        <x-ikon nama="pengguna-bulat" />
+                        <span class="hidden sm:inline">{{ auth()->user()->name }}</span>
+                        <x-ikon nama="anak-panah-bawah" kelas="size-4" />
+                    </button>
+
+                    <div id="menu-pengguna" class="absolute right-0 z-20 mt-1 hidden w-52 overflow-hidden rounded-lg border border-bingkai bg-tinggi shadow-xl">
+                        <p class="border-b border-bingkai px-4 py-2 text-xs text-malap">
+                            {{ __('wky.pengguna.' . auth()->user()->peranan) }}
+                        </p>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="flex w-full cursor-pointer items-center gap-2 px-4 py-2.5 text-left text-sm text-merah-terang hover:bg-permukaan">
+                                <x-ikon nama="log-keluar" />
+                                {{ __('wky.nav.log_keluar') }}
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
+        </div>
 
-            @include('partials.flash')
+        @include('partials.flash')
 
-            @yield('kandungan')
-        </main>
-    </div>
+        @yield('kandungan')
+    </main>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 @stack('skrip')
 </body>
 </html>

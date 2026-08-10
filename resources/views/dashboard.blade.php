@@ -2,93 +2,98 @@
 @section('tajuk', __('wky.nav.dashboard'))
 
 @section('kandungan')
-    <div class="row g-3 mb-3">
-        @php
-            $stat = [
-                [__('wky.dashboard.jumlah_produk'), number_format($jumlahProduk), 'bi-box'],
-                [__('wky.dashboard.kategori'), number_format($jumlahKategori), 'bi-tags'],
-                [__('wky.dashboard.pembekal'), number_format($jumlahPembekal), 'bi-truck'],
-                [__('wky.dashboard.nilai_stok'), number_format($nilaiStok, 2), 'bi-cash-stack'],
-            ];
-        @endphp
+    @php
+        $stat = [
+            [__('wky.dashboard.jumlah_produk'), number_format($jumlahProduk), 'kotak'],
+            [__('wky.dashboard.kategori'), number_format($jumlahKategori), 'tag'],
+            [__('wky.dashboard.pembekal'), number_format($jumlahPembekal), 'trak'],
+            [__('wky.dashboard.nilai_stok'), number_format($nilaiStok, 2), 'wang'],
+        ];
+    @endphp
+
+    <div class="mb-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         @foreach ($stat as [$label, $nilai, $ikon])
-            <div class="col-sm-6 col-xl-3">
-                <div class="card kad-stat h-100">
-                    <div class="card-body d-flex align-items-center gap-3">
-                        <div class="ikon-bulat"><i class="bi {{ $ikon }} fs-5"></i></div>
-                        <div>
-                            <div class="label-stat">{{ $label }}</div>
-                            <div class="nilai-stat">{{ $nilai }}</div>
-                        </div>
-                    </div>
+            <div class="kad kad-badan flex items-center gap-4">
+                <div class="ikon-bulat"><x-ikon :nama="$ikon" kelas="size-6" /></div>
+                <div class="min-w-0">
+                    <p class="label-stat">{{ $label }}</p>
+                    <p class="nilai-stat truncate">{{ $nilai }}</p>
                 </div>
             </div>
         @endforeach
     </div>
 
-    <div class="row g-3">
-        <div class="col-xl-7">
-            <div class="row g-3 mb-3 tanpa-cetak">
-                <div class="col-sm-6">
-                    <button class="btn btn-wky w-100 py-2" data-bs-toggle="modal" data-bs-target="#modalStokPantas">
-                        <i class="bi bi-plus-circle me-1"></i>{{ __('wky.dashboard.tambah_stok_pantas') }}
-                    </button>
-                </div>
-                <div class="col-sm-6">
-                    <a class="btn btn-wky w-100 py-2" href="{{ route('reports.monthly') }}">
-                        <i class="bi bi-file-earmark-bar-graph me-1"></i>{{ __('wky.dashboard.laporan_bulanan') }}
-                    </a>
-                </div>
+    <div class="grid gap-4 xl:grid-cols-12">
+        <div class="space-y-4 xl:col-span-7">
+            <div class="tanpa-cetak grid gap-4 sm:grid-cols-2">
+                <button type="button" class="btn-wky py-3" data-modal-buka="modal-stok-pantas">
+                    <x-ikon nama="tambah-bulat" />
+                    {{ __('wky.dashboard.tambah_stok_pantas') }}
+                </button>
+                <a href="{{ route('reports.monthly') }}" class="btn-wky py-3">
+                    <x-ikon nama="dokumen-carta" />
+                    {{ __('wky.dashboard.laporan_bulanan') }}
+                </a>
             </div>
 
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span class="fw-semibold"><i class="bi bi-exclamation-triangle text-danger me-1"></i>{{ __('wky.dashboard.amaran_stok_rendah') }}</span>
-                    <a class="btn btn-sm btn-outline-secondary" href="{{ route('products.index', ['stok_rendah' => 1]) }}">{{ __('wky.aksi.lihat_semua') }}</a>
+            <div class="kad">
+                <div class="kad-kepala">
+                    <span class="flex items-center gap-2 font-semibold">
+                        <x-ikon nama="amaran" kelas="size-5 text-merah" />
+                        {{ __('wky.dashboard.amaran_stok_rendah') }}
+                    </span>
+                    <a href="{{ route('products.index', ['stok_rendah' => 1]) }}" class="btn-garis btn-kecil">{{ __('wky.aksi.lihat_semua') }}</a>
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+
+                <div class="overflow-x-auto">
+                    <table class="jadual">
                         <thead>
-                            <tr><th>{{ __('wky.medan.produk') }}</th><th class="text-end">{{ __('wky.medan.stok') }}</th><th class="text-end">{{ __('wky.dashboard.minimum') }}</th></tr>
+                            <tr>
+                                <th>{{ __('wky.medan.produk') }}</th>
+                                <th class="text-right">{{ __('wky.medan.stok') }}</th>
+                                <th class="text-right">{{ __('wky.dashboard.minimum') }}</th>
+                            </tr>
                         </thead>
                         <tbody>
                         @forelse ($stokRendah as $produk)
                             <tr>
                                 <td>
-                                    <a href="{{ route('products.show', $produk) }}" class="text-decoration-none">{{ $produk->nama }}</a>
-                                    <div class="small text-secondary">{{ $produk->sku }}</div>
+                                    <a href="{{ route('products.show', $produk) }}" class="font-medium text-teks hover:text-merah-terang">{{ $produk->nama }}</a>
+                                    <p class="text-xs text-malap">{{ $produk->sku }}</p>
                                 </td>
-                                <td class="text-end"><span class="badge bg-danger">{{ $produk->stok }}</span></td>
-                                <td class="text-end text-secondary">{{ $produk->stok_minimum }}</td>
+                                <td class="text-right"><span class="lencana-merah">{{ $produk->stok }}</span></td>
+                                <td class="text-right text-malap">{{ $produk->stok_minimum }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="3" class="text-center text-secondary py-4">{{ __('wky.dashboard.tiada_stok_kritikal') }}</td></tr>
+                            <tr><td colspan="3" class="py-8 text-center text-malap">{{ __('wky.dashboard.tiada_stok_kritikal') }}</td></tr>
                         @endforelse
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <div class="card mt-3">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span class="fw-semibold">
-                        <i class="bi bi-clipboard-check me-1" style="color: var(--wky-merah);"></i>{{ __('wky.kiraan.tajuk') }}
+            <div class="kad">
+                <div class="kad-kepala">
+                    <span class="flex items-center gap-2 font-semibold">
+                        <x-ikon nama="papan-klip" kelas="size-5 text-merah" />
+                        {{ __('wky.kiraan.tajuk') }}
                         @if ($kiraanDraf > 0)
-                            <span class="badge bg-warning text-dark ms-1">{{ __('wky.dashboard.sesi_terbuka', ['bil' => $kiraanDraf]) }}</span>
+                            <span class="lencana-kuning">{{ __('wky.dashboard.sesi_terbuka', ['bil' => $kiraanDraf]) }}</span>
                         @endif
                     </span>
-                    <div class="d-flex gap-2 tanpa-cetak">
-                        <a class="btn btn-sm btn-primary" href="{{ route('stock-counts.create') }}"><i class="bi bi-plus-lg"></i> {{ __('wky.dashboard.sesi_baru') }}</a>
-                        <a class="btn btn-sm btn-outline-secondary" href="{{ route('stock-counts.index') }}">{{ __('wky.aksi.lihat_semua') }}</a>
+                    <div class="tanpa-cetak flex gap-2">
+                        <a href="{{ route('stock-counts.create') }}" class="btn-utama btn-kecil"><x-ikon nama="tambah" kelas="size-4" /> {{ __('wky.dashboard.sesi_baru') }}</a>
+                        <a href="{{ route('stock-counts.index') }}" class="btn-garis btn-kecil">{{ __('wky.aksi.lihat_semua') }}</a>
                     </div>
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+
+                <div class="overflow-x-auto">
+                    <table class="jadual">
                         <thead>
                             <tr>
                                 <th>{{ __('wky.medan.kod') }}</th>
                                 <th>{{ __('wky.medan.status') }}</th>
-                                <th class="text-end">{{ __('wky.dashboard.progres') }}</th>
+                                <th class="text-right">{{ __('wky.dashboard.progres') }}</th>
                                 <th>{{ __('wky.dashboard.dibuka_oleh') }}</th>
                                 <th>{{ __('wky.medan.tarikh') }}</th>
                             </tr>
@@ -96,14 +101,14 @@
                         <tbody>
                         @forelse ($sesiKiraan as $sesi)
                             <tr>
-                                <td><a class="text-decoration-none" href="{{ route('stock-counts.show', $sesi) }}"><code>{{ $sesi->kod }}</code></a></td>
-                                <td><span class="badge bg-{{ $sesi->warnaStatus() }}">{{ $sesi->labelStatus() }}</span></td>
-                                <td class="text-end">{{ $sesi->items_dikira_count }} / {{ $sesi->items_count }}</td>
-                                <td class="small">{{ $sesi->pembuka?->name ?? __('wky.umum.kosong') }}</td>
-                                <td class="small text-secondary text-nowrap">{{ $sesi->created_at->format('d/m/Y') }}</td>
+                                <td><a href="{{ route('stock-counts.show', $sesi) }}"><code>{{ $sesi->kod }}</code></a></td>
+                                <td><span class="{{ $sesi->kelasStatus() }}">{{ $sesi->labelStatus() }}</span></td>
+                                <td class="text-right">{{ $sesi->items_dikira_count }} / {{ $sesi->items_count }}</td>
+                                <td class="text-sm">{{ $sesi->pembuka?->name ?? __('wky.umum.kosong') }}</td>
+                                <td class="text-sm whitespace-nowrap text-malap">{{ $sesi->created_at->format('d/m/Y') }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="5" class="text-center text-secondary py-4">{{ __('wky.dashboard.tiada_sesi_kiraan') }}</td></tr>
+                            <tr><td colspan="5" class="py-8 text-center text-malap">{{ __('wky.dashboard.tiada_sesi_kiraan') }}</td></tr>
                         @endforelse
                         </tbody>
                     </table>
@@ -111,29 +116,36 @@
             </div>
         </div>
 
-        <div class="col-xl-5">
-            <div class="card mb-3">
-                <div class="card-header">
-                    <div class="fw-semibold"><i class="bi bi-graph-up me-1"></i>{{ __('wky.dashboard.ringkasan_bulanan') }}</div>
-                    <div class="small text-secondary">{{ __('wky.dashboard.ringkasan_subtajuk') }}</div>
+        <div class="space-y-4 xl:col-span-5">
+            <div class="kad">
+                <div class="kad-kepala !block">
+                    <p class="flex items-center gap-2 font-semibold">
+                        <x-ikon nama="carta-naik" kelas="size-5 text-merah" />
+                        {{ __('wky.dashboard.ringkasan_bulanan') }}
+                    </p>
+                    <p class="text-xs text-malap">{{ __('wky.dashboard.ringkasan_subtajuk') }}</p>
                 </div>
-                <div class="card-body">
-                    <canvas id="cartaRingkasan" height="150"></canvas>
+                <div class="kad-badan">
+                    <canvas id="cartaRingkasan" height="170"></canvas>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span class="fw-semibold"><i class="bi bi-clock-history me-1"></i>{{ __('wky.dashboard.pergerakan_terkini') }}</span>
-                    <a class="btn btn-sm btn-outline-secondary" href="{{ route('stock.index') }}">{{ __('wky.aksi.lihat_semua') }}</a>
+            <div class="kad">
+                <div class="kad-kepala">
+                    <span class="flex items-center gap-2 font-semibold">
+                        <x-ikon nama="jam" kelas="size-5 text-merah" />
+                        {{ __('wky.dashboard.pergerakan_terkini') }}
+                    </span>
+                    <a href="{{ route('stock.index') }}" class="btn-garis btn-kecil">{{ __('wky.aksi.lihat_semua') }}</a>
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+
+                <div class="overflow-x-auto">
+                    <table class="jadual">
                         <thead>
                             <tr>
                                 <th>{{ __('wky.medan.produk') }}</th>
                                 <th>{{ __('wky.medan.jenis') }}</th>
-                                <th class="text-end">{{ __('wky.medan.kuantiti') }}</th>
+                                <th class="text-right">{{ __('wky.medan.kuantiti') }}</th>
                                 <th>{{ __('wky.medan.tarikh') }}</th>
                             </tr>
                         </thead>
@@ -141,16 +153,12 @@
                         @forelse ($pergerakanTerkini as $gerak)
                             <tr>
                                 <td>{{ $gerak->product?->nama ?? __('wky.umum.kosong') }}</td>
-                                <td>
-                                    <span class="badge bg-{{ ['masuk' => 'danger', 'keluar' => 'secondary'][$gerak->jenis] ?? 'warning' }}">
-                                        {{ $gerak->labelJenis() }}
-                                    </span>
-                                </td>
-                                <td class="text-end">{{ $gerak->kuantiti }}</td>
-                                <td class="small text-secondary text-nowrap">{{ $gerak->created_at->format('d/m/Y H:i') }}</td>
+                                <td><span class="{{ $gerak->kelasJenis() }}">{{ $gerak->labelJenis() }}</span></td>
+                                <td class="text-right">{{ $gerak->kuantiti }}</td>
+                                <td class="text-sm whitespace-nowrap text-malap">{{ $gerak->created_at->format('d/m/Y H:i') }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="4" class="text-center text-secondary py-4">{{ __('wky.dashboard.tiada_pergerakan') }}</td></tr>
+                            <tr><td colspan="4" class="py-8 text-center text-malap">{{ __('wky.dashboard.tiada_pergerakan') }}</td></tr>
                         @endforelse
                         </tbody>
                     </table>
@@ -163,14 +171,13 @@
 @endsection
 
 @push('skrip')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <script>
         (function () {
             const kanvas = document.getElementById('cartaRingkasan');
             const data = @json($ringkasanBulanan);
 
             const kecerunan = (ctx, warna) => {
-                const g = ctx.createLinearGradient(0, 0, 0, 180);
+                const g = ctx.createLinearGradient(0, 0, 0, 200);
                 g.addColorStop(0, warna.replace(')', ', 0.45)').replace('rgb', 'rgba'));
                 g.addColorStop(1, warna.replace(')', ', 0)').replace('rgb', 'rgba'));
                 return g;

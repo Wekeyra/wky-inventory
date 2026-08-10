@@ -3,7 +3,302 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
+/*
+| Palet WKY Inventory — gelap pekat dengan aksen merah.
+| Ditakrifkan sebagai token @theme supaya tersedia sebagai utiliti Tailwind
+| (bg-permukaan, text-merah, border-bingkai, dan seterusnya).
+*/
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-latar: #0d0d0f;
+    --color-permukaan: #17171a;
+    --color-tinggi: #1e1e22;
+    --color-bingkai: #2a2a30;
+    --color-bingkai-merah: #3a1519;
+
+    --color-merah: #dc2626;
+    --color-merah-terang: #ef4444;
+    --color-merah-gelap: #7f1d1d;
+    --color-merah-pekat: #991b1b;
+
+    --color-teks: #e5e7eb;
+    --color-malap: #9096a1;
+}
+
+@layer base {
+    body {
+        @apply bg-latar font-sans text-teks antialiased;
+    }
+
+    /* Menyeragamkan penampilan medan borang tanpa perlu mengulang kelas pada setiap input. */
+    input[type='text'],
+    input[type='search'],
+    input[type='email'],
+    input[type='password'],
+    input[type='number'],
+    input[type='date'],
+    select,
+    textarea {
+        @apply w-full rounded-md border border-bingkai bg-tinggi px-3 py-2 text-sm text-teks
+               placeholder:text-malap/70
+               focus:border-merah focus:ring-2 focus:ring-merah/25 focus:outline-none;
+    }
+
+    input[type='checkbox'] {
+        @apply size-4 rounded border-bingkai bg-tinggi text-merah focus:ring-2 focus:ring-merah/25;
+    }
+
+    label {
+        @apply text-sm text-teks;
+    }
+
+    code {
+        @apply font-mono text-[0.8125rem] text-merah-terang;
+    }
+
+    a {
+        @apply transition-colors;
+    }
+}
+
+/*
+| Kelas komponen ditulis penuh dan tidak saling @apply antara satu sama lain,
+| kerana @apply dalam Tailwind v4 hanya menerima utiliti dan bukan kelas tersuai.
+*/
+@layer components {
+    /* ---------- Kad ---------- */
+
+    .kad {
+        @apply rounded-xl border border-bingkai-merah bg-permukaan;
+    }
+
+    .kad-kepala {
+        @apply flex flex-wrap items-center justify-between gap-2 rounded-t-xl border-b border-bingkai bg-tinggi px-4 py-3 text-sm;
+    }
+
+    .kad-badan {
+        @apply p-4;
+    }
+
+    .kad-kaki {
+        @apply flex flex-wrap items-center gap-2 rounded-b-xl border-t border-bingkai bg-tinggi px-4 py-3;
+    }
+
+    /* ---------- Butang ---------- */
+
+    .btn-utama,
+    .btn-wky,
+    .btn-garis,
+    .btn-bahaya {
+        @apply inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md border px-3 py-2
+               text-sm font-medium whitespace-nowrap transition-colors
+               focus-visible:ring-2 focus-visible:ring-merah/40 focus-visible:outline-none
+               disabled:pointer-events-none disabled:opacity-50;
+    }
+
+    .btn-utama {
+        @apply border-merah bg-merah text-white hover:bg-merah-pekat;
+    }
+
+    .btn-wky {
+        @apply border-merah bg-merah-gelap text-white hover:bg-merah;
+    }
+
+    .btn-garis {
+        @apply border-bingkai bg-transparent text-malap hover:border-merah hover:bg-tinggi hover:text-white;
+    }
+
+    .btn-bahaya {
+        @apply border-merah/50 bg-transparent text-merah-terang hover:bg-merah hover:text-white;
+    }
+
+    .btn-kecil {
+        @apply px-2 py-1 text-xs;
+    }
+
+    .btn-ikon {
+        @apply px-2 py-2;
+    }
+
+    /* ---------- Jadual ---------- */
+
+    .jadual {
+        @apply w-full text-left text-sm;
+    }
+
+    .jadual thead {
+        @apply bg-tinggi;
+    }
+
+    .jadual th {
+        @apply border-b border-bingkai px-4 py-2.5 text-xs font-semibold tracking-wider text-malap uppercase;
+    }
+
+    .jadual td {
+        @apply border-b border-bingkai/60 px-4 py-3 align-middle;
+    }
+
+    .jadual tbody tr:last-child td {
+        @apply border-b-0;
+    }
+
+    .jadual tbody tr:hover {
+        @apply bg-merah/5;
+    }
+
+    .jadual tfoot td {
+        @apply border-t border-bingkai bg-tinggi px-4 py-3 font-semibold;
+    }
+
+    /* ---------- Lencana ---------- */
+
+    .lencana-merah,
+    .lencana-hijau,
+    .lencana-kuning,
+    .lencana-kelabu,
+    .lencana-biru {
+        @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap;
+    }
+
+    .lencana-merah {
+        @apply bg-merah text-white;
+    }
+
+    .lencana-hijau {
+        @apply bg-emerald-600 text-white;
+    }
+
+    .lencana-kuning {
+        @apply bg-amber-400 text-black;
+    }
+
+    .lencana-kelabu {
+        @apply bg-bingkai text-malap;
+    }
+
+    .lencana-biru {
+        @apply bg-sky-600 text-white;
+    }
+
+    /* ---------- Amaran ---------- */
+
+    .amaran-jaya,
+    .amaran-gagal,
+    .amaran-info {
+        @apply flex items-start gap-2 rounded-lg border px-4 py-3 text-sm;
+    }
+
+    .amaran-jaya {
+        @apply border-emerald-600/40 bg-emerald-600/10 text-emerald-300;
+    }
+
+    .amaran-gagal {
+        @apply border-merah/40 bg-merah/10 text-merah-terang;
+    }
+
+    .amaran-info {
+        @apply border-sky-500/30 bg-sky-500/10 text-sky-300;
+    }
+
+    /* ---------- Navigasi sisi ---------- */
+
+    .nav-pautan {
+        @apply flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-malap transition-colors hover:bg-tinggi hover:text-white;
+    }
+
+    .nav-pautan-aktif {
+        @apply bg-merah text-white shadow-[0_2px_10px_rgba(220,38,38,0.35)] hover:bg-merah hover:text-white;
+    }
+
+    /* ---------- Lain-lain ---------- */
+
+    .ikon-bulat {
+        @apply grid size-12 shrink-0 place-items-center rounded-full border border-bingkai-merah bg-merah/10 text-merah;
+    }
+
+    .label-stat {
+        @apply text-xs tracking-wide text-malap uppercase;
+    }
+
+    .nilai-stat {
+        @apply text-2xl leading-tight font-semibold text-white;
+    }
+
+    .maklum-balas-ralat {
+        @apply mt-1 text-xs text-merah-terang;
+    }
+
+    .medan-ralat {
+        @apply border-merah;
+    }
+
+    .pautan-jadual {
+        @apply font-medium text-teks hover:text-merah-terang;
+    }
+}
+
+/*
+| Penomboran Tailwind terbina dalam Laravel menggunakan palet kelabu terang.
+| Blok ini menyesuaikannya dengan tema gelap tanpa perlu menerbitkan viewnya.
+*/
+.penomboran a,
+.penomboran span[aria-disabled='true'] > span,
+.penomboran span[aria-current='page'] > span {
+    border-color: var(--color-bingkai) !important;
+    background-color: var(--color-tinggi) !important;
+    color: var(--color-malap) !important;
+}
+
+.penomboran a:hover {
+    background-color: var(--color-permukaan) !important;
+    color: #fff !important;
+}
+
+.penomboran span[aria-current='page'] > span {
+    border-color: var(--color-merah) !important;
+    background-color: var(--color-merah) !important;
+    color: #fff !important;
+}
+
+.penomboran p,
+.penomboran p span {
+    color: var(--color-malap) !important;
+}
+
+/* Mod cetak untuk Laporan Bulanan — buang tema gelap supaya jimat dakwat. */
+@media print {
+    .tanpa-cetak,
+    .bar-sisi {
+        display: none !important;
+    }
+
+    body,
+    .kad,
+    .kad-kepala,
+    .kad-kaki,
+    .jadual thead,
+    .jadual tfoot td {
+        background: #fff !important;
+        color: #000 !important;
+    }
+
+    .kad,
+    .jadual th,
+    .jadual td {
+        border-color: #ccc !important;
+    }
+
+    .nilai-stat,
+    .label-stat,
+    .jadual th,
+    .jadual td {
+        color: #000 !important;
+    }
+
+    main {
+        width: 100% !important;
+        padding: 0 !important;
+    }
 }
