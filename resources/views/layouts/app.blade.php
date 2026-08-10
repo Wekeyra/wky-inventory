@@ -23,6 +23,7 @@
                 <li><a class="nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}" href="{{ route('products.index') }}"><i class="bi bi-box me-2"></i>Produk</a></li>
                 <li><a class="nav-link {{ request()->routeIs('categories.*') ? 'active' : '' }}" href="{{ route('categories.index') }}"><i class="bi bi-tags me-2"></i>Kategori</a></li>
                 <li><a class="nav-link {{ request()->routeIs('suppliers.*') ? 'active' : '' }}" href="{{ route('suppliers.index') }}"><i class="bi bi-truck me-2"></i>Pembekal</a></li>
+                <li><a class="nav-link {{ request()->routeIs('stock-counts.*') ? 'active' : '' }}" href="{{ route('stock-counts.index') }}"><i class="bi bi-clipboard-check me-2"></i>Kiraan Stok</a></li>
                 <li><a class="nav-link {{ request()->routeIs('stock.*') ? 'active' : '' }}" href="{{ route('stock.index') }}"><i class="bi bi-arrow-left-right me-2"></i>Pergerakan Stok</a></li>
                 <li><a class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}" href="{{ route('reports.monthly') }}"><i class="bi bi-file-earmark-bar-graph me-2"></i>Laporan Bulanan</a></li>
                 @if (auth()->user()->isAdmin())

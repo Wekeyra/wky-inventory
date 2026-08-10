@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\StockCount;
 use App\Models\StockMovement;
 use App\Models\Supplier;
 use Illuminate\Contracts\View\View;
@@ -23,6 +24,16 @@ class DashboardController extends Controller
             'pergerakanTerkini' => StockMovement::with(['product', 'user'])->latest()->limit(10)->get(),
             'ringkasanBulanan' => $this->ringkasanBulanan(),
             'produkAktif' => Product::where('aktif', true)->orderBy('nama')->get(),
+            'sesiKiraan' => StockCount::query()
+                ->with('pembuka')
+                ->withCount([
+                    'items',
+                    'items as items_dikira_count' => fn ($q) => $q->whereNotNull('kuantiti_fizikal'),
+                ])
+                ->latest()
+                ->limit(5)
+                ->get(),
+            'kiraanDraf' => StockCount::where('status', 'draf')->count(),
         ]);
     }
 

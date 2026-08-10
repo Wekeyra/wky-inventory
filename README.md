@@ -11,12 +11,27 @@ kategori, pembekal, dan setiap pergerakan stok masuk/keluar dengan jejak audit p
 | **Produk** | CRUD produk dengan SKU, harga kos/jual, unit, paras stok minimum |
 | **Kategori** | Pengelasan produk. Tidak boleh dipadam selagi masih digunakan produk |
 | **Pembekal** | Maklumat pembekal dan senarai produk yang dibekalkan |
+| **Kiraan Stok** | Sesi kiraan fizikal (stock take): sistem simpan gambaran baki, staf masukkan kiraan sebenar, sistem tunjuk perbezaan dan laraskan stok selepas disahkan |
 | **Pergerakan Stok** | Rekod stok masuk, keluar, dan pelarasan — setiap satu menyimpan baki sebelum/selepas |
 | **Laporan Bulanan** | Pecahan masuk/keluar per produk mengikut bulan, perubahan bersih, dan susun atur mesra cetak |
 | **Pengguna** | Pengurusan akaun dan peranan (admin / staf). Hanya admin boleh akses |
 
 Kuantiti stok **tidak boleh** diubah terus melalui borang produk. Ia hanya berubah melalui modul
-Pergerakan Stok, supaya setiap perubahan baki mempunyai rekod siapa, bila, dan sebab.
+Pergerakan Stok atau pengesahan sesi Kiraan Stok, supaya setiap perubahan baki mempunyai rekod
+siapa, bila, dan sebab.
+
+### Aliran Kiraan Stok
+
+1. **Buka sesi** — pilih skop (semua kategori atau satu kategori). Sistem menyenaraikan semua produk
+   aktif dan menyimpan baki semasa sebagai *Kuantiti Rekod*. Stok belum berubah.
+2. **Isi kiraan** — staf memasukkan *Kuantiti Fizikal*. Perbezaan dikira serta-merta dalam pelayar.
+   Boleh disimpan sebagai draf dan disambung kemudian; produk yang dibiarkan kosong dilangkau.
+3. **Sahkan** — setiap produk yang berbeza menjana satu pergerakan stok jenis `pelarasan` dengan
+   rujukan kod sesi, dan baki produk ditetapkan kepada kuantiti fizikal.
+
+Pada langkah pengesahan, baki dibaca semula daripada pangkalan data dan bukan daripada gambaran
+sesi, kerana stok mungkin berubah antara pembukaan sesi dan pengesahan. Sesi yang telah selesai
+atau dibatalkan tidak boleh diubah lagi.
 
 ## Keperluan
 
@@ -60,8 +75,10 @@ php artisan serve
 php artisan test
 ```
 
-Suite `tests/Feature/InventoryTest.php` meliputi kawalan akses, paparan semua halaman utama,
-dan logik pergerakan stok (termasuk penolakan stok keluar yang melebihi baki).
+- `tests/Feature/InventoryTest.php` — kawalan akses, paparan semua halaman utama, logik pergerakan
+  stok (termasuk penolakan stok keluar yang melebihi baki), dan laporan bulanan.
+- `tests/Feature/StockCountTest.php` — aliran kiraan stok: gambaran baki, penapisan kategori,
+  draf yang tidak mengubah stok, pelarasan selepas pengesahan, dan sekatan pada sesi yang selesai.
 
 ## Nota teknikal
 

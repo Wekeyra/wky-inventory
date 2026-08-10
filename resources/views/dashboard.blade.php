@@ -68,6 +68,41 @@
                     </table>
                 </div>
             </div>
+
+            <div class="card mt-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold">
+                        <i class="bi bi-clipboard-check me-1" style="color: var(--wky-merah);"></i>Kiraan Stok
+                        @if ($kiraanDraf > 0)
+                            <span class="badge bg-warning text-dark ms-1">{{ $kiraanDraf }} sesi terbuka</span>
+                        @endif
+                    </span>
+                    <div class="d-flex gap-2 tanpa-cetak">
+                        <a class="btn btn-sm btn-primary" href="{{ route('stock-counts.create') }}"><i class="bi bi-plus-lg"></i> Sesi Baru</a>
+                        <a class="btn btn-sm btn-outline-secondary" href="{{ route('stock-counts.index') }}">Lihat semua</a>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr><th>Kod</th><th>Status</th><th class="text-end">Progres</th><th>Dibuka Oleh</th><th>Tarikh</th></tr>
+                        </thead>
+                        <tbody>
+                        @forelse ($sesiKiraan as $sesi)
+                            <tr>
+                                <td><a class="text-decoration-none" href="{{ route('stock-counts.show', $sesi) }}"><code>{{ $sesi->kod }}</code></a></td>
+                                <td><span class="badge bg-{{ $sesi->warnaStatus() }}">{{ $sesi->labelStatus() }}</span></td>
+                                <td class="text-end">{{ $sesi->items_dikira_count }} / {{ $sesi->items_count }}</td>
+                                <td class="small">{{ $sesi->pembuka?->name ?? '—' }}</td>
+                                <td class="small text-secondary text-nowrap">{{ $sesi->created_at->format('d/m/Y') }}</td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="5" class="text-center text-secondary py-4">Belum ada sesi kiraan stok fizikal.</td></tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <div class="col-xl-5">

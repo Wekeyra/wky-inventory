@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\StockCountController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
@@ -25,6 +26,16 @@ Route::middleware('auth')->group(function () {
     Route::resource('categories', CategoryController::class)->except('show');
     Route::resource('suppliers', SupplierController::class);
     Route::resource('products', ProductController::class);
+
+    Route::controller(StockCountController::class)->prefix('kiraan-stok')->name('stock-counts.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('{stockCount}', 'show')->name('show');
+        Route::put('{stockCount}', 'update')->name('update');
+        Route::post('{stockCount}/sahkan', 'confirm')->name('confirm');
+        Route::delete('{stockCount}', 'destroy')->name('destroy');
+    });
 
     Route::get('stock', [StockMovementController::class, 'index'])->name('stock.index');
     Route::get('stock/create', [StockMovementController::class, 'create'])->name('stock.create');

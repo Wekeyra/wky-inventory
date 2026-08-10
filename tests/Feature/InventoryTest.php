@@ -88,6 +88,7 @@ class InventoryTest extends TestCase
             '/categories', '/categories/create', "/categories/{$produk->category_id}/edit",
             '/suppliers', '/suppliers/create', "/suppliers/{$produk->supplier_id}", "/suppliers/{$produk->supplier_id}/edit",
             '/stock', '/stock/create',
+            '/kiraan-stok', '/kiraan-stok/create',
             '/laporan/bulanan', '/laporan/bulanan?bulan=' . now()->format('Y-m'),
             '/users', '/users/create', "/users/{$admin->id}/edit",
         ];
