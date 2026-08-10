@@ -202,6 +202,98 @@
         @apply border-sky-500/30 bg-sky-500/10 text-sky-300;
     }
 
+    /* ---------- Halaman log masuk ---------- */
+
+    /*
+     | Latar berlapis: cahaya merah dari atas, cahaya kedua yang lebih gelap
+     | dari bawah, di atas warna hampir hitam kemerahan.
+     */
+    .latar-log-masuk {
+        background:
+            radial-gradient(70rem 45rem at 50% -12%, rgba(220, 38, 38, 0.28), transparent 68%),
+            radial-gradient(50rem 30rem at 50% 108%, rgba(127, 29, 29, 0.35), transparent 70%),
+            #0a0507;
+    }
+
+    /* Rangkaian titik dan garis; dijana sekali dalam Blade dan tidak berinteraksi. */
+    .konstelasi {
+        @apply pointer-events-none absolute inset-0 h-full w-full;
+    }
+
+    .siluet-bandar {
+        @apply pointer-events-none absolute inset-x-0 bottom-0 w-full;
+    }
+
+    .jenama-log-masuk {
+        filter: drop-shadow(0 0 18px rgba(220, 38, 38, 0.55));
+    }
+
+    /*
+     | Kad log masuk: kaca gelap dengan bingkai merah lembut. Lengkung bercahaya
+     | di bahagian atas dibuat dengan pseudo-elemen supaya tiada markup tambahan.
+     */
+    .kad-log-masuk {
+        @apply relative rounded-2xl border border-merah/25 p-6 backdrop-blur-md sm:p-8;
+
+        background: linear-gradient(160deg, rgba(30, 14, 17, 0.88), rgba(12, 6, 8, 0.92));
+        box-shadow:
+            0 0 0 1px rgba(220, 38, 38, 0.08),
+            0 25px 60px -20px rgba(0, 0, 0, 0.9),
+            inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .kad-log-masuk::before {
+        @apply pointer-events-none absolute -top-px left-1/2 h-px w-4/5 -translate-x-1/2;
+
+        content: '';
+        background: linear-gradient(90deg, transparent, rgba(248, 113, 113, 0.9), transparent);
+    }
+
+    .kad-log-masuk::after {
+        @apply pointer-events-none absolute -top-10 left-1/2 h-20 w-3/4 -translate-x-1/2 rounded-[50%] opacity-70 blur-2xl;
+
+        content: '';
+        background: radial-gradient(ellipse at center, rgba(220, 38, 38, 0.55), transparent 70%);
+    }
+
+    /* Medan borang pada halaman ini lebih gelap dan bercahaya berbanding lalai. */
+    .kad-log-masuk input[type='email'],
+    .kad-log-masuk input[type='password'] {
+        @apply border-merah/30 bg-black/45 px-4 py-2.5;
+
+        box-shadow: inset 0 0 18px rgba(220, 38, 38, 0.12);
+    }
+
+    .kad-log-masuk input[type='email']:focus,
+    .kad-log-masuk input[type='password']:focus {
+        @apply border-merah-terang;
+
+        box-shadow:
+            inset 0 0 18px rgba(220, 38, 38, 0.18),
+            0 0 0 3px rgba(220, 38, 38, 0.22);
+    }
+
+    /* Butang logam seperti dalam reka bentuk yang diminta. */
+    .btn-logam {
+        @apply w-full cursor-pointer rounded-lg border border-white/25 py-3 text-base font-semibold tracking-wide
+               text-[#141416] transition-all
+               focus-visible:ring-2 focus-visible:ring-merah/50 focus-visible:outline-none;
+
+        background: linear-gradient(180deg, #f3f4f6 0%, #c9cbd1 45%, #9ca0a8 55%, #d6d8dd 100%);
+        box-shadow:
+            0 1px 0 rgba(255, 255, 255, 0.6) inset,
+            0 -1px 0 rgba(0, 0, 0, 0.25) inset,
+            0 10px 24px -10px rgba(0, 0, 0, 0.8);
+    }
+
+    .btn-logam:hover {
+        background: linear-gradient(180deg, #ffffff 0%, #d9dbe0 45%, #aeb2b9 55%, #e5e7ea 100%);
+    }
+
+    .btn-logam:active {
+        @apply translate-y-px;
+    }
+
     /* ---------- Navigasi sisi ---------- */
 
     .nav-pautan {

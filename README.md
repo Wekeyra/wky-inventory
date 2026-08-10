@@ -170,6 +170,14 @@ dibungkus ke dalam `public/build`, jadi sistem berfungsi sepenuhnya tanpa sambun
 | `resources/css/app.css` | Token warna `@theme` dan kelas komponen (`.kad`, `.btn-utama`, `.jadual`, `.lencana-*`) |
 | `resources/js/app.js` | Menu jatuh, modal, tutup amaran, dan Chart.js — pengganti Bootstrap JS |
 | `resources/views/components/ikon.blade.php` | Ikon SVG terbaris (`<x-ikon nama="kotak" />`) |
+| `resources/views/components/logo-wky.blade.php` | Logo — guna fail sebenar jika ada, jika tidak lukis SVG |
+| `resources/views/components/latar-log-masuk.blade.php` | Latar konstelasi dan siluet bandar untuk halaman log masuk |
+
+### Menukar logo
+
+Letakkan fail logo anda di `public/images/` sebagai `logo-wky.svg`, `.png`, `.webp`, atau
+`.jpg`. Komponen akan menggunakannya secara automatik dan melangkau lukisan SVG terbina —
+tiada perubahan kod diperlukan. Buang fail itu untuk kembali kepada lukisan SVG.
 
 Palet keseluruhan sistem dikawal oleh token `--color-*` di bahagian atas `app.css`. Tukar nilai
 di situ dan jalankan `npm run build` untuk menukar rupa seluruh aplikasi.
