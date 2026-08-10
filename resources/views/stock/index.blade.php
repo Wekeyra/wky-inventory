@@ -3,7 +3,7 @@
 
 @section('kandungan')
     <div class="card kad-stat">
-        <div class="card-header bg-white">
+        <div class="card-header">
             <form class="row g-2 align-items-center" method="GET">
                 <div class="col-md-4">
                     <select class="form-select" name="product_id">
@@ -30,33 +30,33 @@
 
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+                <thead>
                     <tr><th>Tarikh</th><th>Produk</th><th>Jenis</th><th class="text-end">Kuantiti</th><th class="text-end">Sebelum</th><th class="text-end">Selepas</th><th>Rujukan</th><th>Oleh</th></tr>
                 </thead>
                 <tbody>
                 @forelse ($movements as $gerak)
                     <tr>
-                        <td class="small text-muted text-nowrap">{{ $gerak->created_at->format('d/m/Y H:i') }}</td>
+                        <td class="small text-secondary text-nowrap">{{ $gerak->created_at->format('d/m/Y H:i') }}</td>
                         <td>
                             <a class="text-decoration-none" href="{{ route('products.show', $gerak->product_id) }}">{{ $gerak->product?->nama ?? '—' }}</a>
-                            <div class="small text-muted">{{ $gerak->product?->sku }}</div>
+                            <div class="small text-secondary">{{ $gerak->product?->sku }}</div>
                         </td>
                         <td><span class="badge bg-{{ ['masuk' => 'success', 'keluar' => 'danger'][$gerak->jenis] ?? 'secondary' }}">{{ $gerak->labelJenis() }}</span></td>
                         <td class="text-end fw-medium">{{ $gerak->kuantiti }}</td>
-                        <td class="text-end text-muted">{{ $gerak->stok_sebelum }}</td>
+                        <td class="text-end text-secondary">{{ $gerak->stok_sebelum }}</td>
                         <td class="text-end fw-medium">{{ $gerak->stok_selepas }}</td>
                         <td class="small">{{ $gerak->rujukan ?? '—' }}</td>
-                        <td class="small text-muted">{{ $gerak->user?->name ?? '—' }}</td>
+                        <td class="small text-secondary">{{ $gerak->user?->name ?? '—' }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="8" class="text-center text-muted py-4">Tiada rekod pergerakan stok.</td></tr>
+                    <tr><td colspan="8" class="text-center text-secondary py-4">Tiada rekod pergerakan stok.</td></tr>
                 @endforelse
                 </tbody>
             </table>
         </div>
 
         @if ($movements->hasPages())
-            <div class="card-footer bg-white">{{ $movements->links() }}</div>
+            <div class="card-footer">{{ $movements->links() }}</div>
         @endif
     </div>
 @endsection

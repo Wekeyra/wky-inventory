@@ -3,7 +3,7 @@
 
 @section('kandungan')
     <div class="card kad-stat">
-        <div class="card-header bg-white">
+        <div class="card-header">
             <form class="row g-2 align-items-center" method="GET">
                 <div class="col-md-5">
                     <input class="form-control" type="search" name="cari" value="{{ request('cari') }}" placeholder="Cari nama atau kod…">
@@ -17,7 +17,7 @@
 
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+                <thead>
                     <tr><th>Kod</th><th>Nama</th><th>Keterangan</th><th class="text-end">Produk</th><th class="text-end">Tindakan</th></tr>
                 </thead>
                 <tbody>
@@ -25,7 +25,7 @@
                     <tr>
                         <td><code>{{ $kategori->kod }}</code></td>
                         <td class="fw-medium">{{ $kategori->nama }}</td>
-                        <td class="small text-muted">{{ Str::limit($kategori->keterangan, 60) ?: '—' }}</td>
+                        <td class="small text-secondary">{{ Str::limit($kategori->keterangan, 60) ?: '—' }}</td>
                         <td class="text-end"><span class="badge bg-secondary">{{ $kategori->products_count }}</span></td>
                         <td class="text-end text-nowrap">
                             <a class="btn btn-sm btn-outline-primary" href="{{ route('categories.edit', $kategori) }}"><i class="bi bi-pencil"></i></a>
@@ -36,14 +36,14 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" class="text-center text-muted py-4">Tiada kategori dijumpai.</td></tr>
+                    <tr><td colspan="5" class="text-center text-secondary py-4">Tiada kategori dijumpai.</td></tr>
                 @endforelse
                 </tbody>
             </table>
         </div>
 
         @if ($categories->hasPages())
-            <div class="card-footer bg-white">{{ $categories->links() }}</div>
+            <div class="card-footer">{{ $categories->links() }}</div>
         @endif
     </div>
 @endsection

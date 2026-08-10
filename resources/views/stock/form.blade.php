@@ -49,7 +49,7 @@
                     <strong>Pelarasan</strong> menetapkan stok kepada nilai kuantiti yang dimasukkan, bukan menambah atau menolak. Guna ini selepas kiraan fizikal.
                 </div>
             </div>
-            <div class="card-footer bg-white d-flex gap-2">
+            <div class="card-footer d-flex gap-2">
                 <button class="btn btn-primary" type="submit">Rekod</button>
                 <a class="btn btn-outline-secondary" href="{{ route('stock.index') }}">Batal</a>
             </div>

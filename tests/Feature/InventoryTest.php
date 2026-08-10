@@ -88,6 +88,7 @@ class InventoryTest extends TestCase
             '/categories', '/categories/create', "/categories/{$produk->category_id}/edit",
             '/suppliers', '/suppliers/create', "/suppliers/{$produk->supplier_id}", "/suppliers/{$produk->supplier_id}/edit",
             '/stock', '/stock/create',
+            '/laporan/bulanan', '/laporan/bulanan?bulan=' . now()->format('Y-m'),
             '/users', '/users/create', "/users/{$admin->id}/edit",
         ];
 
@@ -179,6 +180,52 @@ class InventoryTest extends TestCase
 
         $this->assertSame('Nama Dikemas Kini', $produk->fresh()->nama);
         $this->assertSame(50, $produk->fresh()->stok);
+    }
+
+    public function test_borang_stok_pantas_kembali_ke_dashboard(): void
+    {
+        $produk = $this->produk(['stok' => 10]);
+
+        $this->actingAs($this->admin())
+            ->post('/stock', ['product_id' => $produk->id, 'jenis' => 'masuk', 'kuantiti' => 5, 'sumber' => 'pantas'])
+            ->assertRedirect('/dashboard');
+
+        $this->assertSame(15, $produk->fresh()->stok);
+    }
+
+    public function test_laporan_bulanan_mengira_masuk_keluar_bulan_semasa(): void
+    {
+        $produk = $this->produk(['stok' => 100]);
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->post('/stock', ['product_id' => $produk->id, 'jenis' => 'masuk', 'kuantiti' => 30]);
+        $this->actingAs($admin)->post('/stock', ['product_id' => $produk->id, 'jenis' => 'keluar', 'kuantiti' => 12]);
+
+        $this->actingAs($admin)
+            ->get('/laporan/bulanan')
+            ->assertOk()
+            ->assertViewHas('jumlahMasuk', 30)
+            ->assertViewHas('jumlahKeluar', 12)
+            ->assertViewHas('jumlahTransaksi', 2);
+    }
+
+    public function test_laporan_bulanan_menolak_format_bulan_tidak_sah(): void
+    {
+        $this->actingAs($this->admin())
+            ->get('/laporan/bulanan?bulan=bukan-tarikh')
+            ->assertSessionHasErrors('bulan');
+    }
+
+    public function test_carta_ringkasan_bulanan_ada_enam_titik_data(): void
+    {
+        $this->produk();
+
+        $respons = $this->actingAs($this->admin())->get('/dashboard')->assertOk();
+        $ringkasan = $respons->viewData('ringkasanBulanan');
+
+        $this->assertCount(6, $ringkasan['label']);
+        $this->assertCount(6, $ringkasan['masuk']);
+        $this->assertCount(6, $ringkasan['keluar']);
     }
 
     public function test_skop_stok_rendah_menapis_dengan_betul(): void

@@ -3,7 +3,7 @@
 
 @section('kandungan')
     <div class="card kad-stat">
-        <div class="card-header bg-white">
+        <div class="card-header">
             <form class="row g-2 align-items-center" method="GET">
                 <div class="col-md-4">
                     <input class="form-control" type="search" name="cari" value="{{ $cari }}" placeholder="Cari nama atau SKU…">
@@ -31,7 +31,7 @@
 
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+                <thead>
                     <tr>
                         <th>SKU</th><th>Nama</th><th>Kategori</th><th>Pembekal</th>
                         <th class="text-end">Harga Jual</th><th class="text-end">Stok</th><th class="text-end">Tindakan</th>
@@ -65,14 +65,14 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="7" class="text-center text-muted py-4">Tiada produk dijumpai.</td></tr>
+                    <tr><td colspan="7" class="text-center text-secondary py-4">Tiada produk dijumpai.</td></tr>
                 @endforelse
                 </tbody>
             </table>
         </div>
 
         @if ($products->hasPages())
-            <div class="card-footer bg-white">{{ $products->links() }}</div>
+            <div class="card-footer">{{ $products->links() }}</div>
         @endif
     </div>
 @endsection

@@ -78,6 +78,9 @@ class StockMovementController extends Controller
             return back()->withInput()->with('ralat', $e->getMessage());
         }
 
-        return redirect()->route('stock.index')->with('status', 'Pergerakan stok berjaya direkodkan.');
+        // Borang pantas dipanggil dari dashboard, jadi pengguna dikembalikan ke sana.
+        $destinasi = $request->input('sumber') === 'pantas' ? 'dashboard' : 'stock.index';
+
+        return redirect()->route($destinasi)->with('status', 'Pergerakan stok berjaya direkodkan.');
     }
 }

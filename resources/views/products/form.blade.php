@@ -86,7 +86,7 @@
                             @endif
                         </div>
                     </div>
-                    <div class="card-footer bg-white d-flex gap-2">
+                    <div class="card-footer d-flex gap-2">
                         <button class="btn btn-primary" type="submit">{{ $product->exists ? 'Kemas Kini' : 'Simpan' }}</button>
                         <a class="btn btn-outline-secondary" href="{{ route('products.index') }}">Batal</a>
                     </div>

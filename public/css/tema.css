@@ -1,0 +1,284 @@
+/*
+ * Tema WKY Inventory — gelap pekat dengan aksen merah.
+ * Dimuatkan selepas Bootstrap 5.3 dan menulis ganti pemboleh ubah CSS-nya,
+ * jadi kebanyakan komponen Bootstrap mewarisi tema ini tanpa kelas tambahan.
+ */
+
+:root,
+[data-bs-theme='dark'] {
+    --wky-latar: #0d0d0f;
+    --wky-permukaan: #17171a;
+    --wky-permukaan-tinggi: #1e1e22;
+    --wky-bingkai: #2a2a30;
+    --wky-bingkai-merah: #3a1519;
+    --wky-merah: #dc2626;
+    --wky-merah-gelap: #7f1d1d;
+    --wky-merah-lembut: rgba(220, 38, 38, 0.12);
+    --wky-teks: #e5e7eb;
+    --wky-teks-malap: #9096a1;
+
+    --bs-body-bg: var(--wky-latar);
+    --bs-body-color: var(--wky-teks);
+    --bs-emphasis-color: #ffffff;
+    --bs-secondary-color: var(--wky-teks-malap);
+    --bs-border-color: var(--wky-bingkai);
+    --bs-border-color-translucent: var(--wky-bingkai);
+
+    --bs-primary: var(--wky-merah);
+    --bs-primary-rgb: 220, 38, 38;
+    --bs-link-color: #f87171;
+    --bs-link-color-rgb: 248, 113, 113;
+    --bs-link-hover-color: #fca5a5;
+
+    --bs-card-bg: var(--wky-permukaan);
+    --bs-card-border-color: var(--wky-bingkai-merah);
+    --bs-card-cap-bg: var(--wky-permukaan-tinggi);
+
+    --bs-tertiary-bg: var(--wky-permukaan-tinggi);
+    --bs-secondary-bg: var(--wky-permukaan-tinggi);
+
+    --bs-form-control-bg: var(--wky-permukaan-tinggi);
+    --bs-focus-ring-color: rgba(220, 38, 38, 0.25);
+}
+
+body {
+    background-color: var(--wky-latar);
+    color: var(--wky-teks);
+}
+
+/* ---------- Bar sisi ---------- */
+
+.sidebar {
+    min-height: 100vh;
+    background: #121215;
+    border-right: 1px solid var(--wky-bingkai);
+}
+
+.sidebar .jenama {
+    color: #fff;
+    text-decoration: none;
+}
+
+.sidebar .jenama i {
+    color: var(--wky-merah);
+}
+
+.sidebar .nav-link {
+    color: var(--wky-teks-malap);
+    border-radius: 0.5rem;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.925rem;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.sidebar .nav-link:hover {
+    background: var(--wky-permukaan-tinggi);
+    color: #fff;
+}
+
+.sidebar .nav-link.active {
+    background: var(--wky-merah);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(220, 38, 38, 0.35);
+}
+
+/* ---------- Kad ---------- */
+
+.card {
+    background-color: var(--wky-permukaan);
+    border: 1px solid var(--wky-bingkai-merah);
+    border-radius: 0.65rem;
+}
+
+.card-header {
+    background-color: var(--wky-permukaan-tinggi) !important;
+    border-bottom: 1px solid var(--wky-bingkai);
+    color: var(--wky-teks);
+    font-size: 0.925rem;
+}
+
+.card-footer {
+    background-color: var(--wky-permukaan-tinggi) !important;
+    border-top: 1px solid var(--wky-bingkai);
+}
+
+.kad-stat .ikon-bulat {
+    width: 3rem;
+    height: 3rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--wky-merah-lembut);
+    border: 1px solid var(--wky-bingkai-merah);
+    color: var(--wky-merah);
+}
+
+.kad-stat .label-stat {
+    color: var(--wky-teks-malap);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.kad-stat .nilai-stat {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.2;
+}
+
+/* ---------- Butang ---------- */
+
+.btn-wky {
+    background: var(--wky-merah-gelap);
+    border: 1px solid var(--wky-merah);
+    color: #fff;
+    font-weight: 500;
+}
+
+.btn-wky:hover,
+.btn-wky:focus {
+    background: var(--wky-merah);
+    border-color: #ef4444;
+    color: #fff;
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--wky-merah);
+    --bs-btn-border-color: var(--wky-merah);
+    --bs-btn-hover-bg: #b91c1c;
+    --bs-btn-hover-border-color: #b91c1c;
+    --bs-btn-active-bg: #991b1b;
+    --bs-btn-active-border-color: #991b1b;
+}
+
+.btn-outline-secondary {
+    --bs-btn-color: var(--wky-teks-malap);
+    --bs-btn-border-color: var(--wky-bingkai);
+    --bs-btn-hover-bg: var(--wky-permukaan-tinggi);
+    --bs-btn-hover-border-color: var(--wky-merah);
+    --bs-btn-hover-color: #fff;
+}
+
+/* ---------- Jadual ---------- */
+
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--wky-teks);
+    --bs-table-border-color: var(--wky-bingkai);
+    --bs-table-hover-bg: rgba(220, 38, 38, 0.07);
+    --bs-table-hover-color: #fff;
+}
+
+.table > thead {
+    background-color: var(--wky-permukaan-tinggi);
+}
+
+.table > thead th {
+    color: var(--wky-teks-malap);
+    font-weight: 600;
+    font-size: 0.775rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom-color: var(--wky-bingkai);
+}
+
+.table code {
+    color: #f87171;
+}
+
+/* ---------- Borang ---------- */
+
+.form-control,
+.form-select {
+    background-color: var(--wky-permukaan-tinggi);
+    border-color: var(--wky-bingkai);
+    color: var(--wky-teks);
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--wky-permukaan-tinggi);
+    border-color: var(--wky-merah);
+    color: var(--wky-teks);
+    box-shadow: 0 0 0 0.2rem rgba(220, 38, 38, 0.2);
+}
+
+.form-control::placeholder {
+    color: #6b7280;
+}
+
+.form-check-input:checked {
+    background-color: var(--wky-merah);
+    border-color: var(--wky-merah);
+}
+
+/* ---------- Lain-lain ---------- */
+
+.tajuk-halaman {
+    border-bottom: 1px solid var(--wky-bingkai);
+}
+
+.dropdown-menu {
+    --bs-dropdown-bg: var(--wky-permukaan-tinggi);
+    --bs-dropdown-border-color: var(--wky-bingkai);
+    --bs-dropdown-link-color: var(--wky-teks);
+    --bs-dropdown-link-hover-bg: var(--wky-permukaan);
+    --bs-dropdown-link-hover-color: #fff;
+}
+
+.modal-content {
+    background-color: var(--wky-permukaan);
+    border: 1px solid var(--wky-bingkai-merah);
+}
+
+.alert-info {
+    --bs-alert-bg: rgba(59, 130, 246, 0.1);
+    --bs-alert-border-color: rgba(59, 130, 246, 0.3);
+    --bs-alert-color: #93c5fd;
+}
+
+.page-link {
+    background-color: var(--wky-permukaan-tinggi);
+    border-color: var(--wky-bingkai);
+    color: var(--wky-teks-malap);
+}
+
+.page-item.active .page-link {
+    background-color: var(--wky-merah);
+    border-color: var(--wky-merah);
+    color: #fff;
+}
+
+/* Mod cetak untuk Laporan Bulanan — buang tema gelap supaya jimat dakwat. */
+@media print {
+    .sidebar,
+    .tanpa-cetak {
+        display: none !important;
+    }
+
+    body,
+    .card,
+    .card-header,
+    .card-footer,
+    .table > thead {
+        background: #fff !important;
+        color: #000 !important;
+    }
+
+    .card {
+        border-color: #ccc !important;
+    }
+
+    .table,
+    .table > thead th {
+        color: #000 !important;
+        border-color: #999 !important;
+    }
+
+    main {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+    }
+}

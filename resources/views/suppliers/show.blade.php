@@ -16,10 +16,10 @@
                     </dl>
                     @if ($supplier->alamat)
                         <hr>
-                        <p class="small text-muted mb-0">{{ $supplier->alamat }}</p>
+                        <p class="small text-secondary mb-0">{{ $supplier->alamat }}</p>
                     @endif
                 </div>
-                <div class="card-footer bg-white d-flex gap-2">
+                <div class="card-footer d-flex gap-2">
                     <a class="btn btn-sm btn-primary" href="{{ route('suppliers.edit', $supplier) }}"><i class="bi bi-pencil"></i> Kemas Kini</a>
                     <a class="btn btn-sm btn-outline-secondary ms-auto" href="{{ route('suppliers.index') }}">Kembali</a>
                 </div>
@@ -28,10 +28,10 @@
 
         <div class="col-lg-8">
             <div class="card kad-stat">
-                <div class="card-header bg-white fw-semibold"><i class="bi bi-box me-1"></i>Produk daripada Pembekal Ini</div>
+                <div class="card-header fw-semibold"><i class="bi bi-box me-1"></i>Produk daripada Pembekal Ini</div>
                 <div class="table-responsive">
                     <table class="table table-sm align-middle mb-0">
-                        <thead class="table-light">
+                        <thead>
                             <tr><th>SKU</th><th>Nama</th><th class="text-end">Harga Kos</th><th class="text-end">Stok</th></tr>
                         </thead>
                         <tbody>
@@ -43,7 +43,7 @@
                                 <td class="text-end">{{ $produk->stok }} {{ $produk->unit }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="4" class="text-center text-muted py-4">Tiada produk dikaitkan dengan pembekal ini.</td></tr>
+                            <tr><td colspan="4" class="text-center text-secondary py-4">Tiada produk dikaitkan dengan pembekal ini.</td></tr>
                         @endforelse
                         </tbody>
                     </table>

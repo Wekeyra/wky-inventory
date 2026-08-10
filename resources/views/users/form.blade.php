@@ -27,7 +27,7 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="password">
-                        Kata Laluan {!! $user->exists ? '<span class="text-muted small">(biar kosong jika tidak mahu tukar)</span>' : '<span class="text-danger">*</span>' !!}
+                        Kata Laluan {!! $user->exists ? '<span class="text-secondary small">(biar kosong jika tidak mahu tukar)</span>' : '<span class="text-danger">*</span>' !!}
                     </label>
                     <input class="form-control @error('password') is-invalid @enderror" type="password" id="password" name="password" @required(! $user->exists)>
                     @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -37,7 +37,7 @@
                     <input class="form-control" type="password" id="password_confirmation" name="password_confirmation" @required(! $user->exists)>
                 </div>
             </div>
-            <div class="card-footer bg-white d-flex gap-2">
+            <div class="card-footer d-flex gap-2">
                 <button class="btn btn-primary" type="submit">{{ $user->exists ? 'Kemas Kini' : 'Simpan' }}</button>
                 <a class="btn btn-outline-secondary" href="{{ route('users.index') }}">Batal</a>
             </div>

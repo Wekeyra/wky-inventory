@@ -23,7 +23,7 @@
                     <textarea class="form-control" id="keterangan" name="keterangan" rows="3">{{ old('keterangan', $category->keterangan) }}</textarea>
                 </div>
             </div>
-            <div class="card-footer bg-white d-flex gap-2">
+            <div class="card-footer d-flex gap-2">
                 <button class="btn btn-primary" type="submit">{{ $category->exists ? 'Kemas Kini' : 'Simpan' }}</button>
                 <a class="btn btn-outline-secondary" href="{{ route('categories.index') }}">Batal</a>
             </div>

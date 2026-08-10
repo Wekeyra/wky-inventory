@@ -3,13 +3,13 @@
 
 @section('kandungan')
     <div class="card kad-stat">
-        <div class="card-header bg-white d-flex justify-content-end">
+        <div class="card-header d-flex justify-content-end">
             <a class="btn btn-primary" href="{{ route('users.create') }}"><i class="bi bi-plus-lg"></i> Tambah Pengguna</a>
         </div>
 
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+                <thead>
                     <tr><th>Nama</th><th>Emel</th><th>Peranan</th><th>Didaftar</th><th class="text-end">Tindakan</th></tr>
                 </thead>
                 <tbody>
@@ -23,7 +23,7 @@
                         </td>
                         <td>{{ $pengguna->email }}</td>
                         <td><span class="badge bg-{{ $pengguna->isAdmin() ? 'primary' : 'secondary' }}">{{ ucfirst($pengguna->peranan) }}</span></td>
-                        <td class="small text-muted">{{ $pengguna->created_at->format('d/m/Y') }}</td>
+                        <td class="small text-secondary">{{ $pengguna->created_at->format('d/m/Y') }}</td>
                         <td class="text-end text-nowrap">
                             <a class="btn btn-sm btn-outline-primary" href="{{ route('users.edit', $pengguna) }}"><i class="bi bi-pencil"></i></a>
                             @unless ($pengguna->is(auth()->user()))
@@ -40,7 +40,7 @@
         </div>
 
         @if ($users->hasPages())
-            <div class="card-footer bg-white">{{ $users->links() }}</div>
+            <div class="card-footer">{{ $users->links() }}</div>
         @endif
     </div>
 @endsection
