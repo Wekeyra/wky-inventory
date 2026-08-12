@@ -106,6 +106,17 @@ return [
         'log_keluar' => 'Log Keluar',
     ],
 
+    /* Butang tindakan pantas yang terapung pada setiap halaman dalam sistem. */
+    'pantas' => [
+        'tajuk' => 'Tindakan Pantas',
+        'buka' => 'Buka tindakan pantas',
+        'tutup' => 'Tutup tindakan pantas',
+        'imbas_resit' => 'Imbas Resit',
+        'muat_naik' => 'Muat Naik',
+        'tambah_produk' => 'Tambah Produk',
+        'tambah_kategori' => 'Tambah Kategori',
+    ],
+
     'aksi' => [
         'tunjuk_kata_laluan' => 'Tunjuk kata laluan',
         'sembunyi_kata_laluan' => 'Sembunyikan kata laluan',

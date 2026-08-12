@@ -38,6 +38,20 @@ Pada langkah pengesahan, baki dibaca semula daripada pangkalan data dan bukan da
 sesi, kerana stok mungkin berubah antara pembukaan sesi dan pengesahan. Sesi yang telah selesai
 atau dibatalkan tidak boleh diubah lagi.
 
+## Butang tindakan pantas
+
+Setiap halaman dalam sistem membawa satu butang bulat terapung di penjuru bawah kanan
+([`partials/butang-pantas.blade.php`](resources/views/partials/butang-pantas.blade.php)) yang
+membuka empat pintasan: **Imbas Resit, Muat Naik, Tambah Produk, Tambah Kategori**.
+
+Ia menggunakan pencetus `data-jatuh` yang sama seperti menu lain, jadi ia mewarisi
+tutup-bila-klik-luar dan tutup-bila-Escape tanpa JavaScript baharu.
+
+Imbas Resit dan Muat Naik kedua-duanya menuju ke halaman imbas yang sama — ia memang satu
+halaman — tetapi membawa `?mod=`. `mod=kamera` menekan butang kamera terus; `mod=fail` hanya
+**menumpukan** medan fail dan tidak membuka pemilih fail, kerana pelayar menyekat pembukaan
+dialog fail tanpa gerak isyarat pengguna.
+
 ## Halaman pendaratan
 
 `/` ialah halaman pendaratan awam. Pengguna yang sudah log masuk dialihkan terus ke dashboard,
@@ -214,6 +228,11 @@ php artisan test
   boleh menggunakan SKU yang sama tanpa berlanggar.
 - `tests/Feature/RegistrationTest.php` — pendaftaran sendiri, ruang kerja berasingan bagi
   setiap pendaftaran, dan kemunculan butang Google mengikut konfigurasi.
+- `tests/Feature/ButangPantasTest.php` — butang tindakan pantas: kehadirannya pada setiap
+  halaman sistem, keempat-empat pintasan, `?mod=` yang membezakan Imbas dan Muat Naik, dan
+  ketiadaannya pada halaman awam.
+- `tests/Feature/KataLaluanTest.php` — butang mata pada kelima-lima medan kata laluan,
+  termasuk `type="button"` supaya menekannya tidak menghantar borang.
 - `tests/Feature/LandingTest.php` — halaman pendaratan: setiap pautan nav mempunyai seksyennya,
   ketiga-tiga pakej harga dipaparkan, pilihan bahasa dihormati, dan pengguna yang sudah log
   masuk dialihkan ke dashboard.

@@ -83,6 +83,8 @@
     </main>
 </div>
 
+@include('partials.butang-pantas')
+
 @stack('skrip')
 </body>
 </html>

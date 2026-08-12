@@ -106,6 +106,17 @@ return [
         'log_keluar' => 'Log Out',
     ],
 
+    /* Floating quick-action button shown on every page inside the system. */
+    'pantas' => [
+        'tajuk' => 'Quick Actions',
+        'buka' => 'Open quick actions',
+        'tutup' => 'Close quick actions',
+        'imbas_resit' => 'Scan Receipt',
+        'muat_naik' => 'Upload',
+        'tambah_produk' => 'Add Product',
+        'tambah_kategori' => 'Add Category',
+    ],
+
     'aksi' => [
         'tunjuk_kata_laluan' => 'Show password',
         'sembunyi_kata_laluan' => 'Hide password',

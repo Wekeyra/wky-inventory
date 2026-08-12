@@ -318,6 +318,18 @@
                     + `-${dua(t.getHours())}${dua(t.getMinutes())}${dua(t.getSeconds())}.jpg`;
             }
 
+            // Pintasan daripada butang tindakan pantas. 'kamera' membuka kamera
+            // terus; 'fail' hanya menumpukan medan fail kerana pemilih fail
+            // tidak boleh dibuka secara program tanpa gerak isyarat pengguna.
+            const mod = new URLSearchParams(window.location.search).get('mod');
+
+            if (mod === 'kamera') {
+                butangKamera.click();
+            } else if (mod === 'fail') {
+                medanFail.focus({ preventScroll: true });
+                medanFail.scrollIntoView({ block: 'center' });
+            }
+
             // Modal boleh ditutup melalui Escape, klik latar atau butang Batal.
             // Memerhati kelasnya bermakna kamera dimatikan pada ketiga-tiga cara.
             new MutationObserver(function () {

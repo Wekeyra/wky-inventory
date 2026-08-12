@@ -267,6 +267,51 @@
         padding-right: 2.75rem;
     }
 
+    /* ---------- Butang tindakan pantas (terapung) ---------- */
+
+    .butang-pantas {
+        @apply grid size-14 cursor-pointer place-items-center rounded-full border border-merah
+               bg-merah text-white transition-transform hover:bg-merah-pekat
+               focus-visible:ring-2 focus-visible:ring-merah/50 focus-visible:outline-none;
+
+        box-shadow: 0 12px 28px -8px rgba(220, 38, 38, 0.55);
+    }
+
+    /* Tanda tambah berputar menjadi silang apabila menu terbuka. */
+    .butang-pantas svg {
+        @apply transition-transform duration-200;
+    }
+
+    .butang-pantas[aria-expanded='true'] svg {
+        transform: rotate(45deg);
+    }
+
+    /*
+     | 'hidden' ditogol oleh pengendali data-jatuh. Utiliti 'flex' tidak boleh
+     | digunakan bersamanya kerana kedua-duanya menetapkan display dan mana yang
+     | menang bergantung pada susunan stylesheet — jadi display dipulihkan di
+     | sini dengan pemilih yang lebih khusus.
+     */
+    .menu-pantas {
+        @apply flex-col items-end gap-2;
+    }
+
+    .menu-pantas:not(.hidden) {
+        display: flex;
+    }
+
+    .pautan-pantas {
+        @apply flex items-center gap-3 rounded-full border border-bingkai bg-tinggi py-1.5 pr-1.5 pl-4
+               text-sm font-medium whitespace-nowrap text-teks transition-colors
+               hover:border-merah hover:text-white;
+
+        box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.9);
+    }
+
+    .ikon-pantas {
+        @apply grid size-9 shrink-0 place-items-center rounded-full bg-merah text-white;
+    }
+
     .butang-mata {
         @apply absolute inset-y-0 right-0 grid w-11 cursor-pointer place-items-center rounded-r-md
                text-malap transition-colors hover:text-white
