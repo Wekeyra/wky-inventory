@@ -236,14 +236,14 @@
     }
 
     /*
-     | Cahaya merah memberi logo kedudukan pada halaman; kilau putih nipis di
-     | belakangnya memberi anak panah hitam sesuatu untuk berdiri atasnya —
-     | tanpa itu ia lebur terus ke dalam latar gelap.
+     | Cahaya merah lembut memberi logo kedudukan pada halaman.
+     |
+     | Tiada kilau putih di sini. Ia pernah ditambah untuk memberi anak panah
+     | hitam tepi yang nyata, tetapi ia meninggalkan garis terang di sekeliling
+     | bahagian merah yang menjadikan logo nampak seperti pelekat bergunting.
      */
     .jenama-log-masuk {
-        filter:
-            drop-shadow(0 0 22px rgba(220, 38, 38, 0.5))
-            drop-shadow(0 0 4px rgba(255, 255, 255, 0.2));
+        filter: drop-shadow(0 0 22px rgba(220, 38, 38, 0.5));
     }
 
     /*
