@@ -1,7 +1,11 @@
 # WKY Inventory
 
-Sistem pengurusan inventori berasaskan Laravel 13 untuk kegunaan dalaman — merekod produk,
-kategori, pembekal, dan setiap pergerakan stok masuk/keluar dengan jejak audit penuh.
+Sistem pengurusan inventori berasaskan Laravel 13 — merekod produk, kategori, pembekal, dan
+setiap pergerakan stok masuk/keluar dengan jejak audit penuh.
+
+Setiap syarikat yang mendaftar mendapat **ruang kerjanya sendiri** dengan inventori yang
+berasingan sepenuhnya, jadi satu pemasangan boleh menampung banyak syarikat tanpa data
+bertemu antara satu sama lain.
 
 ## Modul
 
@@ -15,7 +19,7 @@ kategori, pembekal, dan setiap pergerakan stok masuk/keluar dengan jejak audit p
 | **Kiraan Stok** | Sesi kiraan fizikal (stock take): sistem simpan gambaran baki, staf masukkan kiraan sebenar, sistem tunjuk perbezaan dan laraskan stok selepas disahkan |
 | **Pergerakan Stok** | Rekod stok masuk, keluar, dan pelarasan — setiap satu menyimpan baki sebelum/selepas |
 | **Laporan Bulanan** | Pecahan masuk/keluar per produk mengikut bulan, perubahan bersih, dan susun atur mesra cetak |
-| **Pengguna** | Pengurusan akaun dan peranan (admin / staf). Hanya admin boleh akses |
+| **Pengguna** | Pengurusan akaun dan peranan (admin / staf) dalam ruang kerja sendiri. Hanya admin boleh akses |
 
 Kuantiti stok **tidak boleh** diubah terus melalui borang produk. Ia hanya berubah melalui modul
 Pergerakan Stok atau pengesahan sesi Kiraan Stok, supaya setiap perubahan baki mempunyai rekod
@@ -33,6 +37,73 @@ siapa, bila, dan sebab.
 Pada langkah pengesahan, baki dibaca semula daripada pangkalan data dan bukan daripada gambaran
 sesi, kerana stok mungkin berubah antara pembukaan sesi dan pengesahan. Sesi yang telah selesai
 atau dibatalkan tidak boleh diubah lagi.
+
+## Ruang kerja
+
+Setiap syarikat memiliki satu **ruang kerja**. Produk, kategori, pembekal, pergerakan stok,
+sesi kiraan, imbasan invois dan pengguna semuanya dimiliki oleh satu ruang kerja, dan tidak
+pernah bertemu data ruang kerja lain.
+
+Pengasingan dikuatkuasakan pada peringkat **model** melalui
+[`MilikRuangKerja`](app/Models/Concerns/MilikRuangKerja.php), bukan dengan menapis pada setiap
+pertanyaan. Sebabnya mudah: satu pertanyaan yang terlepas sudah cukup untuk membocorkan data
+satu syarikat kepada syarikat lain. Dengan skop global pada model, laluan yang tidak pernah
+disentuh pun tetap terasing — termasuk pengikatan model pada laluan, yang memulangkan **404**
+apabila rekod itu milik ruang kerja lain, bukan sekadar menyembunyikannya.
+
+Beberapa akibat yang perlu diketahui semasa menyunting kod:
+
+- Baris baharu ditanda dengan ruang kerja pengguna secara automatik semasa `creating`. Tiada
+  controller perlu menetapkan `workspace_id` sendiri.
+- Apabila tiada sesiapa log masuk — seeder, migrasi, arahan konsol — skop tidak dipasang,
+  kerana konteks itu memang perlu melihat semua ruang kerja. Sebab itu seeder menetapkan
+  `workspace_id` secara terus.
+- Model `User` **tidak** menggunakan skop ini. Skop itu perlu membaca pengguna yang sedang log
+  masuk, dan membacanya melalui model yang sama akan berulang tanpa henti. Pemilikan pengguna
+  disemak terus dalam `UserController`.
+- Kod dan SKU unik **dalam ruang kerja**, bukan merentas sistem. Dua syarikat berlainan bebas
+  menggunakan `ELK-001` yang sama. Peraturan `unique` dan `exists` dalam controller turut
+  berskop, jadi id milik syarikat lain tidak boleh dipaut dengan menyuapnya terus ke borang.
+
+### Memisahkan akaun sedia ada
+
+Migrasi ruang kerja meletakkan semua akaun yang wujud sebelum ini dalam satu ruang kerja lalai
+supaya tiada data hilang. Akaun yang sepatutnya berasingan boleh dipindahkan ke ruang kerja
+kosong miliknya:
+
+```bash
+php artisan pengguna:pisah emel@syarikat.com --nama="Nama Syarikat"
+```
+
+Data lama kekal milik ruang kerja asal. Arahan ini menolak permintaan apabila akaun itu
+satu-satunya pengguna dalam ruang kerjanya, kerana memindahkannya akan meninggalkan data di
+situ tanpa sesiapa yang boleh mencapainya.
+
+## Akaun dan log masuk
+
+Sesiapa boleh mendaftar di `/daftar` dengan mengisi nama syarikat. Sistem mencipta ruang kerja
+baharu yang kosong dan pendaftar menjadi **admin** ruang kerja itu, jadi dia boleh menambah
+stafnya sendiri melalui halaman Pengguna. Peranan ditetapkan dalam controller dan bukan
+daripada borang, supaya pendaftaran sendiri tidak boleh menghasilkan admin sistem.
+
+### Log masuk Google
+
+Butang **Teruskan dengan Google** muncul pada halaman log masuk dan pendaftaran hanya apabila
+kedua-dua kunci di bawah diisi. Tanpa kunci, butang itu tersembunyi dan laluannya memulangkan
+404 — pemasangan tanpa Google tetap berfungsi penuh.
+
+| Kunci `.env` | Kegunaan |
+|---|---|
+| `GOOGLE_CLIENT_ID` | Client ID daripada Google Cloud Console |
+| `GOOGLE_CLIENT_SECRET` | Client secret |
+| `GOOGLE_REDIRECT_URI` | Lalai `{APP_URL}/auth/google/callback` |
+
+Daftar kelayakan OAuth di https://console.cloud.google.com/apis/credentials sebagai *Web
+application*, dan masukkan `{APP_URL}/auth/google/callback` sebagai *Authorized redirect URI*.
+
+Emel Google yang belum disahkan ditolak, kerana emel yang tidak disahkan tidak boleh
+dipercayai untuk memadankan akaun sedia ada. Akaun Google baharu memulakan ruang kerjanya
+sendiri; akaun sedia ada yang emelnya sepadan akan dipautkan secara automatik.
 
 ## Keperluan
 
@@ -74,7 +145,25 @@ perubahan CSS dan Blade dimuat semula secara automatik.
 | `admin@wekeyra.test` | `password123` | Admin |
 | `staf@wekeyra.test` | `password123` | Staf |
 
-> Tukar kata laluan ini sebelum sistem digunakan untuk data sebenar.
+Kedua-duanya berada dalam ruang kerja contoh bernama **Wekeyra** bersama produk, kategori dan
+pembekal contoh.
+
+> Tukar kata laluan ini sebelum sistem digunakan untuk data sebenar. Halaman pendaftaran
+> terbuka kepada umum, jadi kelayakan lalai yang tidak ditukar pada URL awam bermakna sesiapa
+> boleh masuk ke ruang kerja contoh itu.
+
+## Deploy
+
+Selepas setiap deploy yang membawa migrasi baharu:
+
+```bash
+php artisan migrate --force
+```
+
+Letakkan arahan ini dalam *deploy command* hos anda supaya ia berjalan automatik. Migrasi yang
+tidak dijalankan menyebabkan setiap halaman yang menyentuh pangkalan data memulangkan ralat
+500, sementara halaman statik seperti log masuk masih kelihatan normal — corak yang mudah
+disalah anggap sebagai pepijat kod.
 
 ## Ujian
 
@@ -91,12 +180,37 @@ php artisan test
 - `tests/Feature/InvoiceScanTest.php` — imbasan invois: padanan SKU dan nama, baris tanpa
   padanan, pemilihan manual, baris dilangkau, pengesahan yang merekod stok masuk, dan
   pengendalian ralat AI. Menggunakan pengekstrak palsu — tiada panggilan API sebenar.
+- `tests/Feature/WorkspaceIsolationTest.php` — membina dua syarikat lengkap dan memastikan
+  tiada laluan membocorkan data antara keduanya: senarai, dashboard, capaian terus melalui
+  URL, dan percubaan merekod stok untuk produk syarikat lain. Turut mengesahkan dua syarikat
+  boleh menggunakan SKU yang sama tanpa berlanggar.
+- `tests/Feature/RegistrationTest.php` — pendaftaran sendiri, ruang kerja berasingan bagi
+  setiap pendaftaran, dan kemunculan butang Google mengikut konfigurasi.
+- `tests/Feature/PisahkanPenggunaTest.php` — arahan `pengguna:pisah`, termasuk penolakan
+  apabila akaun itu satu-satunya pengguna dalam ruang kerjanya.
 
 ## Imbas Invois (AI)
 
 Muat naik foto atau PDF invois; Claude membaca baris barangnya dan sistem memadankannya
 dengan produk sedia ada. **Stok tidak berubah semasa imbasan** — anda melihat skrin semakan
 dahulu, dan hanya menekan *Sahkan & Rekod Stok Masuk* yang menjana pergerakan stok.
+
+### Ambil gambar terus
+
+Butang **Ambil Gambar** membuka pratonton kamera dalam halaman dan menyerahkan hasilnya kepada
+medan fail yang sama, jadi semua pengesahan dan laluan muat naik kekal tidak berubah. Pratonton
+kecil dengan butang *Ambil Semula* muncul selepas menangkap, supaya gambar kabur dapat diganti
+sebelum membazir satu panggilan AI.
+
+- Gambar dikecilkan kepada **2000px** sebelum dihantar. Teks invois masih tajam untuk dibaca,
+  tetapi failnya jauh lebih kecil daripada keluaran penuh kamera telefon moden.
+- Kamera belakang digunakan pada telefon (`facingMode: environment`). Butang *Tukar Kamera*
+  muncul hanya apabila peranti mempunyai lebih daripada satu kamera.
+- Kamera dimatikan apabila modal ditutup melalui butang, kekunci Escape mahupun klik latar,
+  supaya lampu kamera tidak kekal menyala.
+- Pratonton dalam halaman memerlukan **HTTPS**. Pada halaman biasa seperti `http://…` di
+  Laragon, butang itu jatuh kepada input `capture="environment"` — yang tetap membuka aplikasi
+  kamera pada telefon. Ini sekatan keselamatan pelayar, bukan pepijat.
 
 ### Persediaan
 
@@ -143,8 +257,14 @@ pelaksanaan palsu supaya suite ujian tidak pernah memanggil API sebenar.
 ## Dwibahasa (BM / EN)
 
 Antara muka tersedia dalam Bahasa Melayu (lalai) dan English. Butang **BM / EN** di bar atas
-setiap halaman — termasuk halaman log masuk — menukar bahasa serta-merta. Pilihan disimpan
-dalam sesi, jadi ia kekal sehingga pengguna menukarnya semula.
+setiap halaman — termasuk halaman log masuk dan pendaftaran — menukar bahasa serta-merta.
+Pilihan disimpan dalam sesi, jadi ia kekal sehingga pengguna menukarnya semula.
+
+Pautan bahasa menuju ke URL halaman semasa dengan `?bahasa=xx`, yang dibaca oleh middleware
+`SetLocale`. Ia menyimpan pilihan **dan** terus menggunakannya dalam permintaan yang sama, jadi
+menukar bahasa hanya satu permintaan HTTP dan bukan dua. Kerana pautan dibina dengan
+`fullUrlWithQuery()`, penapis carian dan nombor halaman pada URL semasa turut dikekalkan.
+Laluan lama `/bahasa/{locale}` masih berfungsi untuk pautan yang ditanda buku.
 
 | Fail | Kandungan |
 |---|---|
@@ -171,7 +291,8 @@ dibungkus ke dalam `public/build`, jadi sistem berfungsi sepenuhnya tanpa sambun
 | `resources/js/app.js` | Menu jatuh, modal, tutup amaran, dan Chart.js — pengganti Bootstrap JS |
 | `resources/views/components/ikon.blade.php` | Ikon SVG terbaris (`<x-ikon nama="kotak" />`) |
 | `resources/views/components/logo-wky.blade.php` | Logo — guna fail sebenar jika ada, jika tidak lukis SVG |
-| `resources/views/components/latar-log-masuk.blade.php` | Latar konstelasi dan siluet bandar untuk halaman log masuk |
+| `resources/views/components/latar-log-masuk.blade.php` | Latar konstelasi dan siluet bandar untuk halaman log masuk dan pendaftaran |
+| `resources/views/partials/butang-google.blade.php` | Butang log masuk Google; menyembunyikan dirinya apabila OAuth belum dikonfigur |
 
 ### Menukar logo
 
@@ -196,3 +317,8 @@ Dua perkara yang perlu diberi perhatian apabila menyunting:
   pengguna mengubah baki produk yang sama secara serentak.
 - `public/build` tidak disimpan dalam Git. Selepas `git clone` atau `git pull` yang menyentuh
   antara muka, jalankan `npm run build` semula.
+- Halaman log masuk dan pendaftaran menggunakan `overflow-x-hidden` pada `<body>`, bukan
+  `overflow-hidden`. `overflow-hidden` mematikan skrol menegak sepenuhnya, yang menjadikan
+  kandungan di bawah kad — termasuk pautan kembali ke log masuk — tidak boleh dicapai.
+- Latar konstelasi menggunakan kedudukan `fixed` supaya halaman yang lebih panjang daripada
+  skrin kekal sama rupa semasa diskrol, bukan meregang mengikut tinggi dokumen.
