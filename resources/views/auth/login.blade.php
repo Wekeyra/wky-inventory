@@ -6,7 +6,8 @@
     <title>{{ __('wky.aksi.log_masuk') }} &middot; {{ config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="latar-log-masuk relative min-h-screen overflow-hidden">
+{{-- overflow-x-hidden sahaja supaya halaman kekal boleh diskrol pada skrin pendek. --}}
+<body class="latar-log-masuk relative min-h-screen overflow-x-hidden">
     <x-latar-log-masuk />
 
     <main class="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-10">

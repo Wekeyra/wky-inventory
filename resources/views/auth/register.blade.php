@@ -6,11 +6,20 @@
     <title>{{ __('wky.auth.daftar') }} &middot; {{ config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="latar-log-masuk relative min-h-screen overflow-hidden">
+{{--
+    overflow-x-hidden sahaja, bukan overflow-hidden: halaman ini lebih panjang
+    daripada skrin dan mesti boleh diskrol ke bawah.
+--}}
+<body class="latar-log-masuk relative min-h-screen overflow-x-hidden">
     <x-latar-log-masuk />
 
-    <main class="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-10">
-        <div class="mb-6">
+    <main class="relative z-10 flex min-h-screen flex-col items-center px-4 py-8">
+        <div class="mb-8 flex w-full max-w-5xl flex-wrap items-center justify-between gap-3">
+            <a href="{{ route('login') }}" class="pautan-kembali">
+                <x-ikon nama="anak-panah-kiri" kelas="size-4" />
+                {{ __('wky.auth.kembali_log_masuk') }}
+            </a>
+
             @include('partials.bahasa')
         </div>
 
@@ -77,7 +86,41 @@
             </p>
         </div>
 
-        <p class="mt-8 text-xs text-malap/70">
+        <section class="mt-16 w-full max-w-5xl">
+            <div class="mb-8 text-center">
+                <h2 class="text-xl font-semibold text-white sm:text-2xl">{{ __('wky.auth.ciri_tajuk') }}</h2>
+                <p class="mx-auto mt-2 max-w-xl text-sm text-malap">{{ __('wky.auth.ciri_subtajuk') }}</p>
+            </div>
+
+            @php
+                $ciri = [
+                    ['kotak', 'produk'],
+                    ['imbas', 'imbas'],
+                    ['papan-klip', 'kiraan'],
+                    ['anak-panah-dua-arah', 'pergerakan'],
+                    ['dokumen-carta', 'laporan'],
+                    ['pengguna-ramai', 'pasukan'],
+                ];
+            @endphp
+
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach ($ciri as [$ikon, $kunci])
+                    <div class="kad-ciri">
+                        <div class="ikon-ciri"><x-ikon :nama="$ikon" /></div>
+                        <h3 class="mb-1.5 font-semibold text-white">{{ __('wky.auth.ciri_' . $kunci . '_tajuk') }}</h3>
+                        <p class="text-sm leading-relaxed text-malap">{{ __('wky.auth.ciri_' . $kunci . '_teks') }}</p>
+                    </div>
+                @endforeach
+            </div>
+
+            <div class="mt-10 text-center">
+                <a href="#" class="pautan-auth text-sm" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;">
+                    {{ __('wky.auth.daftar') }} &uarr;
+                </a>
+            </div>
+        </section>
+
+        <p class="mt-12 mb-4 text-xs text-malap/70">
             &copy; {{ now()->format('Y') }} {{ config('app.name') }}
         </p>
     </main>

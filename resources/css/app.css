@@ -208,20 +208,26 @@
      | Latar berlapis: cahaya merah dari atas, cahaya kedua yang lebih gelap
      | dari bawah, di atas warna hampir hitam kemerahan.
      */
+    /*
+     | Latar dilekatkan pada viewport supaya halaman yang lebih panjang daripada
+     | skrin — seperti halaman pendaftaran — kekal sama rupa semasa diskrol,
+     | bukan meregang mengikut tinggi dokumen.
+     */
     .latar-log-masuk {
         background:
             radial-gradient(70rem 45rem at 50% -12%, rgba(220, 38, 38, 0.28), transparent 68%),
             radial-gradient(50rem 30rem at 50% 108%, rgba(127, 29, 29, 0.35), transparent 70%),
             #0a0507;
+        background-attachment: fixed;
     }
 
     /* Rangkaian titik dan garis; dijana sekali dalam Blade dan tidak berinteraksi. */
     .konstelasi {
-        @apply pointer-events-none absolute inset-0 h-full w-full;
+        @apply pointer-events-none fixed inset-0 h-full w-full;
     }
 
     .siluet-bandar {
-        @apply pointer-events-none absolute inset-x-0 bottom-0 w-full;
+        @apply pointer-events-none fixed inset-x-0 bottom-0 w-full;
     }
 
     .jenama-log-masuk {
@@ -319,6 +325,28 @@
     /* Pautan kecil di bawah kad log masuk dan pendaftaran. */
     .pautan-auth {
         @apply font-medium text-merah-terang hover:text-white;
+    }
+
+    /* Pautan kembali di bar atas halaman pendaftaran. */
+    .pautan-kembali {
+        @apply inline-flex items-center gap-1.5 rounded-md border border-bingkai bg-black/30 px-3 py-2
+               text-xs font-medium text-malap transition-colors
+               hover:border-merah hover:bg-tinggi hover:text-white;
+    }
+
+    /* Kad ciri di bawah borang pendaftaran. */
+    .kad-ciri {
+        @apply rounded-xl border border-merah/15 bg-black/35 p-5 backdrop-blur-sm transition-colors;
+
+        box-shadow: 0 12px 30px -18px rgba(0, 0, 0, 0.9);
+    }
+
+    .kad-ciri:hover {
+        @apply border-merah/45 bg-black/50;
+    }
+
+    .ikon-ciri {
+        @apply mb-3 grid size-11 place-items-center rounded-lg border border-merah/25 bg-merah/10 text-merah-terang;
     }
 
     /* ---------- Navigasi sisi ---------- */
