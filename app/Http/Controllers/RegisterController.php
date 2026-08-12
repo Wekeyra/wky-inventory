@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
 
 class RegisterController extends Controller
@@ -23,13 +24,13 @@ class RegisterController extends Controller
             'password' => ['required', 'confirmed', Password::min(8)],
         ]);
 
-        // Peranan dan status ditetapkan di sini, bukan daripada borang, supaya
-        // pendaftaran sendiri tidak boleh menghasilkan admin atau akaun aktif.
-        User::create($data + [
-            'peranan' => 'staf',
-            'status' => 'menunggu',
-        ]);
+        // Peranan ditetapkan di sini, bukan daripada borang, supaya pendaftaran
+        // sendiri tidak boleh menghasilkan admin.
+        $pengguna = User::create($data + ['peranan' => 'staf']);
 
-        return redirect()->route('login')->with('status', __('wky.flash.daftar_menunggu'));
+        Auth::login($pengguna);
+        $request->session()->regenerate();
+
+        return redirect()->route('dashboard')->with('status', __('wky.flash.daftar_berjaya'));
     }
 }

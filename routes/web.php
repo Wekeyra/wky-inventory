@@ -31,7 +31,7 @@ Route::middleware('guest')->group(function () {
     Route::get('auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
 });
 
-Route::middleware(['auth', 'aktif'])->group(function () {
+Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -67,9 +67,5 @@ Route::middleware(['auth', 'aktif'])->group(function () {
 
     Route::get('laporan/bulanan', [ReportController::class, 'monthly'])->name('reports.monthly');
 
-    Route::middleware('admin')->group(function () {
-        Route::resource('users', UserController::class)->except('show');
-        Route::post('users/{user}/luluskan', [UserController::class, 'luluskan'])->name('users.luluskan');
-        Route::post('users/{user}/tolak', [UserController::class, 'tolak'])->name('users.tolak');
-    });
+    Route::resource('users', UserController::class)->except('show')->middleware('admin');
 });

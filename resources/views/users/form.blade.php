@@ -8,7 +8,7 @@
         @if ($user->exists) @method('PUT') @endif
 
         @php
-            // Admin tidak boleh menurunkan peranan atau status akaunnya sendiri.
+            // Admin tidak boleh menurunkan peranan akaunnya sendiri.
             $sendiri = $user->exists && $user->is(auth()->user());
         @endphp
 
@@ -40,21 +40,9 @@
                 </select>
             </div>
 
-            <div>
-                <label for="status" class="mb-1 block font-medium">{{ __('wky.medan.status') }} <span class="text-merah">*</span></label>
-                <select id="status" name="status" required @disabled($sendiri)>
-                    @foreach (['aktif', 'menunggu', 'ditolak'] as $pilihan)
-                        <option value="{{ $pilihan }}" @selected(old('status', $user->status) === $pilihan)>
-                            {{ __('wky.pengguna.status_' . $pilihan . '_pilihan') }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
             {{-- Medan yang dilumpuhkan tidak dihantar, jadi nilai sedia ada disertakan di sini. --}}
             @if ($sendiri)
                 <input type="hidden" name="peranan" value="{{ $user->peranan }}">
-                <input type="hidden" name="status" value="{{ $user->status }}">
             @endif
 
             <div>

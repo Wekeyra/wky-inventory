@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'google_id', 'peranan', 'status', 'password'])]
+#[Fillable(['name', 'email', 'google_id', 'peranan', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -34,16 +34,6 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->peranan === 'admin';
-    }
-
-    public function isAktif(): bool
-    {
-        return $this->status === 'aktif';
-    }
-
-    public function isMenunggu(): bool
-    {
-        return $this->status === 'menunggu';
     }
 
     public function movements(): HasMany

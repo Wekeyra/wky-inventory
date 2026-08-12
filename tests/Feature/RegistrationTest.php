@@ -17,7 +17,6 @@ class RegistrationTest extends TestCase
             'name' => 'Admin Ujian',
             'email' => 'admin@ujian.test',
             'peranan' => 'admin',
-            'status' => 'aktif',
             'password' => 'password123',
         ]);
     }
@@ -44,27 +43,40 @@ class RegistrationTest extends TestCase
         $this->get('/daftar')->assertOk();
     }
 
-    public function test_pendaftaran_mencipta_akaun_menunggu_kelulusan(): void
+    public function test_pendaftaran_terus_log_masuk_ke_dashboard(): void
     {
         $this->daftar()
-            ->assertRedirect('/login')
+            ->assertRedirect(route('dashboard'))
             ->assertSessionHas('status');
 
         $pengguna = User::where('email', 'baharu@ujian.test')->firstOrFail();
 
-        $this->assertSame('menunggu', $pengguna->status);
         $this->assertSame('staf', $pengguna->peranan);
-        $this->assertGuest();
+        $this->assertAuthenticatedAs($pengguna);
+    }
+
+    public function test_pengguna_baharu_terus_boleh_guna_sistem(): void
+    {
+        $this->daftar();
+
+        $this->get('/dashboard')->assertOk();
+        $this->get('/products')->assertOk();
     }
 
     public function test_pendaftaran_tidak_boleh_menetapkan_peranan_admin(): void
     {
-        $this->daftar(['peranan' => 'admin', 'status' => 'aktif']);
+        $this->daftar(['peranan' => 'admin']);
 
         $pengguna = User::where('email', 'baharu@ujian.test')->firstOrFail();
 
         $this->assertSame('staf', $pengguna->peranan);
-        $this->assertSame('menunggu', $pengguna->status);
+    }
+
+    public function test_pengguna_baharu_tidak_boleh_urus_pengguna(): void
+    {
+        $this->daftar();
+
+        $this->get('/users')->assertForbidden();
     }
 
     public function test_emel_berulang_ditolak(): void
@@ -72,83 +84,19 @@ class RegistrationTest extends TestCase
         $this->admin();
 
         $this->daftar(['email' => 'admin@ujian.test'])->assertSessionHasErrors('email');
+        $this->assertGuest();
     }
 
     public function test_kata_laluan_perlu_disahkan(): void
     {
         $this->daftar(['password_confirmation' => 'lain12345'])->assertSessionHasErrors('password');
-    }
-
-    public function test_akaun_menunggu_tidak_boleh_log_masuk(): void
-    {
-        User::factory()->menunggu()->create([
-            'email' => 'tunggu@ujian.test',
-            'password' => 'password123',
-        ]);
-
-        $this->post('/login', ['email' => 'tunggu@ujian.test', 'password' => 'password123'])
-            ->assertSessionHasErrors('email');
-
         $this->assertGuest();
     }
 
-    public function test_akaun_ditolak_tidak_boleh_log_masuk(): void
+    public function test_kata_laluan_pendek_ditolak(): void
     {
-        User::factory()->create([
-            'email' => 'tolak@ujian.test',
-            'status' => 'ditolak',
-            'password' => 'password123',
-        ]);
-
-        $this->post('/login', ['email' => 'tolak@ujian.test', 'password' => 'password123'])
-            ->assertSessionHasErrors('email');
-
-        $this->assertGuest();
-    }
-
-    public function test_sesi_hidup_diputuskan_apabila_akaun_tidak_lagi_aktif(): void
-    {
-        $pengguna = User::factory()->create();
-
-        $this->actingAs($pengguna)->get('/dashboard')->assertOk();
-
-        $pengguna->update(['status' => 'ditolak']);
-
-        $this->actingAs($pengguna)->get('/dashboard')->assertRedirect('/login');
-        $this->assertGuest();
-    }
-
-    public function test_admin_boleh_meluluskan_akaun(): void
-    {
-        $menunggu = User::factory()->menunggu()->create();
-
-        $this->actingAs($this->admin())
-            ->post(route('users.luluskan', $menunggu))
-            ->assertSessionHas('status');
-
-        $this->assertSame('aktif', $menunggu->fresh()->status);
-    }
-
-    public function test_admin_boleh_menolak_akaun(): void
-    {
-        $menunggu = User::factory()->menunggu()->create();
-
-        $this->actingAs($this->admin())
-            ->post(route('users.tolak', $menunggu))
-            ->assertSessionHas('status');
-
-        $this->assertSame('ditolak', $menunggu->fresh()->status);
-    }
-
-    public function test_admin_tidak_boleh_menolak_akaun_sendiri(): void
-    {
-        $admin = $this->admin();
-
-        $this->actingAs($admin)
-            ->post(route('users.tolak', $admin))
-            ->assertSessionHas('ralat');
-
-        $this->assertSame('aktif', $admin->fresh()->status);
+        $this->daftar(['password' => 'abc123', 'password_confirmation' => 'abc123'])
+            ->assertSessionHasErrors('password');
     }
 
     public function test_admin_tidak_boleh_menurunkan_peranan_sendiri(): void
@@ -159,21 +107,9 @@ class RegistrationTest extends TestCase
             'name' => 'Admin Ujian',
             'email' => 'admin@ujian.test',
             'peranan' => 'staf',
-            'status' => 'ditolak',
         ])->assertRedirect(route('users.index'));
 
         $this->assertSame('admin', $admin->fresh()->peranan);
-        $this->assertSame('aktif', $admin->fresh()->status);
-    }
-
-    public function test_staf_tidak_boleh_meluluskan_akaun(): void
-    {
-        $menunggu = User::factory()->menunggu()->create();
-        $staf = User::factory()->create(['peranan' => 'staf']);
-
-        $this->actingAs($staf)->post(route('users.luluskan', $menunggu))->assertForbidden();
-
-        $this->assertSame('menunggu', $menunggu->fresh()->status);
     }
 
     public function test_laluan_google_tidak_wujud_tanpa_konfigurasi(): void
@@ -202,7 +138,6 @@ class RegistrationTest extends TestCase
             'services.google.client_secret' => 'ujian-secret',
         ]);
 
-        $this->get('/auth/google')
-            ->assertRedirectContains('accounts.google.com');
+        $this->get('/auth/google')->assertRedirectContains('accounts.google.com');
     }
 }

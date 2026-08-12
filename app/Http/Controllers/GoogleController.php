@@ -47,15 +47,7 @@ class GoogleController extends Controller
             return $this->kembaliDenganRalat(__('wky.auth.google_emel_tidak_sah'));
         }
 
-        $pengguna = $this->cariAtauDaftar($akaun);
-
-        if (! $pengguna->isAktif()) {
-            return $this->kembaliDenganRalat($pengguna->isMenunggu()
-                ? __('wky.auth.akaun_menunggu')
-                : __('wky.auth.akaun_ditolak'));
-        }
-
-        Auth::login($pengguna, true);
+        Auth::login($this->cariAtauDaftar($akaun), true);
         $request->session()->regenerate();
 
         return redirect()->intended(route('dashboard'));
@@ -73,7 +65,6 @@ class GoogleController extends Controller
                 'email' => $akaun->getEmail(),
                 'google_id' => $akaun->getId(),
                 'peranan' => 'staf',
-                'status' => 'menunggu',
             ]);
         }
 

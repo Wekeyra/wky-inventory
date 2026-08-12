@@ -19,12 +19,12 @@ class DatabaseSeeder extends Seeder
     {
         $admin = User::updateOrCreate(
             ['email' => 'admin@wekeyra.test'],
-            ['name' => 'Admin Wekeyra', 'peranan' => 'admin', 'status' => 'aktif', 'password' => Hash::make('password123')],
+            ['name' => 'Admin Wekeyra', 'peranan' => 'admin', 'password' => Hash::make('password123')],
         );
 
         User::updateOrCreate(
             ['email' => 'staf@wekeyra.test'],
-            ['name' => 'Staf Stor', 'peranan' => 'staf', 'status' => 'aktif', 'password' => Hash::make('password123')],
+            ['name' => 'Staf Stor', 'peranan' => 'staf', 'password' => Hash::make('password123')],
         );
 
         $kategori = collect([

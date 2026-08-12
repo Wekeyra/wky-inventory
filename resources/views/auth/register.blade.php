@@ -31,11 +31,6 @@
                 </div>
             @endif
 
-            <div class="amaran-info mb-5">
-                <x-ikon nama="jam" kelas="size-5 shrink-0" />
-                <span>{{ __('wky.auth.nota_kelulusan') }}</span>
-            </div>
-
             <form method="POST" action="{{ route('register') }}" class="space-y-5">
                 @csrf
 
