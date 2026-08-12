@@ -29,7 +29,9 @@
             <h1 class="mt-4 text-2xl font-bold tracking-wide text-white sm:text-3xl">
                 {{ __('wky.auth.daftar_tajuk') }}
             </h1>
-            <p class="mt-1 text-sm tracking-wide text-malap">{{ config('app.name') }}</p>
+            <p class="mt-2">
+                <x-jenama-wky kelas="text-base sm:text-lg" />
+            </p>
         </div>
 
         <div class="kad-log-masuk w-full max-w-md">

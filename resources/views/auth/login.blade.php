@@ -18,10 +18,12 @@
         <div class="mb-8 text-center">
             <x-logo-wky kelas="jenama-log-masuk mx-auto size-36 sm:size-44" />
 
-            <h1 class="mt-4 text-3xl font-bold tracking-wide text-white sm:text-4xl">
-                {{ config('app.name') }}
+            <h1 class="mt-5">
+                <x-jenama-wky kelas="text-3xl sm:text-4xl" />
             </h1>
-            <p class="mt-1 text-sm tracking-wide text-malap">{{ __('wky.app.subtajuk') }}</p>
+            <p class="mt-2.5 text-[0.7rem] tracking-[0.3em] text-malap uppercase sm:text-xs">
+                {{ __('wky.app.subtajuk') }}
+            </p>
         </div>
 
         <div class="kad-log-masuk w-full max-w-md">
