@@ -246,6 +246,33 @@
         filter: drop-shadow(0 0 22px rgba(220, 38, 38, 0.5));
     }
 
+    /* ---------- Medan kata laluan dengan butang mata ---------- */
+
+    .medan-kata-laluan {
+        @apply relative;
+    }
+
+    /*
+     | Ruang untuk butang mata. Ditulis dengan pemilih yang cukup khusus untuk
+     | mengatasi padding input dalam kad log masuk — utiliti pr-* pada input
+     | sendiri kalah kepada `.kad-log-masuk input[type='password']`.
+     |
+     | Kedua-dua jenis disenaraikan kerana JavaScript menukar type kepada 'text'
+     | apabila kata laluan ditunjukkan; tanpa itu padding melompat semasa ditogol.
+     */
+    .medan-kata-laluan input[type='password'],
+    .medan-kata-laluan input[type='text'],
+    .kad-log-masuk .medan-kata-laluan input[type='password'],
+    .kad-log-masuk .medan-kata-laluan input[type='text'] {
+        padding-right: 2.75rem;
+    }
+
+    .butang-mata {
+        @apply absolute inset-y-0 right-0 grid w-11 cursor-pointer place-items-center rounded-r-md
+               text-malap transition-colors hover:text-white
+               focus-visible:ring-2 focus-visible:ring-merah/40 focus-visible:outline-none;
+    }
+
     /*
      | Kad log masuk: kaca gelap dengan bingkai merah lembut. Lengkung bercahaya
      | di bahagian atas dibuat dengan pseudo-elemen supaya tiada markup tambahan.

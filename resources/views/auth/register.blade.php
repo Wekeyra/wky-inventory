@@ -74,16 +74,16 @@
                     <label for="password" class="mb-1.5 block text-sm font-medium text-teks">
                         {{ __('wky.medan.kata_laluan') }}
                     </label>
-                    <input type="password" id="password" name="password"
-                           required autocomplete="new-password">
+                    <x-medan-kata-laluan id="password" name="password"
+                                         required autocomplete="new-password" />
                 </div>
 
                 <div>
                     <label for="password_confirmation" class="mb-1.5 block text-sm font-medium text-teks">
                         {{ __('wky.medan.sahkan_kata_laluan') }}
                     </label>
-                    <input type="password" id="password_confirmation" name="password_confirmation"
-                           required autocomplete="new-password">
+                    <x-medan-kata-laluan id="password_confirmation" name="password_confirmation"
+                                         required autocomplete="new-password" />
                 </div>
 
                 <button type="submit" class="btn-logam">{{ __('wky.auth.daftar') }}</button>

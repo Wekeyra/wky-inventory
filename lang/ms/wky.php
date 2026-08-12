@@ -107,6 +107,8 @@ return [
     ],
 
     'aksi' => [
+        'tunjuk_kata_laluan' => 'Tunjuk kata laluan',
+        'sembunyi_kata_laluan' => 'Sembunyikan kata laluan',
         'tambah' => 'Tambah',
         'simpan' => 'Simpan',
         'kemas_kini' => 'Kemas Kini',

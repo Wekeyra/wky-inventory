@@ -56,8 +56,8 @@
                     <label for="password" class="mb-1.5 block text-sm font-medium text-teks">
                         {{ __('wky.medan.kata_laluan') }}
                     </label>
-                    <input type="password" id="password" name="password"
-                           required autocomplete="current-password">
+                    <x-medan-kata-laluan id="password" name="password"
+                                         required autocomplete="current-password" />
                 </div>
 
                 <label for="ingat_saya" class="flex cursor-pointer items-center gap-2 text-sm">

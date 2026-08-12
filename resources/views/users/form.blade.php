@@ -56,13 +56,15 @@
                         <span class="text-merah">*</span>
                     @endif
                 </label>
-                <input type="password" id="password" name="password" @required(! $user->exists) @error('password') class="medan-ralat" @enderror>
+                <x-medan-kata-laluan id="password" name="password" :wajib="! $user->exists"
+                                     :class="$errors->has('password') ? 'medan-ralat' : ''" />
                 @error('password') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
             </div>
 
             <div>
                 <label for="password_confirmation" class="mb-1 block font-medium">{{ __('wky.medan.sahkan_kata_laluan') }}</label>
-                <input type="password" id="password_confirmation" name="password_confirmation" @required(! $user->exists)>
+                <x-medan-kata-laluan id="password_confirmation" name="password_confirmation"
+                                     :wajib="! $user->exists" />
             </div>
         </div>
 

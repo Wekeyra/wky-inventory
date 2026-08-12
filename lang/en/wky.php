@@ -107,6 +107,8 @@ return [
     ],
 
     'aksi' => [
+        'tunjuk_kata_laluan' => 'Show password',
+        'sembunyi_kata_laluan' => 'Hide password',
         'tambah' => 'Add',
         'simpan' => 'Save',
         'kemas_kini' => 'Update',

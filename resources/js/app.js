@@ -95,10 +95,49 @@ function mulakanAmaran() {
     });
 }
 
+/**
+ * Butang mata pada medan kata laluan. Pencetus membawa
+ * data-tunjuk-kata-laluan="<id medan>".
+ */
+function mulakanTunjukKataLaluan() {
+    document.querySelectorAll('[data-tunjuk-kata-laluan]').forEach((butang) => {
+        const medan = document.getElementById(butang.dataset.tunjukKataLaluan);
+
+        if (! medan) {
+            return;
+        }
+
+        butang.addEventListener('click', () => {
+            const sedangTersembunyi = medan.type === 'password';
+
+            medan.type = sedangTersembunyi ? 'text' : 'password';
+
+            const label = sedangTersembunyi
+                ? butang.dataset.labelSembunyi
+                : butang.dataset.labelTunjuk;
+
+            butang.setAttribute('aria-pressed', sedangTersembunyi ? 'true' : 'false');
+            butang.setAttribute('aria-label', label);
+            butang.setAttribute('title', label);
+
+            butang.querySelector('[data-ikon="tunjuk"]')?.classList.toggle('hidden', sedangTersembunyi);
+            butang.querySelector('[data-ikon="sembunyi"]')?.classList.toggle('hidden', ! sedangTersembunyi);
+
+            // Menukar type mengalihkan kursor ke permulaan, jadi ia dikembalikan
+            // ke hujung supaya pengguna boleh terus menaip.
+            const hujung = medan.value.length;
+
+            medan.focus();
+            medan.setSelectionRange(hujung, hujung);
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     mulakanMenuJatuh();
     mulakanModal();
     mulakanAmaran();
+    mulakanTunjukKataLaluan();
 
     // Modal stok pantas dibuka semula selepas ralat pengesahan supaya input kekal kelihatan.
     const modalAuto = document.querySelector('[data-modal-auto]');
