@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\Supplier;
 use App\Models\User;
+use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -17,6 +18,7 @@ class InventoryTest extends TestCase
     private function admin(): User
     {
         return User::create([
+            'workspace_id' => Workspace::firstOrCreate(['nama' => 'Syarikat Ujian'])->id,
             'name' => 'Admin Ujian',
             'email' => 'admin@ujian.test',
             'peranan' => 'admin',
@@ -27,6 +29,7 @@ class InventoryTest extends TestCase
     private function staf(): User
     {
         return User::create([
+            'workspace_id' => Workspace::firstOrCreate(['nama' => 'Syarikat Ujian'])->id,
             'name' => 'Staf Ujian',
             'email' => 'staf@ujian.test',
             'peranan' => 'staf',
@@ -38,11 +41,14 @@ class InventoryTest extends TestCase
     {
         $bil = Product::count() + 1;
 
+        $ruangKerja = Workspace::firstOrCreate(['nama' => 'Syarikat Ujian'])->id;
+
         return Product::create(array_merge([
+            'workspace_id' => $ruangKerja,
             'sku' => "UJI-{$bil}",
             'nama' => 'Produk Ujian',
-            'category_id' => Category::create(['kod' => "UJI{$bil}", 'nama' => 'Kategori Ujian'])->id,
-            'supplier_id' => Supplier::create(['kod' => "SUP{$bil}", 'nama' => 'Pembekal Ujian'])->id,
+            'category_id' => Category::create(['workspace_id' => $ruangKerja, 'kod' => "UJI{$bil}", 'nama' => 'Kategori Ujian'])->id,
+            'supplier_id' => Supplier::create(['workspace_id' => $ruangKerja, 'kod' => "SUP{$bil}", 'nama' => 'Pembekal Ujian'])->id,
             'unit' => 'unit',
             'harga_kos' => 10,
             'harga_jual' => 20,

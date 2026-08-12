@@ -61,7 +61,11 @@ class CategoryController extends Controller
     {
         return $request->validate([
             'nama' => ['required', 'string', 'max:255'],
-            'kod' => ['required', 'string', 'max:20', Rule::unique('categories', 'kod')->ignore($category)],
+            // Kod hanya perlu unik dalam ruang kerja ini; syarikat lain bebas
+            // menggunakan kod yang sama.
+            'kod' => ['required', 'string', 'max:20', Rule::unique('categories', 'kod')
+                ->where('workspace_id', $request->user()->workspace_id)
+                ->ignore($category)],
             'keterangan' => ['nullable', 'string'],
         ]);
     }

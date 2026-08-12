@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\StockCount;
 use App\Models\StockMovement;
 use App\Models\User;
+use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -17,6 +18,7 @@ class StockCountTest extends TestCase
     private function admin(): User
     {
         return User::create([
+            'workspace_id' => Workspace::firstOrCreate(['nama' => 'Syarikat Ujian'])->id,
             'name' => 'Admin Ujian',
             'email' => 'admin@ujian.test',
             'peranan' => 'admin',
@@ -27,6 +29,7 @@ class StockCountTest extends TestCase
     private function produk(string $sku, int $stok, array $atribut = []): Product
     {
         return Product::create(array_merge([
+            'workspace_id' => Workspace::firstOrCreate(['nama' => 'Syarikat Ujian'])->id,
             'sku' => $sku,
             'nama' => "Produk {$sku}",
             'unit' => 'unit',
@@ -70,7 +73,7 @@ class StockCountTest extends TestCase
 
     public function test_skop_kategori_menghadkan_senarai_produk(): void
     {
-        $kategori = Category::create(['kod' => 'K1', 'nama' => 'Kategori Satu']);
+        $kategori = Category::create(['workspace_id' => Workspace::firstOrCreate(['nama' => 'Syarikat Ujian'])->id, 'kod' => 'K1', 'nama' => 'Kategori Satu']);
         $this->produk('DALAM', 10, ['category_id' => $kategori->id]);
         $this->produk('LUAR', 10);
 

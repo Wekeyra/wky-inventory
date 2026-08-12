@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Workspace;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Contracts\User as PenggunaGoogle;
 use Laravel\Socialite\Facades\Socialite;
@@ -60,12 +62,17 @@ class GoogleController extends Controller
             ->first();
 
         if (! $pengguna) {
-            return User::create([
-                'name' => $akaun->getName() ?: Str::before($akaun->getEmail(), '@'),
+            $nama = $akaun->getName() ?: Str::before($akaun->getEmail(), '@');
+
+            // Akaun Google baharu memulakan ruang kerjanya sendiri, sama seperti
+            // pendaftaran biasa, dan menjadi admin di dalamnya.
+            return DB::transaction(fn () => User::create([
+                'workspace_id' => Workspace::create(['nama' => $nama])->id,
+                'name' => $nama,
                 'email' => $akaun->getEmail(),
                 'google_id' => $akaun->getId(),
-                'peranan' => 'staf',
-            ]);
+                'peranan' => 'admin',
+            ]));
         }
 
         // Akaun sedia ada yang log masuk dengan Google buat kali pertama.

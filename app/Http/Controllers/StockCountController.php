@@ -11,6 +11,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class StockCountController extends Controller
@@ -36,7 +37,8 @@ class StockCountController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'category_id' => ['nullable', 'exists:categories,id'],
+            'category_id' => ['nullable', Rule::exists('categories', 'id')
+                ->where('workspace_id', $request->user()->workspace_id)],
             'catatan' => ['nullable', 'string'],
         ]);
 

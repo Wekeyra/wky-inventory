@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
@@ -14,6 +15,7 @@ class RegistrationTest extends TestCase
     private function admin(): User
     {
         return User::create([
+            'workspace_id' => Workspace::firstOrCreate(['nama' => 'Syarikat Ujian'])->id,
             'name' => 'Admin Ujian',
             'email' => 'admin@ujian.test',
             'peranan' => 'admin',
@@ -24,6 +26,7 @@ class RegistrationTest extends TestCase
     private function daftar(array $ganti = []): TestResponse
     {
         return $this->post('/daftar', array_merge([
+            'nama_syarikat' => 'Kedai Baharu',
             'name' => 'Pengguna Baharu',
             'email' => 'baharu@ujian.test',
             'password' => 'password123',
@@ -43,7 +46,7 @@ class RegistrationTest extends TestCase
         $this->get('/daftar')->assertOk();
     }
 
-    public function test_pendaftaran_terus_log_masuk_ke_dashboard(): void
+    public function test_pendaftaran_mencipta_ruang_kerja_dan_terus_log_masuk(): void
     {
         $this->daftar()
             ->assertRedirect(route('dashboard'))
@@ -51,7 +54,9 @@ class RegistrationTest extends TestCase
 
         $pengguna = User::where('email', 'baharu@ujian.test')->firstOrFail();
 
-        $this->assertSame('staf', $pengguna->peranan);
+        // Pendaftar memiliki ruang kerjanya sendiri, jadi dia adminnya.
+        $this->assertSame('admin', $pengguna->peranan);
+        $this->assertSame('Kedai Baharu', $pengguna->workspace->nama);
         $this->assertAuthenticatedAs($pengguna);
     }
 
@@ -61,22 +66,26 @@ class RegistrationTest extends TestCase
 
         $this->get('/dashboard')->assertOk();
         $this->get('/products')->assertOk();
+        $this->get('/users')->assertOk();
     }
 
-    public function test_pendaftaran_tidak_boleh_menetapkan_peranan_admin(): void
+    public function test_nama_syarikat_wajib_diisi(): void
     {
-        $this->daftar(['peranan' => 'admin']);
-
-        $pengguna = User::where('email', 'baharu@ujian.test')->firstOrFail();
-
-        $this->assertSame('staf', $pengguna->peranan);
+        $this->daftar(['nama_syarikat' => ''])->assertSessionHasErrors('nama_syarikat');
+        $this->assertGuest();
     }
 
-    public function test_pengguna_baharu_tidak_boleh_urus_pengguna(): void
+    public function test_setiap_pendaftaran_mendapat_ruang_kerja_berasingan(): void
     {
         $this->daftar();
+        $satu = User::where('email', 'baharu@ujian.test')->firstOrFail();
 
-        $this->get('/users')->assertForbidden();
+        $this->post('/logout');
+
+        $this->daftar(['email' => 'kedua@ujian.test', 'nama_syarikat' => 'Kedai Kedua']);
+        $dua = User::where('email', 'kedua@ujian.test')->firstOrFail();
+
+        $this->assertNotSame($satu->workspace_id, $dua->workspace_id);
     }
 
     public function test_emel_berulang_ditolak(): void

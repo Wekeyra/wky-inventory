@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\MilikRuangKerja;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Supplier extends Model
 {
-    use HasFactory;
+    use HasFactory, MilikRuangKerja;
 
     protected $fillable = [
+        'workspace_id',
         'nama',
         'kod',
         'pegawai_perhubungan',

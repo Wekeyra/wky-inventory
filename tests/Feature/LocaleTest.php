@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Models\Workspace;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Arr;
 use Tests\TestCase;
@@ -14,6 +15,7 @@ class LocaleTest extends TestCase
     private function admin(): User
     {
         return User::create([
+            'workspace_id' => Workspace::firstOrCreate(['nama' => 'Syarikat Ujian'])->id,
             'name' => 'Admin Ujian',
             'email' => 'admin@ujian.test',
             'peranan' => 'admin',

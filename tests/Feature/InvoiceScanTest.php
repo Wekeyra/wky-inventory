@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\Supplier;
 use App\Models\User;
+use App\Models\Workspace;
 use App\Services\Invoice\ExtractedInvoice;
 use App\Services\Invoice\ExtractedLine;
 use App\Services\Invoice\InvoiceExtractionException;
@@ -31,6 +32,7 @@ class InvoiceScanTest extends TestCase
     private function admin(): User
     {
         return User::create([
+            'workspace_id' => Workspace::firstOrCreate(['nama' => 'Syarikat Ujian'])->id,
             'name' => 'Admin Ujian',
             'email' => 'admin@ujian.test',
             'peranan' => 'admin',
@@ -41,6 +43,7 @@ class InvoiceScanTest extends TestCase
     private function produk(string $sku, string $nama, int $stok = 0): Product
     {
         return Product::create([
+            'workspace_id' => Workspace::firstOrCreate(['nama' => 'Syarikat Ujian'])->id,
             'sku' => $sku,
             'nama' => $nama,
             'unit' => 'unit',
@@ -133,7 +136,7 @@ class InvoiceScanTest extends TestCase
 
     public function test_pembekal_diteka_daripada_nama_pada_invois(): void
     {
-        $pembekal = Supplier::create(['kod' => 'SUP1', 'nama' => 'Tech Supply Sdn Bhd']);
+        $pembekal = Supplier::create(['workspace_id' => Workspace::firstOrCreate(['nama' => 'Syarikat Ujian'])->id, 'kod' => 'SUP1', 'nama' => 'Tech Supply Sdn Bhd']);
         $this->produk('A', 'Produk A');
         $this->palsukanBacaan(new ExtractedInvoice(null, null, 'tech supply sdn bhd', [
             new ExtractedLine('A', 'Produk A', 1, null),

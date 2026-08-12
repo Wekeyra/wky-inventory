@@ -12,10 +12,12 @@ use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         return view('users.index', [
-            'users' => User::orderBy('name')->paginate(15),
+            'users' => User::where('workspace_id', $request->user()->workspace_id)
+                ->orderBy('name')
+                ->paginate(15),
         ]);
     }
 
@@ -34,18 +36,26 @@ class UserController extends Controller
         ]);
 
         $data['password'] = Hash::make($data['password']);
+
+        // Pengguna baharu sentiasa masuk ke ruang kerja admin yang menciptanya.
+        $data['workspace_id'] = $request->user()->workspace_id;
+
         User::create($data);
 
         return redirect()->route('users.index')->with('status', __('wky.flash.pengguna_tambah'));
     }
 
-    public function edit(User $user): View
+    public function edit(Request $request, User $user): View
     {
+        $this->pastikanSeruangKerja($request, $user);
+
         return view('users.form', compact('user'));
     }
 
     public function update(Request $request, User $user): RedirectResponse
     {
+        $this->pastikanSeruangKerja($request, $user);
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user)],
@@ -71,6 +81,8 @@ class UserController extends Controller
 
     public function destroy(Request $request, User $user): RedirectResponse
     {
+        $this->pastikanSeruangKerja($request, $user);
+
         if ($request->user()->is($user)) {
             return back()->with('ralat', __('wky.flash.pengguna_padam_sendiri'));
         }
@@ -78,5 +90,15 @@ class UserController extends Controller
         $user->delete();
 
         return redirect()->route('users.index')->with('status', __('wky.flash.pengguna_padam'));
+    }
+
+    /**
+     * Model User tidak berskop secara automatik seperti model lain, kerana skop
+     * itu perlu membaca pengguna yang sedang log masuk dan akan berulang tanpa
+     * henti. Jadi pemilikan disemak terus di sini.
+     */
+    private function pastikanSeruangKerja(Request $request, User $user): void
+    {
+        abort_unless($user->workspace_id === $request->user()->workspace_id, 404);
     }
 }

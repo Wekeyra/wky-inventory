@@ -73,7 +73,9 @@ class SupplierController extends Controller
     {
         $data = $request->validate([
             'nama' => ['required', 'string', 'max:255'],
-            'kod' => ['required', 'string', 'max:20', Rule::unique('suppliers', 'kod')->ignore($supplier)],
+            'kod' => ['required', 'string', 'max:20', Rule::unique('suppliers', 'kod')
+                ->where('workspace_id', $request->user()->workspace_id)
+                ->ignore($supplier)],
             'pegawai_perhubungan' => ['nullable', 'string', 'max:255'],
             'telefon' => ['nullable', 'string', 'max:30'],
             'emel' => ['nullable', 'email', 'max:255'],

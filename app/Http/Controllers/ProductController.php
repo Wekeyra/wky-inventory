@@ -86,11 +86,17 @@ class ProductController extends Controller
     private function validated(Request $request, ?Product $product = null): array
     {
         $data = $request->validate([
-            'sku' => ['required', 'string', 'max:50', Rule::unique('products', 'sku')->ignore($product)],
+            'sku' => ['required', 'string', 'max:50', Rule::unique('products', 'sku')
+                ->where('workspace_id', $request->user()->workspace_id)
+                ->ignore($product)],
             'nama' => ['required', 'string', 'max:255'],
             'keterangan' => ['nullable', 'string'],
-            'category_id' => ['nullable', 'exists:categories,id'],
-            'supplier_id' => ['nullable', 'exists:suppliers,id'],
+            // Berskop supaya kategori atau pembekal syarikat lain tidak boleh
+            // dipautkan dengan menyuap id secara terus.
+            'category_id' => ['nullable', Rule::exists('categories', 'id')
+                ->where('workspace_id', $request->user()->workspace_id)],
+            'supplier_id' => ['nullable', Rule::exists('suppliers', 'id')
+                ->where('workspace_id', $request->user()->workspace_id)],
             'unit' => ['required', 'string', 'max:20'],
             'harga_kos' => ['required', 'numeric', 'min:0'],
             'harga_jual' => ['required', 'numeric', 'min:0'],

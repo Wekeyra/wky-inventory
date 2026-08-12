@@ -15,6 +15,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -137,10 +138,12 @@ class InvoiceScanController extends Controller
 
         $data = $request->validate([
             'no_invois' => ['nullable', 'string', 'max:100'],
-            'supplier_id' => ['nullable', 'exists:suppliers,id'],
+            'supplier_id' => ['nullable', Rule::exists('suppliers', 'id')
+                ->where('workspace_id', $request->user()->workspace_id)],
             'catatan' => ['nullable', 'string'],
             'baris' => ['array'],
-            'baris.*.product_id' => ['nullable', 'exists:products,id'],
+            'baris.*.product_id' => ['nullable', Rule::exists('products', 'id')
+                ->where('workspace_id', $request->user()->workspace_id)],
             'baris.*.kuantiti' => ['nullable', 'integer', 'min:1'],
             'baris.*.dilangkau' => ['nullable', 'boolean'],
         ]);

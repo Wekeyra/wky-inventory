@@ -96,6 +96,7 @@ return [
         'atau' => 'or',
         'teruskan_google' => 'Continue with Google',
         'kembali_log_masuk' => 'Back to Log In',
+        'nota_syarikat' => 'Your inventory starts empty and stays separate from other companies. You become its admin and can add staff later.',
         'ciri_tajuk' => 'What you get',
         'ciri_subtajuk' => 'Everything you need to run your store inventory, in one place.',
         'ciri_produk_tajuk' => 'Product Catalogue',

@@ -8,6 +8,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class StockMovementController extends Controller
 {
@@ -38,7 +39,8 @@ class StockMovementController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'product_id' => ['required', 'exists:products,id'],
+            'product_id' => ['required', Rule::exists('products', 'id')
+                ->where('workspace_id', $request->user()->workspace_id)],
             'jenis' => ['required', 'in:masuk,keluar,pelarasan'],
             'kuantiti' => ['required', 'integer', 'min:1'],
             'rujukan' => ['nullable', 'string', 'max:100'],

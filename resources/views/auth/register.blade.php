@@ -44,11 +44,20 @@
                 @csrf
 
                 <div>
+                    <label for="nama_syarikat" class="mb-1.5 block text-sm font-medium text-teks">
+                        {{ __('wky.medan.nama_syarikat') }}
+                    </label>
+                    <input type="text" id="nama_syarikat" name="nama_syarikat" value="{{ old('nama_syarikat') }}"
+                           required autofocus autocomplete="organization">
+                    <p class="mt-1.5 text-xs text-malap">{{ __('wky.auth.nota_syarikat') }}</p>
+                </div>
+
+                <div>
                     <label for="name" class="mb-1.5 block text-sm font-medium text-teks">
                         {{ __('wky.medan.nama') }}
                     </label>
                     <input type="text" id="name" name="name" value="{{ old('name') }}"
-                           required autofocus autocomplete="name">
+                           required autocomplete="name">
                 </div>
 
                 <div>
