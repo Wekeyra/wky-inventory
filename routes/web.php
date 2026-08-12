@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/', 'store')->name('store');
         Route::get('{invoiceScan}', 'show')->name('show');
         Route::get('{invoiceScan}/fail', 'file')->name('file');
+        Route::post('{invoiceScan}/baca', 'read')->name('read');
         Route::put('{invoiceScan}', 'update')->name('update');
         Route::post('{invoiceScan}/sahkan', 'confirm')->name('confirm');
         Route::delete('{invoiceScan}', 'destroy')->name('destroy');

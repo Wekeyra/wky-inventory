@@ -42,46 +42,86 @@ class InvoiceScanController extends Controller
 
     public function store(Request $request, InvoiceExtractor $extractor, ProductMatcher $matcher): RedirectResponse
     {
-        if (blank(config('anthropic.api_key'))) {
-            return back()->with('ralat', __('wky.imbas.ralat_tiada_kunci'));
-        }
-
         $data = $request->validate([
-            'invois' => ['required', 'file', 'mimes:jpg,jpeg,png,gif,webp,pdf', 'max:' . (int) config('anthropic.saiz_maks_kb')],
+            'invois' => ['required', 'file', 'mimes:jpg,jpeg,png,gif,webp,pdf', 'max:'.(int) config('anthropic.saiz_maks_kb')],
             'catatan' => ['nullable', 'string'],
+            'tindakan' => ['nullable', 'in:baca,simpan'],
         ]);
 
         $fail = $data['invois'];
+        $simpanSahaja = ($data['tindakan'] ?? 'baca') === 'simpan';
+
+        // Gambar disimpan dahulu supaya ia tidak hilang jika bacaan AI gagal;
+        // imbasan yang tersimpan boleh dicuba baca semula bila-bila masa.
+        $imbasan = InvoiceScan::create([
+            'kod' => $this->kodSeterusnya(),
+            'status' => 'draf',
+            'laluan_fail' => $fail->store('invois', 'local'),
+            'nama_fail_asal' => $fail->getClientOriginalName(),
+            'jenis_mime' => $fail->getMimeType(),
+            'dibuka_oleh' => $request->user()?->id,
+            'catatan' => $data['catatan'] ?? null,
+        ]);
+
+        if ($simpanSahaja) {
+            return redirect()->route('invoice-scans.show', $imbasan)
+                ->with('status', __('wky.flash.imbas_disimpan_sahaja', ['kod' => $imbasan->kod]));
+        }
+
+        return $this->bacaImbasan($imbasan, $extractor, $matcher);
+    }
+
+    /** Membaca gambar yang sudah tersimpan dengan AI, untuk imbasan Simpan Sahaja. */
+    public function read(InvoiceScan $invoiceScan, InvoiceExtractor $extractor, ProductMatcher $matcher): RedirectResponse
+    {
+        $this->pastikanDraf($invoiceScan);
+
+        if (! $invoiceScan->belumDibaca()) {
+            return back()->with('ralat', __('wky.imbas.ralat_sudah_dibaca'));
+        }
+
+        return $this->bacaImbasan($invoiceScan, $extractor, $matcher);
+    }
+
+    /**
+     * Menghantar fail imbasan kepada AI dan menyimpan baris yang dibacanya.
+     *
+     * Kegagalan mengembalikan pengguna dengan mesej dan membiarkan imbasan
+     * kekal belum dibaca, supaya ia boleh dicuba semula tanpa memuat naik
+     * gambar yang sama sekali lagi.
+     */
+    private function bacaImbasan(InvoiceScan $imbasan, InvoiceExtractor $extractor, ProductMatcher $matcher): RedirectResponse
+    {
+        if (blank(config('anthropic.api_key'))) {
+            return redirect()->route('invoice-scans.show', $imbasan)
+                ->with('ralat', __('wky.imbas.ralat_tiada_kunci'));
+        }
 
         // Panggilan penglihatan boleh mengambil masa lebih lama daripada had
         // pelaksanaan PHP yang lalai, jadi had itu dinaikkan untuk permintaan ini.
         @set_time_limit((int) config('anthropic.timeout') + 30);
 
         try {
-            $hasil = $extractor->extract(file_get_contents($fail->getRealPath()), $fail->getMimeType());
+            $hasil = $extractor->extract(
+                Storage::disk('local')->get($imbasan->laluan_fail),
+                $imbasan->jenis_mime,
+            );
         } catch (InvoiceExtractionException $e) {
-            return back()->withInput()->with('ralat', $e->getMessage());
+            return redirect()->route('invoice-scans.show', $imbasan)->with('ralat', $e->getMessage());
         }
 
         if ($hasil->barang === []) {
-            return back()->withInput()->with('ralat', __('wky.imbas.ralat_tiada_baris'));
+            return redirect()->route('invoice-scans.show', $imbasan)
+                ->with('ralat', __('wky.imbas.ralat_tiada_baris'));
         }
 
-        $laluan = $fail->store('invois', 'local');
-
-        $imbasan = DB::transaction(function () use ($hasil, $fail, $laluan, $data, $request, $matcher) {
-            $imbasan = InvoiceScan::create([
-                'kod' => $this->kodSeterusnya(),
-                'status' => 'draf',
+        DB::transaction(function () use ($imbasan, $hasil, $matcher) {
+            $imbasan->update([
                 'no_invois' => $hasil->noInvois,
                 'tarikh_invois' => $hasil->tarikhInvois,
                 'nama_pembekal' => $hasil->namaPembekal,
                 'supplier_id' => $this->tekaPembekal($hasil),
-                'laluan_fail' => $laluan,
-                'nama_fail_asal' => $fail->getClientOriginalName(),
-                'jenis_mime' => $fail->getMimeType(),
-                'dibuka_oleh' => $request->user()?->id,
-                'catatan' => $data['catatan'] ?? null,
+                'dibaca_pada' => now(),
             ]);
 
             foreach ($hasil->barang as $baris) {
@@ -96,15 +136,11 @@ class InvoiceScanController extends Controller
                     'kaedah_padanan' => $padanan['kaedah'],
                 ]);
             }
-
-            return $imbasan;
         });
-
-        $tiadaPadanan = $imbasan->items()->whereNull('product_id')->count();
 
         return redirect()->route('invoice-scans.show', $imbasan)->with('status', __('wky.flash.imbas_dibaca', [
             'bil' => $imbasan->items()->count(),
-            'tiada' => $tiadaPadanan,
+            'tiada' => $imbasan->items()->whereNull('product_id')->count(),
         ]));
     }
 
@@ -181,6 +217,10 @@ class InvoiceScanController extends Controller
     public function confirm(Request $request, InvoiceScan $invoiceScan): RedirectResponse
     {
         $this->pastikanDraf($invoiceScan);
+
+        if ($invoiceScan->belumDibaca()) {
+            return back()->with('ralat', __('wky.imbas.ralat_belum_dibaca'));
+        }
 
         $bolehDiproses = $invoiceScan->items->filter->bolehDiproses();
 

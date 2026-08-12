@@ -24,6 +24,7 @@ class InvoiceScan extends Model
         'nama_fail_asal',
         'jenis_mime',
         'dibuka_oleh',
+        'dibaca_pada',
         'disahkan_oleh',
         'disahkan_pada',
         'ralat',
@@ -34,6 +35,7 @@ class InvoiceScan extends Model
     {
         return [
             'tarikh_invois' => 'date',
+            'dibaca_pada' => 'datetime',
             'disahkan_pada' => 'datetime',
         ];
     }
@@ -63,14 +65,28 @@ class InvoiceScan extends Model
         return $this->status === 'draf';
     }
 
+    /** Gambar yang disimpan tanpa dibaca AI; ia menunggu langkah Baca dengan AI. */
+    public function belumDibaca(): bool
+    {
+        return $this->dibaca_pada === null;
+    }
+
     public function labelStatus(): string
     {
+        if ($this->isDraf() && $this->belumDibaca()) {
+            return __('wky.imbas.status_belum_dibaca');
+        }
+
         return __('wky.imbas.status_' . $this->status);
     }
 
     /** Nama kelas penuh supaya Tailwind dapat mengesannya semasa membina CSS. */
     public function kelasStatus(): string
     {
+        if ($this->isDraf() && $this->belumDibaca()) {
+            return 'lencana-biru';
+        }
+
         return match ($this->status) {
             'draf' => 'lencana-kuning',
             'selesai' => 'lencana-hijau',

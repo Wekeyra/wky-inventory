@@ -212,6 +212,19 @@ sebelum membazir satu panggilan AI.
   Laragon, butang itu jatuh kepada input `capture="environment"` — yang tetap membuka aplikasi
   kamera pada telefon. Ini sekatan keselamatan pelayar, bukan pepijat.
 
+### Simpan dahulu, baca kemudian
+
+Butang **Simpan Sahaja** menyimpan gambar tanpa memanggil AI. Imbasan itu berstatus *Belum
+Dibaca* sehingga sesiapa menekan **Baca dengan AI** pada halamannya. Berguna untuk menangkap
+invois di kaunter dengan pantas dan memprosesnya kemudian, dan ia berfungsi walaupun kunci API
+belum ditetapkan.
+
+Gambar juga disimpan **sebelum** AI dipanggil pada aliran imbas biasa. Kalau bacaan gagal —
+perkhidmatan sibuk, invois tidak jelas, kunci tiada — gambar tidak hilang; imbasan kekal
+*Belum Dibaca* dan boleh dicuba semula tanpa memuat naik semula.
+
+Imbasan yang belum dibaca tidak boleh disahkan, kerana tiada baris untuk direkod sebagai stok.
+
 ### Persediaan
 
 1. Daftar di https://console.anthropic.com dan jana kunci API.
@@ -223,8 +236,12 @@ sebelum membazir satu panggilan AI.
 
 3. `php artisan config:clear`
 
-Tanpa kunci, halaman Imbas Invois masih boleh dibuka tetapi memaparkan arahan persediaan
-dan butang imbas dilumpuhkan — tiada permintaan dihantar.
+Tanpa kunci, halaman Imbas Invois masih boleh dibuka tetapi memaparkan arahan persediaan dan
+butang imbas dilumpuhkan — tiada permintaan dihantar. **Simpan Sahaja** tetap berfungsi, jadi
+invois masih boleh ditangkap dan dibaca selepas kunci ditetapkan.
+
+Pada hos seperti Laravel Cloud, kunci diletakkan dalam *Environment Variables* environment
+berkenaan dan bukan dalam fail `.env` repositori.
 
 > ⚠️ **Imej invois dihantar ke pelayan Anthropic** untuk dibaca. Jangan imbas dokumen yang
 > mengandungi maklumat yang tidak boleh keluar dari organisasi anda.

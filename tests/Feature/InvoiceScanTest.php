@@ -307,14 +307,22 @@ class InvoiceScanTest extends TestCase
         $this->assertSame(0, StockMovement::count());
     }
 
-    public function test_ralat_pembacaan_tidak_mencipta_imbasan(): void
+    /**
+     * Gambar disimpan sebelum AI dipanggil, jadi kegagalan bacaan tidak
+     * membuang kerja pengguna — imbasan kekal belum dibaca dan boleh dicuba
+     * semula tanpa memuat naik gambar yang sama sekali lagi.
+     */
+    public function test_ralat_pembacaan_mengekalkan_imbasan_sebagai_belum_dibaca(): void
     {
         $this->produk('A', 'Produk A');
         $this->palsukanRalat('Perkhidmatan AI sedang sibuk.');
 
         $this->muatNaik($this->admin())->assertSessionHas('ralat', 'Perkhidmatan AI sedang sibuk.');
 
-        $this->assertSame(0, InvoiceScan::count());
+        $imbasan = InvoiceScan::latest('id')->firstOrFail();
+
+        $this->assertTrue($imbasan->belumDibaca());
+        $this->assertSame(0, $imbasan->items()->count());
     }
 
     public function test_invois_tanpa_baris_ditolak(): void
@@ -324,7 +332,7 @@ class InvoiceScanTest extends TestCase
 
         $this->muatNaik($this->admin())->assertSessionHas('ralat');
 
-        $this->assertSame(0, InvoiceScan::count());
+        $this->assertTrue(InvoiceScan::latest('id')->firstOrFail()->belumDibaca());
     }
 
     public function test_tanpa_kunci_api_permintaan_tidak_dihantar(): void
@@ -339,7 +347,110 @@ class InvoiceScanTest extends TestCase
         $this->muatNaik($this->admin())
             ->assertSessionHas('ralat', __('wky.imbas.ralat_tiada_kunci'));
 
-        $this->assertSame(0, InvoiceScan::count());
+        $this->assertTrue(InvoiceScan::latest('id')->firstOrFail()->belumDibaca());
+    }
+
+    public function test_simpan_sahaja_menyimpan_gambar_tanpa_memanggil_ai(): void
+    {
+        $this->produk('A', 'Produk A');
+        $admin = $this->admin();
+
+        // Jika AI dipanggil, pengekstrak ini melempar dan ujian gagal.
+        $this->palsukanRalat('API tidak sepatutnya dipanggil.');
+
+        $this->actingAs($admin)->post('/imbas-invois', [
+            'invois' => UploadedFile::fake()->image('invois.jpg'),
+            'tindakan' => 'simpan',
+        ])->assertRedirect()->assertSessionHas('status');
+
+        $imbasan = InvoiceScan::latest('id')->firstOrFail();
+
+        $this->assertTrue($imbasan->belumDibaca());
+        $this->assertSame(0, $imbasan->items()->count());
+        $this->assertSame('draf', $imbasan->status);
+    }
+
+    public function test_simpan_sahaja_berfungsi_tanpa_kunci_api(): void
+    {
+        config(['anthropic.api_key' => null]);
+        $this->produk('A', 'Produk A');
+
+        $this->actingAs($this->admin())->post('/imbas-invois', [
+            'invois' => UploadedFile::fake()->image('invois.jpg'),
+            'tindakan' => 'simpan',
+        ])->assertSessionHas('status')->assertSessionMissing('ralat');
+
+        $this->assertSame(1, InvoiceScan::count());
+    }
+
+    public function test_imbasan_tersimpan_boleh_dibaca_kemudian(): void
+    {
+        $produk = $this->produk('A', 'Produk A', 10);
+        $admin = $this->admin();
+
+        $this->palsukanRalat('API tidak sepatutnya dipanggil.');
+
+        $this->actingAs($admin)->post('/imbas-invois', [
+            'invois' => UploadedFile::fake()->image('invois.jpg'),
+            'tindakan' => 'simpan',
+        ]);
+
+        $imbasan = InvoiceScan::latest('id')->firstOrFail();
+
+        $this->palsukanBacaan(new ExtractedInvoice('INV-9', null, 'Tech Supply', [
+            new ExtractedLine('A', 'Produk A', 4, null),
+        ]));
+
+        $this->actingAs($admin)
+            ->post("/imbas-invois/{$imbasan->id}/baca")
+            ->assertRedirect(route('invoice-scans.show', $imbasan))
+            ->assertSessionHas('status');
+
+        $imbasan->refresh();
+
+        $this->assertFalse($imbasan->belumDibaca());
+        $this->assertSame('INV-9', $imbasan->no_invois);
+        $this->assertSame(1, $imbasan->items()->count());
+        $this->assertSame($produk->id, $imbasan->items()->first()->product_id);
+    }
+
+    public function test_imbasan_yang_sudah_dibaca_tidak_boleh_dibaca_semula(): void
+    {
+        $this->produk('A', 'Produk A');
+        $admin = $this->admin();
+
+        $this->palsukanBacaan(new ExtractedInvoice(null, null, null, [
+            new ExtractedLine('A', 'Produk A', 2, null),
+        ]));
+
+        $this->muatNaik($admin);
+        $imbasan = InvoiceScan::latest('id')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->post("/imbas-invois/{$imbasan->id}/baca")
+            ->assertSessionHas('ralat', __('wky.imbas.ralat_sudah_dibaca'));
+
+        $this->assertSame(1, $imbasan->items()->count());
+    }
+
+    public function test_imbasan_belum_dibaca_tidak_boleh_disahkan(): void
+    {
+        $produk = $this->produk('A', 'Produk A', 10);
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->post('/imbas-invois', [
+            'invois' => UploadedFile::fake()->image('invois.jpg'),
+            'tindakan' => 'simpan',
+        ]);
+
+        $imbasan = InvoiceScan::latest('id')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->post("/imbas-invois/{$imbasan->id}/sahkan")
+            ->assertSessionHas('ralat');
+
+        $this->assertSame(10, $produk->fresh()->stok);
+        $this->assertSame(0, StockMovement::count());
     }
 
     public function test_jenis_fail_tidak_disokong_ditolak(): void

@@ -7,10 +7,11 @@
         $tiadaPadanan = $imbasan->items->filter(fn ($item) => ! $item->sudahPadan());
         $dilangkau = $imbasan->items->filter(fn ($item) => $item->dilangkau);
         $adaImej = str_starts_with($imbasan->jenis_mime, 'image/');
+        $belumDibaca = $imbasan->isDraf() && $imbasan->belumDibaca();
     @endphp
 
-    <div class="mb-4 grid gap-4 lg:grid-cols-3">
-        <div class="kad kad-badan lg:col-span-2">
+    <div class="mb-4 grid gap-4 {{ $belumDibaca ? '' : 'lg:grid-cols-3' }}">
+        <div class="kad kad-badan {{ $belumDibaca ? '' : 'lg:col-span-2' }}">
             <div class="mb-3 flex flex-wrap items-center gap-2">
                 <span class="{{ $imbasan->kelasStatus() }}">{{ $imbasan->labelStatus() }}</span>
                 <code>{{ $imbasan->kod }}</code>
@@ -52,7 +53,8 @@
             @endif
         </div>
 
-        <div class="kad kad-badan space-y-2 text-sm">
+        {{-- Angka ringkasan tiada makna sebelum baris diekstrak. --}}
+        <div class="kad kad-badan space-y-2 text-sm {{ $belumDibaca ? 'hidden' : '' }}">
             <div class="flex justify-between">
                 <span class="text-malap">{{ __('wky.imbas.baris_dibaca') }}</span>
                 <span class="font-semibold">{{ $imbasan->items->count() }}</span>
@@ -71,6 +73,52 @@
             </div>
         </div>
     </div>
+
+    @if ($belumDibaca)
+        <div class="kad kad-badan">
+            <div class="amaran-info mb-4">
+                <x-ikon nama="jam" kelas="size-5 shrink-0" />
+                <div>
+                    <strong>{{ __('wky.imbas.belum_dibaca_tajuk') }}</strong>
+                    <p class="mt-1">
+                        {{ __('wky.imbas.belum_dibaca_nota', ['butang' => __('wky.imbas.baca_dengan_ai')]) }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+                <form method="POST" action="{{ route('invoice-scans.read', $imbasan) }}" id="borangBaca">
+                    @csrf
+                    <button type="submit" class="btn-utama" id="butangBaca">
+                        <x-ikon nama="imbas" kelas="size-4" /> {{ __('wky.imbas.baca_dengan_ai') }}
+                    </button>
+                </form>
+
+                <form method="POST" action="{{ route('invoice-scans.destroy', $imbasan) }}"
+                      onsubmit="return confirm('{{ __('wky.imbas.batal_confirm', ['kod' => $imbasan->kod]) }}')">
+                    @csrf @method('DELETE')
+                    <button type="submit" class="btn-bahaya">
+                        <x-ikon nama="silang-bulat" kelas="size-4" /> {{ __('wky.imbas.batalkan_imbasan') }}
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        @push('skrip')
+            <script>
+                (function () {
+                    const borang = document.getElementById('borangBaca');
+                    const butang = document.getElementById('butangBaca');
+                    const menunggu = @json(__('wky.imbas.sedang_baca'));
+
+                    borang.addEventListener('submit', function () {
+                        butang.disabled = true;
+                        butang.textContent = menunggu;
+                    });
+                })();
+            </script>
+        @endpush
+    @else
 
     <form method="POST" action="{{ route('invoice-scans.update', $imbasan) }}" class="kad">
         @csrf
@@ -199,5 +247,7 @@
                 'rujukan' => '<code>' . e($imbasan->rujukanStok()) . '</code>',
             ]) !!}
         </p>
+    @endif
+
     @endif
 @endsection

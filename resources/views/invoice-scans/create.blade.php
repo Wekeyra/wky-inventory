@@ -70,13 +70,25 @@
             </div>
         </div>
 
+        {{--
+            Tindakan dibawa oleh medan tersembunyi dan bukan oleh nilai butang,
+            kerana butang yang dilumpuhkan semasa penghantaran boleh menyebabkan
+            nama dan nilainya tercicir daripada data borang.
+        --}}
+        <input type="hidden" name="tindakan" id="tindakan" value="baca">
+
         <div class="kad-kaki">
-            <button type="submit" class="btn-utama" id="butangImbas" @disabled(! $adaKunci)>
+            <button type="submit" class="btn-utama" id="butangImbas" data-tindakan="baca" @disabled(! $adaKunci)>
                 <x-ikon nama="imbas" kelas="size-4" /> {{ __('wky.imbas.butang') }}
+            </button>
+            <button type="submit" class="btn-wky" id="butangSimpan" data-tindakan="simpan">
+                <x-ikon nama="simpan" kelas="size-4" /> {{ __('wky.imbas.simpan_sahaja') }}
             </button>
             <a href="{{ route('invoice-scans.index') }}" class="btn-garis">{{ __('wky.aksi.batal') }}</a>
         </div>
     </form>
+
+    <p class="mt-3 max-w-2xl text-sm text-malap">{{ __('wky.imbas.nota_simpan_sahaja') }}</p>
 
     <div id="modal-kamera" data-modal
          class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 p-4 backdrop-blur-sm [&:not(.hidden)]:flex"
@@ -125,14 +137,26 @@
     <script>
         (function () {
             const borang = document.getElementById('borangImbas');
-            const butangHantar = document.getElementById('butangImbas');
+            const medanTindakan = document.getElementById('tindakan');
+            const butangTindakan = borang.querySelectorAll('[data-tindakan]');
             const menunggu = @json(__('wky.imbas.sedang_baca'));
 
-            // Membaca invois mengambil masa beberapa saat; butang dikunci supaya
-            // pengguna tidak menghantar dokumen yang sama dua kali.
+            butangTindakan.forEach(function (butang) {
+                butang.addEventListener('click', function () {
+                    medanTindakan.value = butang.dataset.tindakan;
+                });
+            });
+
+            // Membaca invois mengambil masa beberapa saat; kedua-dua butang
+            // dikunci supaya pengguna tidak menghantar dokumen yang sama dua kali.
             borang.addEventListener('submit', function () {
-                butangHantar.disabled = true;
-                butangHantar.textContent = menunggu;
+                butangTindakan.forEach(function (butang) {
+                    butang.disabled = true;
+
+                    if (medanTindakan.value === 'baca' && butang.dataset.tindakan === 'baca') {
+                        butang.textContent = menunggu;
+                    }
+                });
             });
 
             const medanFail = document.getElementById('invois');
