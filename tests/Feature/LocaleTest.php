@@ -32,14 +32,11 @@ class LocaleTest extends TestCase
             ->assertDontSee('Low Stock Alerts');
     }
 
-    public function test_menukar_ke_english_menterjemah_antara_muka(): void
+    public function test_menukar_ke_english_menterjemah_antara_muka_dalam_permintaan_yang_sama(): void
     {
-        $admin = $this->admin();
-
-        $this->actingAs($admin)->get('/bahasa/en')->assertRedirect();
-
-        $this->actingAs($admin)
-            ->get('/dashboard')
+        // Tiada ubah hala: halaman terus dipaparkan dalam bahasa baharu.
+        $this->actingAs($this->admin())
+            ->get('/dashboard?bahasa=en')
             ->assertOk()
             ->assertSee('Low Stock Alerts')
             ->assertSee('Stock Counts')
@@ -50,11 +47,28 @@ class LocaleTest extends TestCase
     {
         $admin = $this->admin();
 
-        $this->actingAs($admin)->get('/bahasa/en');
-        $this->actingAs($admin)->get('/bahasa/ms');
+        $this->actingAs($admin)->get('/dashboard?bahasa=en');
+        $this->actingAs($admin)->get('/dashboard?bahasa=ms')->assertOk()->assertSee('Amaran Stok Rendah');
 
         $this->actingAs($admin)
             ->get('/dashboard')
+            ->assertOk()
+            ->assertSee('Amaran Stok Rendah');
+    }
+
+    public function test_penukar_bahasa_mengekalkan_penapis_pada_url(): void
+    {
+        $this->actingAs($this->admin())
+            ->get('/products?cari=pen&stok_rendah=1')
+            ->assertOk()
+            ->assertSee('cari=pen', false)
+            ->assertSee('bahasa=en', false);
+    }
+
+    public function test_bahasa_tidak_disokong_pada_url_diabaikan(): void
+    {
+        $this->actingAs($this->admin())
+            ->get('/dashboard?bahasa=de')
             ->assertOk()
             ->assertSee('Amaran Stok Rendah');
     }
@@ -63,7 +77,7 @@ class LocaleTest extends TestCase
     {
         $admin = $this->admin();
 
-        $this->actingAs($admin)->get('/bahasa/en');
+        $this->actingAs($admin)->get('/dashboard?bahasa=en');
 
         $this->actingAs($admin)->get('/products')->assertOk()->assertSee('Selling Price (RM)');
         $this->actingAs($admin)->get('/products/create')->assertOk()->assertSee('Add Product');
@@ -80,9 +94,17 @@ class LocaleTest extends TestCase
     {
         $this->get('/login')->assertOk()->assertSee('Kata Laluan');
 
+        $this->get('/login?bahasa=en')->assertOk()->assertSee('Password')->assertDontSee('Kata Laluan');
+
+        $this->get('/login')->assertOk()->assertSee('Password');
+    }
+
+    public function test_laluan_bahasa_lama_masih_berfungsi(): void
+    {
+        // Dikekalkan untuk pautan lama yang mungkin ditanda buku.
         $this->get('/bahasa/en')->assertRedirect();
 
-        $this->get('/login')->assertOk()->assertSee('Password')->assertDontSee('Kata Laluan');
+        $this->get('/login')->assertOk()->assertSee('Password');
     }
 
     public function test_mesej_flash_mengikut_bahasa_terpilih(): void
@@ -92,7 +114,7 @@ class LocaleTest extends TestCase
         $this->actingAs($admin)->post('/categories', ['kod' => 'A1', 'nama' => 'Satu'])
             ->assertSessionHas('status', 'Kategori berjaya ditambah.');
 
-        $this->actingAs($admin)->get('/bahasa/en');
+        $this->actingAs($admin)->get('/dashboard?bahasa=en');
 
         $this->actingAs($admin)->post('/categories', ['kod' => 'A2', 'nama' => 'Two'])
             ->assertSessionHas('status', 'Category added successfully.');
@@ -106,7 +128,7 @@ class LocaleTest extends TestCase
         $this->actingAs($admin)->from('/categories/create')->post('/categories', [])
             ->assertSessionHasErrors(['kod' => 'Medan Kod wajib diisi.']);
 
-        $this->actingAs($admin)->get('/bahasa/en');
+        $this->actingAs($admin)->get('/dashboard?bahasa=en');
 
         $this->actingAs($admin)->from('/categories/create')->post('/categories', [])
             ->assertSessionHasErrors(['kod' => 'The kod field is required.']);
