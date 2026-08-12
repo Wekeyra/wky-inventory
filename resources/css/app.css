@@ -46,6 +46,31 @@
                focus:border-merah focus:ring-2 focus:ring-merah/25 focus:outline-none;
     }
 
+    /*
+     | Chrome mengecat medan yang diisi automatik dengan latar birunya sendiri,
+     | yang memecahkan borang gelap. Latar itu ditanda !important dalam gaya
+     | ejen pengguna, jadi background-color tidak boleh menindihnya — hanya
+     | bayang inset yang cukup tebal berjaya dicat di atasnya.
+     |
+     | Peralihan panjang itu pula menahan warna asal Chrome daripada berkelip
+     | seketika sebelum bayang tersebut muncul.
+     */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:active {
+        box-shadow: inset 0 0 0 100px var(--color-tinggi);
+        -webkit-text-fill-color: var(--color-teks);
+        caret-color: var(--color-teks);
+        transition: background-color 100000s ease-in-out 0s;
+    }
+
+    /* Gelang fokus hilang bersama box-shadow di atas, jadi ia ditulis semula. */
+    input:-webkit-autofill:focus {
+        box-shadow:
+            0 0 0 2px rgb(220 38 38 / 0.25),
+            inset 0 0 0 100px var(--color-tinggi);
+    }
+
     input[type='checkbox'] {
         @apply size-4 rounded border-bingkai bg-tinggi text-merah focus:ring-2 focus:ring-merah/25;
     }
@@ -363,6 +388,29 @@
         box-shadow:
             inset 0 0 18px rgba(220, 38, 38, 0.18),
             0 0 0 3px rgba(220, 38, 38, 0.22);
+    }
+
+    /*
+     | Medan di sini lebih hitam daripada lalai, jadi isian automatik perlu
+     | warnanya sendiri; kalau tidak ia kembali kepada kelabu --color-tinggi
+     | dan menonjol daripada kad.
+     |
+     | Cahaya merah disenaraikan dahulu kerana bayang pertama dicat paling
+     | atas — terbalik, isian legap itu akan menutupinya.
+     */
+    .kad-log-masuk input:-webkit-autofill,
+    .kad-log-masuk input:-webkit-autofill:hover,
+    .kad-log-masuk input:-webkit-autofill:active {
+        box-shadow:
+            inset 0 0 18px rgba(220, 38, 38, 0.12),
+            inset 0 0 0 100px #0b0b0d;
+    }
+
+    .kad-log-masuk input:-webkit-autofill:focus {
+        box-shadow:
+            inset 0 0 18px rgba(220, 38, 38, 0.18),
+            0 0 0 3px rgba(220, 38, 38, 0.22),
+            inset 0 0 0 100px #0b0b0d;
     }
 
     /* Butang logam seperti dalam reka bentuk yang diminta. */
