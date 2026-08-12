@@ -38,6 +38,26 @@ Pada langkah pengesahan, baki dibaca semula daripada pangkalan data dan bukan da
 sesi, kerana stok mungkin berubah antara pembukaan sesi dan pengesahan. Sesi yang telah selesai
 atau dibatalkan tidak boleh diubah lagi.
 
+## Halaman pendaratan
+
+`/` ialah halaman pendaratan awam. Pengguna yang sudah log masuk dialihkan terus ke dashboard,
+kerana `/` ialah URL yang paling kerap ditanda buku dan halaman pemasaran hanya menambah satu
+klik sebelum kerja sebenar.
+
+Navigasinya — **Utama, Ciri, Harga, Inventori, Tentang Kami** — ialah pautan penambat ke seksyen
+pada halaman yang sama. Senarai pautan ditakrifkan **sekali** dalam `landing.blade.php` dan
+dipakai oleh nav desktop dan nav mudah alih, supaya kedua-duanya tidak boleh terpesong apabila
+pautan ditambah. Ujian `test_setiap_pautan_nav_mempunyai_seksyennya` memastikan setiap pautan
+mempunyai seksyen dengan `id` yang sepadan — pautan yang menatal ke tempat kosong tidak akan
+lepas.
+
+Salinan seksyen **Ciri** dikongsi dengan halaman pendaftaran (`wky.auth.ciri_*`) dan bukan
+disalin, supaya kedua-dua halaman tidak menyimpang apabila teksnya disunting.
+
+> ⚠️ **Harga pada halaman itu ialah contoh, bukan harga sebenar.** Tukar kunci
+> `landing.harga_*` dalam `lang/ms/wky.php` **dan** `lang/en/wky.php` kepada tawaran sebenar
+> anda sebelum memasarkan halaman ini.
+
 ## Ruang kerja
 
 Setiap syarikat memiliki satu **ruang kerja**. Produk, kategori, pembekal, pergerakan stok,
@@ -194,6 +214,9 @@ php artisan test
   boleh menggunakan SKU yang sama tanpa berlanggar.
 - `tests/Feature/RegistrationTest.php` — pendaftaran sendiri, ruang kerja berasingan bagi
   setiap pendaftaran, dan kemunculan butang Google mengikut konfigurasi.
+- `tests/Feature/LandingTest.php` — halaman pendaratan: setiap pautan nav mempunyai seksyennya,
+  ketiga-tiga pakej harga dipaparkan, pilihan bahasa dihormati, dan pengguna yang sudah log
+  masuk dialihkan ke dashboard.
 - `tests/Feature/PisahkanPenggunaTest.php` — arahan `pengguna:pisah`, termasuk penolakan
   apabila akaun itu satu-satunya pengguna dalam ruang kerjanya.
 - `tests/Feature/KosongkanRuangKerjaTest.php` — arahan `ruang-kerja:kosongkan`: semua rekod

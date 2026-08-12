@@ -6,6 +6,92 @@ return [
         'subtajuk' => 'Inventory Management System',
     ],
 
+    /*
+     | Public landing page.
+     |
+     | ⚠️ THE PRICES BELOW ARE PLACEHOLDERS, NOT REAL PRICING.
+     | Replace 'harga_perniagaan_harga' and each plan's limits with your actual
+     | offer before marketing this page. Change both lang/ms/wky.php and
+     | lang/en/wky.php — a test keeps the two files in step.
+     */
+    'landing' => [
+        'nav_utama' => 'Home',
+        'nav_ciri' => 'Features',
+        'nav_harga' => 'Pricing',
+        'nav_inventori' => 'Inventory',
+        'nav_tentang' => 'About Us',
+        'nav_menu' => 'Menu',
+
+        'hero_tajuk' => 'Take Full Control of Your Stock',
+        'hero_teks' => 'Manage products, suppliers and every stock movement in one system — with AI-powered invoice scanning and a complete audit trail.',
+        'hero_mula' => 'Start Free',
+        'hero_log_masuk' => 'Log In',
+        'hero_rantai_imbas' => 'Scan Invoice',
+        'hero_rantai_stok' => 'Stock Updated',
+        'hero_rantai_laporan' => 'Reports',
+
+        'ciri_tajuk' => 'Features',
+        'ciri_subtajuk' => 'Everything you need to run your store inventory, in one place.',
+
+        'inventori_tajuk' => 'Inventory',
+        'inventori_subtajuk' => 'Stock balances cannot be edited directly. They only change through a stock movement or a count session, so every change carries who, when, and why.',
+        'inventori_langkah_1_tajuk' => 'Record Inbound',
+        'inventori_langkah_1_teks' => 'Scan a supplier invoice or enter incoming stock by hand. The system matches every line to your products before anything is recorded.',
+        'inventori_langkah_2_tajuk' => 'Recount',
+        'inventori_langkah_2_teks' => 'Open a physical count session, enter the real quantities on the shelf, and the system shows the differences before you confirm them.',
+        'inventori_langkah_3_tajuk' => 'Review the Trail',
+        'inventori_langkah_3_teks' => 'Every movement stores the balance before and after. Monthly reports break inbound and outbound down by product.',
+        'inventori_modul' => 'Modules included',
+
+        'harga_tajuk' => 'Pricing',
+        'harga_subtajuk' => 'Start free. Upgrade when your store grows.',
+        'harga_sebulan' => '/month',
+        'harga_popular' => 'Most Popular',
+
+        'harga_percuma_nama' => 'Free',
+        'harga_percuma_harga' => 'RM 0',
+        'harga_percuma_teks' => 'For trying the system with a small store.',
+        'harga_percuma_ciri_1' => '1 user',
+        'harga_percuma_ciri_2' => 'Up to 50 products',
+        'harga_percuma_ciri_3' => '10 invoice scans per month',
+        'harga_percuma_ciri_4' => 'Monthly reports',
+
+        'harga_perniagaan_nama' => 'Business',
+        'harga_perniagaan_harga' => 'RM 49',
+        'harga_perniagaan_teks' => 'For stores running every day.',
+        'harga_perniagaan_ciri_1' => 'Unlimited users',
+        'harga_perniagaan_ciri_2' => 'Unlimited products',
+        'harga_perniagaan_ciri_3' => 'Unlimited invoice scans',
+        'harga_perniagaan_ciri_4' => 'Physical stock count sessions',
+
+        'harga_enterprise_nama' => 'Enterprise',
+        'harga_enterprise_harga' => 'Contact us',
+        'harga_enterprise_teks' => 'For businesses with multiple branches.',
+        'harga_enterprise_ciri_1' => 'Everything in Business',
+        'harga_enterprise_ciri_2' => 'Priority support',
+        'harga_enterprise_ciri_3' => 'Team training',
+        'harga_enterprise_ciri_4' => 'Data migration help',
+
+        'harga_pilih' => 'Get Started',
+        'harga_hubungi' => 'Contact Us',
+
+        'tentang_tajuk' => 'About Us',
+        'tentang_teks_1' => 'WKY Inventory is an inventory management system for small and medium businesses that want accurate stock records without the weight of an enterprise system.',
+        'tentang_teks_2' => 'Every company that registers gets its own workspace. Products, suppliers, stock movements and users stay completely separate from other companies — that isolation is enforced at the database level, not merely hidden in the interface.',
+        'tentang_teks_3' => 'The full interface is available in Bahasa Melayu and English, so your whole team can work in whichever language suits them best.',
+        'tentang_nilai_1_tajuk' => 'Records You Can Trust',
+        'tentang_nilai_1_teks' => 'Every balance change stores who, when, and why.',
+        'tentang_nilai_2_tajuk' => 'Your Data Stays Yours',
+        'tentang_nilai_2_teks' => "Each company's workspace never meets another company's data.",
+        'tentang_nilai_3_tajuk' => 'Fully Bilingual',
+        'tentang_nilai_3_teks' => 'Bahasa Melayu and English, switchable at any time.',
+
+        'cta_tajuk' => 'Ready to start?',
+        'cta_teks' => 'Create your workspace in minutes. Your inventory starts empty and completely separate.',
+
+        'footer_hak' => 'All rights reserved.',
+    ],
+
     'nav' => [
         'dashboard' => 'Dashboard',
         'produk' => 'Products',

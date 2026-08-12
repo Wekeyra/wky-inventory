@@ -6,6 +6,92 @@ return [
         'subtajuk' => 'Sistem Pengurusan Inventori',
     ],
 
+    /*
+     | Halaman pendaratan awam.
+     |
+     | ⚠️ HARGA DI BAWAH IALAH CONTOH, BUKAN HARGA SEBENAR.
+     | Tukar 'harga_perniagaan' dan senarai had setiap pakej kepada tawaran
+     | sebenar anda sebelum memasarkan halaman ini. Tukar dalam kedua-dua
+     | lang/ms/wky.php dan lang/en/wky.php — ujian memastikan kedua-duanya selari.
+     */
+    'landing' => [
+        'nav_utama' => 'Utama',
+        'nav_ciri' => 'Ciri',
+        'nav_harga' => 'Harga',
+        'nav_inventori' => 'Inventori',
+        'nav_tentang' => 'Tentang Kami',
+        'nav_menu' => 'Menu',
+
+        'hero_tajuk' => 'Kawal Stok Anda Sepenuhnya',
+        'hero_teks' => 'Uruskan produk, pembekal dan setiap pergerakan stok dalam satu sistem — dengan imbasan invois berkuasa AI dan jejak audit penuh.',
+        'hero_mula' => 'Mula Percuma',
+        'hero_log_masuk' => 'Log Masuk',
+        'hero_rantai_imbas' => 'Imbas Invois',
+        'hero_rantai_stok' => 'Stok Dikemas Kini',
+        'hero_rantai_laporan' => 'Laporan',
+
+        'ciri_tajuk' => 'Ciri',
+        'ciri_subtajuk' => 'Semua yang diperlukan untuk menguruskan inventori stor anda, dalam satu tempat.',
+
+        'inventori_tajuk' => 'Inventori',
+        'inventori_subtajuk' => 'Baki stok tidak boleh disunting terus. Ia hanya berubah melalui pergerakan stok atau sesi kiraan, jadi setiap perubahan ada rekod siapa, bila, dan sebab.',
+        'inventori_langkah_1_tajuk' => 'Rekod Masuk',
+        'inventori_langkah_1_teks' => 'Imbas invois pembekal atau masukkan stok masuk secara manual. Sistem memadankan setiap baris dengan produk anda sebelum apa-apa direkod.',
+        'inventori_langkah_2_tajuk' => 'Kira Semula',
+        'inventori_langkah_2_teks' => 'Buka sesi kiraan fizikal, masukkan kuantiti sebenar di rak, dan sistem menunjukkan perbezaan sebelum anda mengesahkannya.',
+        'inventori_langkah_3_tajuk' => 'Semak Jejak',
+        'inventori_langkah_3_teks' => 'Setiap pergerakan menyimpan baki sebelum dan selepas. Laporan bulanan memecahkan masuk dan keluar mengikut produk.',
+        'inventori_modul' => 'Modul disertakan',
+
+        'harga_tajuk' => 'Harga',
+        'harga_subtajuk' => 'Mula percuma. Naik taraf apabila stor anda membesar.',
+        'harga_sebulan' => '/bulan',
+        'harga_popular' => 'Paling Popular',
+
+        'harga_percuma_nama' => 'Percuma',
+        'harga_percuma_harga' => 'RM 0',
+        'harga_percuma_teks' => 'Untuk mencuba sistem dengan stor kecil.',
+        'harga_percuma_ciri_1' => '1 pengguna',
+        'harga_percuma_ciri_2' => 'Sehingga 50 produk',
+        'harga_percuma_ciri_3' => '10 imbasan invois sebulan',
+        'harga_percuma_ciri_4' => 'Laporan bulanan',
+
+        'harga_perniagaan_nama' => 'Perniagaan',
+        'harga_perniagaan_harga' => 'RM 49',
+        'harga_perniagaan_teks' => 'Untuk stor yang beroperasi setiap hari.',
+        'harga_perniagaan_ciri_1' => 'Pengguna tanpa had',
+        'harga_perniagaan_ciri_2' => 'Produk tanpa had',
+        'harga_perniagaan_ciri_3' => 'Imbasan invois tanpa had',
+        'harga_perniagaan_ciri_4' => 'Sesi kiraan stok fizikal',
+
+        'harga_enterprise_nama' => 'Enterprise',
+        'harga_enterprise_harga' => 'Hubungi kami',
+        'harga_enterprise_teks' => 'Untuk perniagaan berbilang cawangan.',
+        'harga_enterprise_ciri_1' => 'Semua ciri Perniagaan',
+        'harga_enterprise_ciri_2' => 'Sokongan keutamaan',
+        'harga_enterprise_ciri_3' => 'Latihan pasukan',
+        'harga_enterprise_ciri_4' => 'Bantuan pemindahan data',
+
+        'harga_pilih' => 'Mula Sekarang',
+        'harga_hubungi' => 'Hubungi Kami',
+
+        'tentang_tajuk' => 'Tentang Kami',
+        'tentang_teks_1' => 'WKY Inventory ialah sistem pengurusan inventori untuk perniagaan kecil dan sederhana yang mahukan rekod stok yang tepat tanpa kerumitan sistem perusahaan.',
+        'tentang_teks_2' => 'Setiap syarikat yang mendaftar mendapat ruang kerjanya sendiri. Produk, pembekal, pergerakan stok dan pengguna terasing sepenuhnya daripada syarikat lain — pengasingan itu dikuatkuasakan pada peringkat pangkalan data, bukan sekadar disembunyikan pada paparan.',
+        'tentang_teks_3' => 'Antara muka penuh tersedia dalam Bahasa Melayu dan English, jadi seluruh pasukan anda boleh menggunakannya dalam bahasa yang paling selesa.',
+        'tentang_nilai_1_tajuk' => 'Rekod Yang Boleh Dipercayai',
+        'tentang_nilai_1_teks' => 'Setiap perubahan baki menyimpan siapa, bila, dan sebab.',
+        'tentang_nilai_2_tajuk' => 'Data Anda Terasing',
+        'tentang_nilai_2_teks' => 'Ruang kerja setiap syarikat tidak pernah bertemu data syarikat lain.',
+        'tentang_nilai_3_tajuk' => 'Dwibahasa Sepenuhnya',
+        'tentang_nilai_3_teks' => 'Bahasa Melayu dan English, boleh ditukar pada bila-bila masa.',
+
+        'cta_tajuk' => 'Sedia untuk bermula?',
+        'cta_teks' => 'Cipta ruang kerja anda dalam beberapa minit. Inventori anda bermula kosong dan berasingan sepenuhnya.',
+
+        'footer_hak' => 'Hak cipta terpelihara.',
+    ],
+
     'nav' => [
         'dashboard' => 'Dashboard',
         'produk' => 'Produk',

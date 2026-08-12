@@ -361,6 +361,48 @@
         @apply mb-3 grid size-11 place-items-center rounded-lg border border-merah/25 bg-merah/10 text-merah-terang;
     }
 
+    /* ---------- Halaman pendaratan ---------- */
+
+    /*
+     | Bar navigasi melekat di atas latar yang berkedudukan fixed, jadi z-nya
+     | mesti mengatasi kandungan (z-10) dan latar hiasan.
+     */
+    .nav-landing {
+        @apply sticky top-0 z-30 border-b border-merah/15 bg-black/70 backdrop-blur-md;
+    }
+
+    .pautan-nav {
+        @apply rounded-md px-3 py-2 text-sm font-medium text-malap transition-colors hover:bg-tinggi hover:text-white;
+    }
+
+    .seksyen-landing {
+        @apply py-16 sm:py-20;
+    }
+
+    /*
+     | Kad harga. relative kerana pakej pilihan meletakkan lencana "Paling
+     | Popular" di luar tepi atasnya.
+     */
+    .kad-harga {
+        @apply relative flex flex-col rounded-2xl border border-merah/15 bg-black/40 p-6 backdrop-blur-sm;
+
+        box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.9);
+    }
+
+    .kad-harga-utama {
+        @apply border-merah/50 bg-black/60;
+
+        box-shadow:
+            0 0 0 1px rgba(220, 38, 38, 0.15),
+            0 24px 50px -24px rgba(0, 0, 0, 0.95);
+    }
+
+    /* Butang kad harga ditolak ke bawah supaya ketiga-tiganya sebaris walaupun
+       senarai cirinya berbeza panjang. */
+    .kad-harga > a:last-child {
+        @apply mt-auto;
+    }
+
     /* ---------- Navigasi sisi ---------- */
 
     .nav-pautan {

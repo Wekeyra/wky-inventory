@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\InvoiceScanController;
+use App\Http\Controllers\LandingController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RegisterController;
@@ -15,7 +16,8 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/dashboard');
+// Halaman pendaratan awam; pengguna yang sudah log masuk dialihkan ke dashboard.
+Route::get('/', [LandingController::class, 'index'])->name('landing');
 
 // Di luar kumpulan auth supaya bahasa juga boleh ditukar dari halaman log masuk.
 Route::get('bahasa/{locale}', [LocaleController::class, 'switch'])->name('locale.switch');
