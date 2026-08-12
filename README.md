@@ -124,33 +124,41 @@ php artisan key:generate
 npm run build
 ```
 
-Cipta database, kemudian jalankan migration dan seeder:
+Cipta database, kemudian jalankan migration:
 
 ```sql
 CREATE DATABASE wky_inventory CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
 ```bash
-php artisan migrate --seed
+php artisan migrate
 php artisan serve
 ```
 
 Semasa membangunkan antara muka, jalankan `npm run dev` dalam terminal berasingan supaya
 perubahan CSS dan Blade dimuat semula secara automatik.
 
-## Akaun contoh (daripada seeder)
+## Akaun pertama
 
-| Emel | Kata Laluan | Peranan |
-|---|---|---|
-| `admin@wekeyra.test` | `password123` | Admin |
-| `staf@wekeyra.test` | `password123` | Staf |
+Sistem bermula **kosong sepenuhnya** — tiada produk contoh dan tiada akaun terbina. Buka
+`/daftar`, isi nama syarikat anda, dan sistem mencipta ruang kerja kosong dengan anda sebagai
+adminnya. Staf ditambah kemudian melalui halaman Pengguna.
 
-Kedua-duanya berada dalam ruang kerja contoh bernama **Wekeyra** bersama produk, kategori dan
-pembekal contoh.
+Tiada akaun berkata laluan lalai sengaja dibuat, kerana halaman pendaftaran terbuka kepada umum
+dan kelayakan lalai yang terlepas pandang pada URL awam bermakna sesiapa boleh masuk.
 
-> Tukar kata laluan ini sebelum sistem digunakan untuk data sebenar. Halaman pendaftaran
-> terbuka kepada umum, jadi kelayakan lalai yang tidak ditukar pada URL awam bermakna sesiapa
-> boleh masuk ke ruang kerja contoh itu.
+### Mengosongkan ruang kerja sedia ada
+
+Ruang kerja yang mewarisi data lama boleh dikosongkan supaya ia bermula bersih:
+
+```bash
+php artisan ruang-kerja:kosongkan "Nama Syarikat"
+```
+
+Arahan memaparkan bilangan setiap jenis rekod yang akan dibuang dan meminta pengesahan dahulu.
+Akaun pengguna dan ruang kerja itu sendiri tidak disentuh — hanya produk, kategori, pembekal,
+pergerakan stok, sesi kiraan dan imbasan invois. Fail invois yang tersimpan turut dibuang.
+Gunakan `--force` untuk melangkau soalan pengesahan dalam skrip.
 
 ## Deploy
 
@@ -188,6 +196,9 @@ php artisan test
   setiap pendaftaran, dan kemunculan butang Google mengikut konfigurasi.
 - `tests/Feature/PisahkanPenggunaTest.php` — arahan `pengguna:pisah`, termasuk penolakan
   apabila akaun itu satu-satunya pengguna dalam ruang kerjanya.
+- `tests/Feature/KosongkanRuangKerjaTest.php` — arahan `ruang-kerja:kosongkan`: semua rekod
+  inventori dibuang, akaun pengguna kekal, ruang kerja lain tidak disentuh, dan tiada apa
+  yang dibuang apabila pengesahan ditolak.
 
 ## Imbas Invois (AI)
 
