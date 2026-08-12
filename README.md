@@ -15,7 +15,7 @@ bertemu antara satu sama lain.
 | **Produk** | CRUD produk dengan SKU, harga kos/jual, unit, paras stok minimum |
 | **Kategori** | Pengelasan produk. Tidak boleh dipadam selagi masih digunakan produk |
 | **Pembekal** | Maklumat pembekal dan senarai produk yang dibekalkan |
-| **Imbas Invois** | Muat naik foto atau PDF invois — AI membaca baris barang, memadankannya dengan produk, dan merekod stok masuk selepas disahkan |
+| **Imbas Invois** | Ambil gambar terus dengan kamera atau muat naik foto/PDF — AI membaca baris barang, memadankannya dengan produk, dan merekod stok masuk selepas disahkan. Boleh juga disimpan dahulu dan dibaca kemudian |
 | **Kiraan Stok** | Sesi kiraan fizikal (stock take): sistem simpan gambaran baki, staf masukkan kiraan sebenar, sistem tunjuk perbezaan dan laraskan stok selepas disahkan |
 | **Pergerakan Stok** | Rekod stok masuk, keluar, dan pelarasan — setiap satu menyimpan baki sebelum/selepas |
 | **Laporan Bulanan** | Pecahan masuk/keluar per produk mengikut bulan, perubahan bersih, dan susun atur mesra cetak |
@@ -55,9 +55,9 @@ Beberapa akibat yang perlu diketahui semasa menyunting kod:
 
 - Baris baharu ditanda dengan ruang kerja pengguna secara automatik semasa `creating`. Tiada
   controller perlu menetapkan `workspace_id` sendiri.
-- Apabila tiada sesiapa log masuk — seeder, migrasi, arahan konsol — skop tidak dipasang,
-  kerana konteks itu memang perlu melihat semua ruang kerja. Sebab itu seeder menetapkan
-  `workspace_id` secara terus.
+- Apabila tiada sesiapa log masuk — migrasi, arahan konsol — skop tidak dipasang, kerana
+  konteks itu memang perlu melihat semua ruang kerja. Kod di situ mesti menapis
+  `workspace_id` sendiri; lihat `ruang-kerja:kosongkan` sebagai contoh.
 - Model `User` **tidak** menggunakan skop ini. Skop itu perlu membaca pengguna yang sedang log
   masuk, dan membacanya melalui model yang sama akan berulang tanpa henti. Pemilikan pengguna
   disemak terus dalam `UserController`.
@@ -350,3 +350,9 @@ Dua perkara yang perlu diberi perhatian apabila menyunting:
   kandungan di bawah kad — termasuk pautan kembali ke log masuk — tidak boleh dicapai.
 - Latar konstelasi menggunakan kedudukan `fixed` supaya halaman yang lebih panjang daripada
   skrin kekal sama rupa semasa diskrol, bukan meregang mengikut tinggi dokumen.
+- Borang dengan lebih daripada satu butang hantar — seperti *Imbas* dan *Simpan Sahaja* —
+  membawa pilihannya dalam medan tersembunyi dan bukan dalam nilai butang. Butang yang
+  dilumpuhkan dalam pengendali `submit` boleh menyebabkan nama dan nilainya tercicir daripada
+  data borang, jadi tindakan yang dipilih hilang tepat pada saat ia diperlukan.
+- Arahan yang membuang data (`ruang-kerja:kosongkan`) memaparkan kiraan setiap jenis rekod dan
+  meminta pengesahan sebelum menyentuh apa-apa. `--force` hanya untuk skrip bukan interaktif.
