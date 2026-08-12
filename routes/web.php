@@ -3,9 +3,11 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\InvoiceScanController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StockCountController;
 use App\Http\Controllers\StockMovementController;
@@ -21,9 +23,15 @@ Route::get('bahasa/{locale}', [LocaleController::class, 'switch'])->name('locale
 Route::middleware('guest')->group(function () {
     Route::get('login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('login', [AuthController::class, 'login']);
+
+    Route::get('daftar', [RegisterController::class, 'showRegister'])->name('register');
+    Route::post('daftar', [RegisterController::class, 'register']);
+
+    Route::get('auth/google', [GoogleController::class, 'redirect'])->name('google.redirect');
+    Route::get('auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'aktif'])->group(function () {
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -59,5 +67,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('laporan/bulanan', [ReportController::class, 'monthly'])->name('reports.monthly');
 
-    Route::resource('users', UserController::class)->except('show')->middleware('admin');
+    Route::middleware('admin')->group(function () {
+        Route::resource('users', UserController::class)->except('show');
+        Route::post('users/{user}/luluskan', [UserController::class, 'luluskan'])->name('users.luluskan');
+        Route::post('users/{user}/tolak', [UserController::class, 'tolak'])->name('users.tolak');
+    });
 });

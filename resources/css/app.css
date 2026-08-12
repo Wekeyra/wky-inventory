@@ -257,6 +257,7 @@
     }
 
     /* Medan borang pada halaman ini lebih gelap dan bercahaya berbanding lalai. */
+    .kad-log-masuk input[type='text'],
     .kad-log-masuk input[type='email'],
     .kad-log-masuk input[type='password'] {
         @apply border-merah/30 bg-black/45 px-4 py-2.5;
@@ -264,6 +265,7 @@
         box-shadow: inset 0 0 18px rgba(220, 38, 38, 0.12);
     }
 
+    .kad-log-masuk input[type='text']:focus,
     .kad-log-masuk input[type='email']:focus,
     .kad-log-masuk input[type='password']:focus {
         @apply border-merah-terang;
@@ -292,6 +294,31 @@
 
     .btn-logam:active {
         @apply translate-y-px;
+    }
+
+    /* Butang Google — kekal gelap seperti kad, dengan logo berwarna asal. */
+    .btn-google {
+        @apply flex w-full cursor-pointer items-center justify-center gap-2.5 rounded-lg border border-white/20
+               bg-white/5 py-3 text-sm font-medium text-white transition-colors
+               hover:border-white/40 hover:bg-white/10
+               focus-visible:ring-2 focus-visible:ring-merah/50 focus-visible:outline-none;
+    }
+
+    /* Garis pemisah dengan perkataan "atau" di tengah. */
+    .pembahagi-atau {
+        @apply flex items-center gap-3 text-xs tracking-wider text-malap uppercase;
+    }
+
+    .pembahagi-atau::before,
+    .pembahagi-atau::after {
+        @apply h-px flex-1 bg-white/12;
+
+        content: '';
+    }
+
+    /* Pautan kecil di bawah kad log masuk dan pendaftaran. */
+    .pautan-auth {
+        @apply font-medium text-merah-terang hover:text-white;
     }
 
     /* ---------- Navigasi sisi ---------- */

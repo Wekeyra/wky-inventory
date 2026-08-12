@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ __('wky.aksi.log_masuk') }} &middot; {{ config('app.name') }}</title>
+    <title>{{ __('wky.auth.daftar') }} &middot; {{ config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="latar-log-masuk relative min-h-screen overflow-hidden">
@@ -15,22 +15,15 @@
         </div>
 
         <div class="mb-8 text-center">
-            <x-logo-wky kelas="jenama-log-masuk mx-auto size-36 sm:size-44" />
+            <x-logo-wky kelas="jenama-log-masuk mx-auto size-28 sm:size-32" />
 
-            <h1 class="mt-4 text-3xl font-bold tracking-wide text-white sm:text-4xl">
-                {{ config('app.name') }}
+            <h1 class="mt-4 text-2xl font-bold tracking-wide text-white sm:text-3xl">
+                {{ __('wky.auth.daftar_tajuk') }}
             </h1>
-            <p class="mt-1 text-sm tracking-wide text-malap">{{ __('wky.app.subtajuk') }}</p>
+            <p class="mt-1 text-sm tracking-wide text-malap">{{ config('app.name') }}</p>
         </div>
 
         <div class="kad-log-masuk w-full max-w-md">
-            @if (session('status'))
-                <div class="amaran-jaya mb-5">
-                    <x-ikon nama="tanda-semak" kelas="size-5 shrink-0" />
-                    <span>{{ session('status') }}</span>
-                </div>
-            @endif
-
             @if ($errors->any())
                 <div class="amaran-gagal mb-5">
                     <x-ikon nama="amaran" kelas="size-5 shrink-0" />
@@ -38,15 +31,28 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('login') }}" class="space-y-5">
+            <div class="amaran-info mb-5">
+                <x-ikon nama="jam" kelas="size-5 shrink-0" />
+                <span>{{ __('wky.auth.nota_kelulusan') }}</span>
+            </div>
+
+            <form method="POST" action="{{ route('register') }}" class="space-y-5">
                 @csrf
+
+                <div>
+                    <label for="name" class="mb-1.5 block text-sm font-medium text-teks">
+                        {{ __('wky.medan.nama') }}
+                    </label>
+                    <input type="text" id="name" name="name" value="{{ old('name') }}"
+                           required autofocus autocomplete="name">
+                </div>
 
                 <div>
                     <label for="email" class="mb-1.5 block text-sm font-medium text-teks">
                         {{ __('wky.medan.emel') }}
                     </label>
                     <input type="email" id="email" name="email" value="{{ old('email') }}"
-                           required autofocus autocomplete="username">
+                           required autocomplete="username">
                 </div>
 
                 <div>
@@ -54,22 +60,25 @@
                         {{ __('wky.medan.kata_laluan') }}
                     </label>
                     <input type="password" id="password" name="password"
-                           required autocomplete="current-password">
+                           required autocomplete="new-password">
                 </div>
 
-                <label for="ingat_saya" class="flex cursor-pointer items-center gap-2 text-sm">
-                    <input type="checkbox" id="ingat_saya" name="ingat_saya" value="1" class="!w-auto">
-                    {{ __('wky.auth.ingat_saya') }}
-                </label>
+                <div>
+                    <label for="password_confirmation" class="mb-1.5 block text-sm font-medium text-teks">
+                        {{ __('wky.medan.sahkan_kata_laluan') }}
+                    </label>
+                    <input type="password" id="password_confirmation" name="password_confirmation"
+                           required autocomplete="new-password">
+                </div>
 
-                <button type="submit" class="btn-logam">{{ __('wky.aksi.log_masuk') }}</button>
+                <button type="submit" class="btn-logam">{{ __('wky.auth.daftar') }}</button>
             </form>
 
             @include('partials.butang-google')
 
             <p class="mt-6 text-center text-sm text-malap">
-                {{ __('wky.auth.belum_ada_akaun') }}
-                <a href="{{ route('register') }}" class="pautan-auth">{{ __('wky.auth.daftar') }}</a>
+                {{ __('wky.auth.sudah_ada_akaun') }}
+                <a href="{{ route('login') }}" class="pautan-auth">{{ __('wky.aksi.log_masuk') }}</a>
             </p>
         </div>
 

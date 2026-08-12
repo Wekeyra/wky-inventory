@@ -17,6 +17,7 @@ class LocaleTest extends TestCase
             'name' => 'Admin Ujian',
             'email' => 'admin@ujian.test',
             'peranan' => 'admin',
+            'status' => 'aktif',
             'password' => 'password123',
         ]);
     }

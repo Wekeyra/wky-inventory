@@ -7,7 +7,19 @@
         @csrf
         @if ($user->exists) @method('PUT') @endif
 
+        @php
+            // Admin tidak boleh menurunkan peranan atau status akaunnya sendiri.
+            $sendiri = $user->exists && $user->is(auth()->user());
+        @endphp
+
         <div class="kad-badan space-y-4">
+            @if ($sendiri)
+                <div class="amaran-info">
+                    <x-ikon nama="amaran" kelas="size-5 shrink-0" />
+                    <span>{{ __('wky.pengguna.akaun_sendiri_terkunci') }}</span>
+                </div>
+            @endif
+
             <div>
                 <label for="name" class="mb-1 block font-medium">{{ __('wky.medan.nama') }} <span class="text-merah">*</span></label>
                 <input id="name" name="name" value="{{ old('name', $user->name) }}" required @error('name') class="medan-ralat" @enderror>
@@ -22,16 +34,35 @@
 
             <div>
                 <label for="peranan" class="mb-1 block font-medium">{{ __('wky.medan.peranan') }} <span class="text-merah">*</span></label>
-                <select id="peranan" name="peranan" required>
+                <select id="peranan" name="peranan" required @disabled($sendiri)>
                     <option value="staf" @selected(old('peranan', $user->peranan) === 'staf')>{{ __('wky.pengguna.peranan_staf') }}</option>
                     <option value="admin" @selected(old('peranan', $user->peranan) === 'admin')>{{ __('wky.pengguna.peranan_admin') }}</option>
                 </select>
             </div>
 
             <div>
+                <label for="status" class="mb-1 block font-medium">{{ __('wky.medan.status') }} <span class="text-merah">*</span></label>
+                <select id="status" name="status" required @disabled($sendiri)>
+                    @foreach (['aktif', 'menunggu', 'ditolak'] as $pilihan)
+                        <option value="{{ $pilihan }}" @selected(old('status', $user->status) === $pilihan)>
+                            {{ __('wky.pengguna.status_' . $pilihan . '_pilihan') }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- Medan yang dilumpuhkan tidak dihantar, jadi nilai sedia ada disertakan di sini. --}}
+            @if ($sendiri)
+                <input type="hidden" name="peranan" value="{{ $user->peranan }}">
+                <input type="hidden" name="status" value="{{ $user->status }}">
+            @endif
+
+            <div>
                 <label for="password" class="mb-1 block font-medium">
                     {{ __('wky.medan.kata_laluan') }}
-                    @if ($user->exists)
+                    @if ($user->exists && $user->google_id && blank($user->password))
+                        <span class="text-xs font-normal text-malap">{{ __('wky.pengguna.kata_laluan_google') }}</span>
+                    @elseif ($user->exists)
                         <span class="text-xs font-normal text-malap">{{ __('wky.pengguna.kata_laluan_kosong') }}</span>
                     @else
                         <span class="text-merah">*</span>

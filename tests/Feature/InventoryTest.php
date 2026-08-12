@@ -20,6 +20,7 @@ class InventoryTest extends TestCase
             'name' => 'Admin Ujian',
             'email' => 'admin@ujian.test',
             'peranan' => 'admin',
+            'status' => 'aktif',
             'password' => 'password123',
         ]);
     }
@@ -30,6 +31,7 @@ class InventoryTest extends TestCase
             'name' => 'Staf Ujian',
             'email' => 'staf@ujian.test',
             'peranan' => 'staf',
+            'status' => 'aktif',
             'password' => 'password123',
         ]);
     }

@@ -28,9 +28,21 @@ class UserFactory extends Factory
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
+            'peranan' => 'staf',
+            'status' => 'aktif',
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];
+    }
+
+    /**
+     * Akaun yang mendaftar sendiri dan masih menunggu kelulusan admin.
+     */
+    public function menunggu(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'menunggu',
+        ]);
     }
 
     /**

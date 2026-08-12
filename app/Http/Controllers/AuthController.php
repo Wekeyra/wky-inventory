@@ -28,6 +28,16 @@ class AuthController extends Controller
             ]);
         }
 
+        // Akaun daftar sendiri hanya boleh masuk selepas diluluskan admin.
+        if (! $request->user()->isAktif()) {
+            $menunggu = $request->user()->isMenunggu();
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => $menunggu ? __('wky.auth.akaun_menunggu') : __('wky.auth.akaun_ditolak'),
+            ]);
+        }
+
         $request->session()->regenerate();
 
         return redirect()->intended(route('dashboard'));
