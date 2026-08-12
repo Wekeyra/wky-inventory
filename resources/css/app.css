@@ -359,6 +359,24 @@
         @apply bg-merah text-white shadow-[0_2px_10px_rgba(220,38,38,0.35)] hover:bg-merah hover:text-white;
     }
 
+    /* ---------- Kamera invois ---------- */
+
+    /* Bingkai pratonton kamera. Nisbah tetap supaya kotak tidak melompat
+       antara saat modal dibuka dan saat strim video mula masuk. */
+    .rangka-kamera {
+        @apply relative overflow-hidden rounded-lg border border-bingkai bg-black;
+
+        aspect-ratio: 4 / 3;
+    }
+
+    .rangka-kamera video {
+        @apply h-full w-full object-contain;
+    }
+
+    .pratonton-invois {
+        @apply max-h-56 w-auto rounded-lg border border-bingkai object-contain;
+    }
+
     /* ---------- Lain-lain ---------- */
 
     .ikon-bulat {

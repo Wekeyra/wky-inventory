@@ -373,6 +373,38 @@ class InvoiceScanTest extends TestCase
         $this->actingAs($admin)->get("/imbas-invois/{$imbasan->id}/fail")->assertOk();
     }
 
+    public function test_halaman_muat_naik_menawarkan_kamera(): void
+    {
+        $this->actingAs($this->admin())
+            ->get('/imbas-invois/create')
+            ->assertOk()
+            ->assertSee(__('wky.imbas.ambil_gambar'))
+            ->assertSee('id="modal-kamera"', false)
+            ->assertSee('id="kameraVideo"', false)
+            // Input sandaran untuk peranti tanpa kamera dalam halaman.
+            ->assertSee('capture="environment"', false);
+    }
+
+    public function test_gambar_kamera_diterima_sebagai_invois(): void
+    {
+        $this->produk('A', 'Produk A');
+        $admin = $this->admin();
+
+        $this->palsukanBacaan(new ExtractedInvoice(null, null, null, [
+            new ExtractedLine('A', 'Produk A', 3, null),
+        ]));
+
+        // Kamera menghantar JPEG yang dibina dalam pelayar, bukan fail yang dipilih.
+        $this->actingAs($admin)->post('/imbas-invois', [
+            'invois' => UploadedFile::fake()->image('invois-20260812-101500.jpg', 1600, 1200),
+        ])->assertRedirect();
+
+        $imbasan = InvoiceScan::latest('id')->firstOrFail();
+
+        $this->assertSame('invois-20260812-101500.jpg', $imbasan->nama_fail_asal);
+        $this->assertSame(1, $imbasan->items()->count());
+    }
+
     /**
      * Menguji pengekstrak sebenar dan bukan yang palsu. Penolakan jenis fail
      * berlaku sebelum sebarang panggilan rangkaian, jadi ujian ini melindungi
