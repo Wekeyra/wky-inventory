@@ -136,6 +136,28 @@ class LocaleTest extends TestCase
             ->assertSessionHasErrors(['kod' => 'The kod field is required.']);
     }
 
+    /**
+     * Nota pada halaman imbas pernah mengisi pemegang tempat :tidak dengan
+     * wky.umum.tiada, yang bermaksud "None" dalam bahasa Inggeris — halaman
+     * produksi memaparkan "Stock does None change now". Ayat yang menafikan
+     * sesuatu tidak boleh dicantum daripada perkataan tunggal, jadi ujian ini
+     * menyemak ayat penuh dalam kedua-dua bahasa.
+     */
+    public function test_nota_imbas_menegaskan_stok_tidak_berubah_dalam_kedua_dua_bahasa(): void
+    {
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->get('/imbas-invois/create')
+            ->assertOk()
+            ->assertSee('Stok <strong>tidak</strong> berubah sekarang', false)
+            ->assertDontSee('Stok Tiada berubah');
+
+        $this->actingAs($admin)->get('/imbas-invois/create?bahasa=en')
+            ->assertOk()
+            ->assertSee('Stock does <strong>not</strong> change now', false)
+            ->assertDontSee('does None change');
+    }
+
     public function test_kedua_dua_fail_bahasa_mempunyai_kunci_yang_sama(): void
     {
         $ms = array_keys(Arr::dot(require lang_path('ms/wky.php')));

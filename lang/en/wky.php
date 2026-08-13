@@ -347,7 +347,7 @@ return [
         'kamera_gagal' => 'The camera could not be opened on this device. Please choose a file instead.',
         'atau_pilih_fail' => 'or choose an existing file',
         'fail_nota' => 'A photo or PDF of the invoice — JPG, PNG, GIF, WEBP, or PDF. Maximum :saiz MB.',
-        'nota_muat_naik' => 'Scanning uses AI to read the invoice. Stock does :tidak change now — you will see a review screen first, and only pressing :sahkan records the incoming stock.',
+        'nota_muat_naik' => 'Scanning uses AI to read the invoice. Stock does <strong>not</strong> change now — you will see a review screen first, and only pressing :sahkan records the incoming stock.',
         'sedang_baca' => 'Reading the invoice…',
         'status_draf' => 'Draft',
         'status_selesai' => 'Completed',

@@ -62,8 +62,16 @@
 
             <div class="amaran-info">
                 <span>
+                    {{--
+                        Penegasan pada "tidak" ditulis di dalam ayat terjemahan itu
+                        sendiri, sama seperti nota_buka pada halaman kiraan stok.
+                        Menghantarnya sebagai pemegang tempat memerlukan satu kunci
+                        untuk perkataan "tidak" bersendirian, dan perkataan tunggal
+                        tidak selamat diterjemah tanpa ayatnya — pemegang tempat itu
+                        pernah diisi dengan wky.umum.tiada, yang memaparkan
+                        "Stock does None change now" pada halaman Inggeris.
+                    --}}
                     {!! __('wky.imbas.nota_muat_naik', [
-                        'tidak' => '<strong>' . e(__('wky.umum.tiada')) . '</strong>',
                         'sahkan' => '<strong>' . e(__('wky.imbas.sahkan_rekod')) . '</strong>',
                     ]) !!}
                 </span>

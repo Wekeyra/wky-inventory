@@ -347,7 +347,7 @@ return [
         'kamera_gagal' => 'Tidak dapat membuka kamera pada peranti ini. Sila pilih fail seperti biasa.',
         'atau_pilih_fail' => 'atau pilih fail sedia ada',
         'fail_nota' => 'Foto atau PDF invois — JPG, PNG, GIF, WEBP, atau PDF. Maksimum :saiz MB.',
-        'nota_muat_naik' => 'Imbasan menggunakan AI untuk membaca invois. Stok :tidak berubah sekarang — anda akan melihat skrin semakan dahulu, dan hanya menekan :sahkan yang merekod stok masuk.',
+        'nota_muat_naik' => 'Imbasan menggunakan AI untuk membaca invois. Stok <strong>tidak</strong> berubah sekarang — anda akan melihat skrin semakan dahulu, dan hanya menekan :sahkan yang merekod stok masuk.',
         'sedang_baca' => 'Sedang membaca invois…',
         'status_draf' => 'Draf',
         'status_selesai' => 'Selesai',
