@@ -151,26 +151,47 @@ sendiri; akaun sedia ada yang emelnya sepadan akan dipautkan secara automatik.
 ```bash
 git clone https://github.com/Wekeyra/wky-inventory.git
 cd wky-inventory
-composer install
-npm install
-cp .env.example .env
-php artisan key:generate
-npm run build
 ```
 
-Cipta database, kemudian jalankan migration:
+Cipta database terlebih dahulu:
 
 ```sql
 CREATE DATABASE wky_inventory CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
+Kemudian pasang segalanya dengan satu arahan:
+
 ```bash
+composer setup
+```
+
+`composer setup` menjalankan `composer install`, menyalin `.env.example` kepada `.env`, menjana
+kunci aplikasi, menjalankan migrasi, memasang pakej npm, dan membina aset. Langkah yang sama
+secara manual:
+
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
 php artisan migrate
+npm install
+npm run build
+```
+
+Database mesti wujud **sebelum** `composer setup` dijalankan, kerana langkah migrasi di dalamnya
+menyambung terus mengikut tetapan `DB_*`. Kalau pangkalan data anda bukan `wky_inventory` pada
+`root` tanpa kata laluan, salin `.env` dan betulkan tetapan itu dahulu, kemudian jalankan langkah
+manual di atas.
+
+Jalankan pelayan:
+
+```bash
 php artisan serve
 ```
 
 Semasa membangunkan antara muka, jalankan `npm run dev` dalam terminal berasingan supaya
-perubahan CSS dan Blade dimuat semula secara automatik.
+perubahan CSS dan Blade dimuat semula secara automatik. Sebagai ganti, `composer dev` menjalankan
+pelayan, pendengar baris gilir, log langsung (`pail`), dan Vite serentak dalam satu terminal.
 
 ## Akaun pertama
 
@@ -210,8 +231,16 @@ disalah anggap sebagai pepijat kod.
 ## Ujian
 
 ```bash
-php artisan test
+composer test
 ```
+
+`composer test` menjalankan `config:clear` dahulu sebelum `php artisan test`. Konfigurasi yang
+telah dicache akan mengekalkan nilai `.env` lama semasa ujian dijalankan — termasuk kunci API
+sebenar — jadi membersihkannya dahulu memastikan ujian membaca apa yang ditetapkan oleh suite
+itu sendiri. `php artisan test` sahaja tetap berfungsi apabila tiada cache konfigurasi.
+
+Ujian berjalan pada **SQLite dalam ingatan** (`phpunit.xml`), bukan MySQL. Database pembangunan
+anda tidak disentuh, dan tiada persediaan pangkalan data diperlukan untuk menjalankan suite ini.
 
 - `tests/Feature/InventoryTest.php` — kawalan akses, paparan semua halaman utama, logik pergerakan
   stok (termasuk penolakan stok keluar yang melebihi baki), dan laporan bulanan.
@@ -316,7 +345,7 @@ ditanda *Dipilih manual* supaya jelas mana satu datang daripada AI.
 |---|---|---|
 | `ANTHROPIC_API_KEY` | — | Kunci API; wajib untuk mengimbas |
 | `ANTHROPIC_MODEL` | `claude-opus-5` | Model yang digunakan |
-| `ANTHROPIC_EFFORT` | `medium` | Tahap usaha — naikkan ke `high` untuk invois yang sukar dibaca |
+| `ANTHROPIC_EFFORT` | `medium` | Tahap usaha (`low`, `medium`, `high`, `xhigh`, `max`) — naikkan ke `high` untuk invois yang sukar dibaca |
 | `ANTHROPIC_TIMEOUT` | `180` | Had masa panggilan (saat); juga menaikkan had masa PHP |
 | `ANTHROPIC_SAIZ_MAKS_KB` | `10240` | Saiz maksimum fail yang dimuat naik |
 
@@ -361,8 +390,26 @@ dibungkus ke dalam `public/build`, jadi sistem berfungsi sepenuhnya tanpa sambun
 | `resources/js/app.js` | Menu jatuh, modal, tutup amaran, dan Chart.js — pengganti Bootstrap JS |
 | `resources/views/components/ikon.blade.php` | Ikon SVG terbaris (`<x-ikon nama="kotak" />`) |
 | `resources/views/components/logo-wky.blade.php` | Logo — guna fail sebenar jika ada, jika tidak lukis SVG |
+| `resources/views/components/jenama-wky.blade.php` | Kata jenama *WKY INVENTORY* mengikut warna logo |
 | `resources/views/components/latar-log-masuk.blade.php` | Latar konstelasi dan siluet bandar untuk halaman log masuk dan pendaftaran |
+| `resources/views/components/medan-kata-laluan.blade.php` | Medan kata laluan berserta butang mata |
+| `resources/views/components/tajuk-seksyen.blade.php` | Tajuk seksyen halaman pendaratan: garis aksen, tajuk, teks pengenalan |
 | `resources/views/partials/butang-google.blade.php` | Butang log masuk Google; menyembunyikan dirinya apabila OAuth belum dikonfigur |
+
+Nama jenama ditulis sebagai teks dan **bukan** dibaca daripada `config('app.name')`. Laravel Cloud
+menetapkan `APP_NAME` kepada slug aplikasi, yang akan memaparkan `wky-inventory` bertanda sempang
+pada halaman log masuk produksi.
+
+### Butang mata kata laluan
+
+Setiap medan kata laluan dalam sistem — log masuk, pendaftaran, dan borang pengguna — menggunakan
+`<x-medan-kata-laluan>`, yang menambah butang mata untuk menyemak apa yang ditaip. Butang itu
+mesti membawa `type="button"`: butang tanpa jenis di dalam borang dikira sebagai butang hantar,
+jadi menekan mata akan menghantar borang. Ujian `KataLaluanTest` menguatkuasakan hal ini pada
+kelima-lima medan.
+
+Label *Tunjuk*/*Sembunyi* dibawa sebagai atribut `data-*` pada butang, jadi JavaScript menukarnya
+tanpa perlu tahu bahasa halaman.
 
 ### Menukar logo
 
@@ -370,16 +417,30 @@ Letakkan fail logo anda di `public/images/` sebagai `logo-wky.svg`, `.png`, `.we
 `.jpg`. Komponen akan menggunakannya secara automatik dan melangkau lukisan SVG terbina —
 tiada perubahan kod diperlukan. Buang fail itu untuk kembali kepada lukisan SVG.
 
-Palet keseluruhan sistem dikawal oleh token `--color-*` di bahagian atas `app.css`. Tukar nilai
-di situ dan jalankan `npm run build` untuk menukar rupa seluruh aplikasi.
+### Palet
 
-Dua perkara yang perlu diberi perhatian apabila menyunting:
+Sistem mempunyai **satu tema sahaja** — gelap pekat dengan aksen merah. Tiada suis terang/gelap,
+jadi setiap warna boleh dipilih untuk satu latar dan tidak perlu berfungsi pada dua-dua.
+
+Palet keseluruhan dikawal oleh token `--color-*` di bahagian atas `app.css`. Tukar nilai di situ
+dan jalankan `npm run build` untuk menukar rupa seluruh aplikasi.
+
+Tiga perkara yang perlu diberi perhatian apabila menyunting:
 
 - `@apply` dalam Tailwind v4 hanya menerima **utiliti**, bukan kelas komponen tersuai. Kelas
   seperti `.btn-utama` ditulis penuh dan tidak saling `@apply` antara satu sama lain.
 - Nama kelas mesti muncul sebagai teks penuh supaya Tailwind dapat mengesannya. Sebab itu
   `StockCount::kelasStatus()` dan `StockMovement::kelasJenis()` memulangkan nama kelas lengkap
   (`lencana-kuning`) dan bukan potongan yang dicantum (`lencana-` . `$warna`).
+- Peraturan `:-webkit-autofill` dalam `app.css` kelihatan pelik tetapi **jangan dipermudahkan**.
+  Chrome mengecat medan yang diisi automatik dengan latar birunya sendiri dan menandanya
+  `!important` dalam gaya ejen pengguna, jadi `background-color` biasa tidak dapat menindihnya —
+  hanya `box-shadow: inset 0 0 0 100px` yang cukup tebal berjaya dicat di atasnya. `transition`
+  yang panjangnya 100000s pula menahan warna asal Chrome daripada berkelip seketika sebelum
+  bayang itu muncul, dan gelang fokus ditulis semula kerana ia hilang bersama `box-shadow`.
+  Medan pada `.kad-log-masuk` mendapat versinya sendiri kerana kad itu lebih hitam daripada
+  permukaan lalai; di situ cahaya merah disenaraikan **sebelum** isian legap, kerana bayang
+  pertama dicat paling atas.
 
 ## Nota teknikal
 
