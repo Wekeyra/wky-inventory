@@ -365,6 +365,7 @@ return [
         'padanan_sku' => 'SKU match',
         'padanan_nama' => 'Name match',
         'padanan_manual' => 'Chosen manually',
+        'padanan_auto' => 'New product',
         'padanan_tiada' => 'No match',
         'no_invois' => 'Invoice No.',
         'tarikh_invois' => 'Invoice Date',
@@ -393,7 +394,7 @@ return [
 
         'ralat_tiada_kunci' => 'The Anthropic API key is not set. Add ANTHROPIC_API_KEY to your .env file, then run "php artisan config:clear".',
         'ralat_tiada_baris' => 'No goods lines could be read from this document. Make sure the image is clear and shows the item table.',
-        'ralat_tiada_padanan' => 'No line is matched to a product. Select a product for at least one line before confirming.',
+        'ralat_tiada_padanan' => 'There is nothing to record. At least one line must have a product and not be marked as skipped.',
         'ralat_jenis_fail' => 'This file type is not supported. Use JPG, PNG, GIF, WEBP, or PDF.',
         'ralat_kunci' => 'The Anthropic API key is invalid. Check the ANTHROPIC_API_KEY value in your .env file.',
         'ralat_had_kadar' => 'API rate limit reached. Wait a moment and try again.',
@@ -478,6 +479,7 @@ return [
         'hanya_admin' => 'This page is for administrators only.',
 
         'imbas_dibaca' => 'Invoice read: :bil lines found, :tiada without a product match.',
+        'imbas_dibaca_auto' => 'Invoice read: :bil lines found. :baharu new products were created automatically — their selling price and minimum stock start at 0, so please correct them on the Products page.',
         'imbas_disimpan' => 'Corrections saved. Stock has not changed yet.',
         'imbas_disimpan_sahaja' => 'Scan :kod saved. Press "Read with AI" when you are ready to extract its line items.',
         'imbas_disahkan' => 'Scan :kod confirmed. :bil products recorded as stock in.',

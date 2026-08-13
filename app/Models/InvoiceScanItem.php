@@ -62,6 +62,7 @@ class InvoiceScanItem extends Model
             'sku' => 'lencana-hijau',
             'nama' => 'lencana-biru',
             'manual' => 'lencana-kuning',
+            'auto' => 'lencana-kuning',
             default => 'lencana-merah',
         };
     }

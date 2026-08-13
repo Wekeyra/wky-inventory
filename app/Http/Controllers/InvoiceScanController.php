@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\Supplier;
 use App\Services\Invoice\ExtractedInvoice;
+use App\Services\Invoice\ExtractedLine;
 use App\Services\Invoice\InvoiceExtractionException;
 use App\Services\Invoice\InvoiceExtractor;
 use App\Services\Invoice\ProductMatcher;
@@ -127,8 +128,16 @@ class InvoiceScanController extends Controller
             foreach ($hasil->barang as $baris) {
                 $padanan = $matcher->match($baris);
 
+                // Baris tanpa padanan bermakna produk itu belum wujud, bukan
+                // pengguna terlepas pandang. Ia dicipta terus di sini supaya
+                // imbasan sampai ke skrin semakan dalam keadaan sedia direkod
+                // dan pengguna tidak perlu berhenti mendaftarkan produk dahulu.
+                if ($padanan['product'] === null) {
+                    $padanan = ['product' => $this->ciptaProduk($baris, $matcher), 'kaedah' => 'auto'];
+                }
+
                 $imbasan->items()->create([
-                    'product_id' => $padanan['product']?->id,
+                    'product_id' => $padanan['product']->id,
                     'sku_invois' => $baris->sku,
                     'nama_invois' => $baris->nama,
                     'kuantiti' => $baris->kuantiti,
@@ -138,10 +147,16 @@ class InvoiceScanController extends Controller
             }
         });
 
-        return redirect()->route('invoice-scans.show', $imbasan)->with('status', __('wky.flash.imbas_dibaca', [
-            'bil' => $imbasan->items()->count(),
-            'tiada' => $imbasan->items()->whereNull('product_id')->count(),
-        ]));
+        $baharu = $imbasan->items()->where('kaedah_padanan', 'auto')->count();
+
+        return redirect()->route('invoice-scans.show', $imbasan)->with('status', __(
+            $baharu > 0 ? 'wky.flash.imbas_dibaca_auto' : 'wky.flash.imbas_dibaca',
+            [
+                'bil' => $imbasan->items()->count(),
+                'tiada' => $imbasan->items()->whereNull('product_id')->count(),
+                'baharu' => $baharu,
+            ],
+        ));
     }
 
     public function show(InvoiceScan $invoiceScan): View
@@ -295,6 +310,61 @@ class InvoiceScanController extends Controller
 
         return redirect()->route('invoice-scans.index')
             ->with('status', __('wky.flash.imbas_dipadam', ['kod' => $kod]));
+    }
+
+    /**
+     * Mencipta produk daripada satu baris invois yang tiada padanan.
+     *
+     * Invois tidak membawa harga jual mahupun paras stok minimum, jadi kedua-dua
+     * itu bermula pada 0 dan pengguna membetulkannya di halaman Produk. Stok
+     * pula sengaja tidak ditetapkan di sini: ia hanya bergerak melalui
+     * pengesahan imbasan, supaya jejak audit kekal utuh seperti mana-mana
+     * kemasukan stok yang lain.
+     */
+    private function ciptaProduk(ExtractedLine $baris, ProductMatcher $matcher): Product
+    {
+        $product = Product::create([
+            'sku' => $this->skuProduk($baris),
+            'nama' => $baris->nama,
+            'unit' => 'unit',
+            'harga_kos' => $baris->hargaUnit ?? 0,
+            'harga_jual' => 0,
+            'stok_minimum' => 0,
+            'aktif' => true,
+        ]);
+
+        $matcher->daftar($product);
+
+        return $product;
+    }
+
+    /**
+     * Kod pembekal dijadikan SKU apabila ada, kerana itulah yang menjadikan
+     * invois berikutnya daripada pembekal yang sama padan dengan sendirinya.
+     *
+     * Baris tanpa kod mendapat kod jana supaya medan SKU yang wajib itu tetap
+     * terisi; padanan seterusnya bagi baris begitu bergantung pada nama.
+     */
+    private function skuProduk(ExtractedLine $baris): string
+    {
+        $sku = mb_substr(trim((string) $baris->sku), 0, 50);
+
+        // Kod yang sudah dipakai tidak boleh diguna semula: keunikan SKU
+        // berskop ruang kerja, dan pelanggarannya akan mematikan imbasan di
+        // tengah jalan. Padanan normal sepatutnya sudah menangkap kes ini,
+        // tetapi pemotongan 50 aksara di atas boleh menghasilkan pertembungan.
+        if ($sku !== '' && ! Product::where('sku', $sku)->exists()) {
+            return $sku;
+        }
+
+        $bil = Product::where('sku', 'like', 'AUTO-%')->count();
+
+        do {
+            $bil++;
+            $jana = sprintf('AUTO-%04d', $bil);
+        } while (Product::where('sku', $jana)->exists());
+
+        return $jana;
     }
 
     private function kaedahPadanan(?int $asal, ?int $baharu, string $semasa): string

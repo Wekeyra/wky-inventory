@@ -365,6 +365,7 @@ return [
         'padanan_sku' => 'Padan SKU',
         'padanan_nama' => 'Padan nama',
         'padanan_manual' => 'Dipilih manual',
+        'padanan_auto' => 'Produk baharu',
         'padanan_tiada' => 'Tiada padanan',
         'no_invois' => 'No. Invois',
         'tarikh_invois' => 'Tarikh Invois',
@@ -393,7 +394,7 @@ return [
 
         'ralat_tiada_kunci' => 'Kunci API Anthropic belum ditetapkan. Tambah ANTHROPIC_API_KEY dalam fail .env, kemudian jalankan "php artisan config:clear".',
         'ralat_tiada_baris' => 'Tiada baris barang dapat dibaca daripada dokumen ini. Pastikan gambar jelas dan menunjukkan jadual barang.',
-        'ralat_tiada_padanan' => 'Tiada baris yang dipadankan dengan produk. Pilih produk untuk sekurang-kurangnya satu baris sebelum mengesahkan.',
+        'ralat_tiada_padanan' => 'Tiada baris untuk direkodkan. Sekurang-kurangnya satu baris mesti mempunyai produk dan tidak ditanda langkau.',
         'ralat_jenis_fail' => 'Jenis fail ini tidak disokong. Gunakan JPG, PNG, GIF, WEBP, atau PDF.',
         'ralat_kunci' => 'Kunci API Anthropic tidak sah. Semak nilai ANTHROPIC_API_KEY dalam fail .env.',
         'ralat_had_kadar' => 'Had permintaan API dicapai. Tunggu sebentar dan cuba lagi.',
@@ -478,6 +479,7 @@ return [
         'hanya_admin' => 'Halaman ini hanya untuk admin.',
 
         'imbas_dibaca' => 'Invois dibaca: :bil baris dijumpai, :tiada tanpa padanan produk.',
+        'imbas_dibaca_auto' => 'Invois dibaca: :bil baris dijumpai. :baharu produk baharu dicipta automatik — harga jual dan paras stok minimumnya bermula 0, sila betulkan di halaman Produk.',
         'imbas_disimpan' => 'Pembetulan disimpan. Stok belum berubah.',
         'imbas_disimpan_sahaja' => 'Imbasan :kod disimpan. Tekan "Baca dengan AI" apabila anda sedia untuk mengekstrak baris barangnya.',
         'imbas_disahkan' => 'Imbasan :kod disahkan. :bil produk direkodkan sebagai stok masuk.',

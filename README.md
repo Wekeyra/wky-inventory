@@ -342,9 +342,24 @@ dinormalkan (huruf kecil, tanda baca dan ruang dibuang), jadi `ELK-001`, `elk 00
 `ELK_001` dianggap sama.
 
 Padanan kabur **tidak** digunakan. Padanan yang salah akan menambah stok pada produk yang
-tidak berkaitan tanpa disedari, jadi baris yang tidak padan sengaja ditinggalkan kepada
-pengguna untuk dipilih sendiri daripada senarai jatuh. Padanan yang ditukar oleh pengguna
-ditanda *Dipilih manual* supaya jelas mana satu datang daripada AI.
+tidak berkaitan tanpa disedari — jauh lebih teruk daripada langsung tidak padan.
+
+Baris yang tidak padan **tidak** ditinggalkan kosong: sistem mencipta produk baharu terus
+daripada baris itu dan memadankannya. Tujuannya supaya imbasan sampai ke skrin semakan dalam
+keadaan sedia direkod, dan pengguna hanya perlu menekan *Sahkan & Rekod Stok Masuk* sekali —
+tiada langkah mendaftar produk di tengah jalan.
+
+Kod pembekal pada invois dijadikan SKU produk itu, kerana itulah yang menjadikan invois
+berikutnya daripada pembekal yang sama padan dengan sendirinya. Baris tanpa kod mendapat SKU
+jana (`AUTO-0001`) dan bergantung pada nama untuk padanan seterusnya.
+
+> ⚠️ Invois tidak membawa **harga jual** mahupun **paras stok minimum**, jadi produk yang
+> dicipta begini bermula dengan kedua-duanya `0`. Betulkan di halaman Produk, jika tidak
+> amaran stok rendah tidak akan berbunyi untuk produk berkenaan.
+
+Setiap baris membawa label asal-usul padanannya: *Padan SKU*, *Padan nama*, *Produk baharu*
+(dicipta automatik), atau *Dipilih manual*. Ini membezakan baris yang belum pernah dilihat
+sesiapa daripada baris yang seseorang sahkan dengan matanya sendiri.
 
 ### Konfigurasi
 

@@ -46,6 +46,22 @@ class ProductMatcher
         return ['product' => null, 'kaedah' => 'tiada'];
     }
 
+    /**
+     * Memasukkan produk yang baru dicipta ke dalam indeks yang sedang digunakan.
+     *
+     * Indeks dimuatkan sekali sahaja untuk satu imbasan, jadi tanpa ini baris
+     * kedua yang membawa kod yang sama tidak akan nampak produk yang baru
+     * dicipta oleh baris pertama — ia akan cuba menciptanya sekali lagi dan
+     * melanggar keunikan SKU di tengah-tengah imbasan.
+     */
+    public function daftar(Product $product): void
+    {
+        $this->muatIndeks();
+
+        $this->indeksSku->put($this->normal($product->sku), $product);
+        $this->indeksNama->put($this->normal($product->nama), $product);
+    }
+
     private function muatIndeks(): void
     {
         if ($this->indeksSku !== null) {

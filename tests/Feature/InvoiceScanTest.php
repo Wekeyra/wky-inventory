@@ -91,10 +91,123 @@ class InvoiceScanTest extends TestCase
     }
 
     /**
-     * Baris tanpa padanan selalunya bermakna produk itu memang belum wujud,
-     * jadi borang produk boleh dimulakan terus daripada baris invois.
+     * Matlamat aliran ini: client hanya mengambil gambar dan menekan Confirm.
+     * Produk yang belum wujud dicipta terus supaya imbasan sampai ke skrin
+     * semakan dalam keadaan sedia direkod.
      */
-    public function test_borang_produk_boleh_dimulakan_daripada_baris_tanpa_padanan(): void
+    public function test_produk_yang_belum_wujud_dicipta_dan_dipadankan_semasa_imbasan(): void
+    {
+        $admin = $this->admin();
+
+        $this->palsukanBacaan(new ExtractedInvoice(null, null, null, [
+            new ExtractedLine('142601 010105', 'ABBA Pink Flat File', 20, 2.20),
+        ]));
+
+        $this->muatNaik($admin);
+
+        $produk = Product::where('sku', '142601 010105')->firstOrFail();
+        $this->assertSame('ABBA Pink Flat File', $produk->nama);
+        $this->assertSame('2.20', $produk->harga_kos);
+
+        // Stok hanya bergerak melalui pengesahan, sama seperti kemasukan lain.
+        $this->assertSame(0, $produk->stok);
+
+        $baris = InvoiceScanItem::firstOrFail();
+        $this->assertSame($produk->id, $baris->product_id);
+        $this->assertSame('auto', $baris->kaedah_padanan, 'Baris yang belum pernah dilihat sesiapa mesti boleh dibezakan daripada pilihan manusia.');
+    }
+
+    /** Selepas dicipta sekali, invois berikutnya padan mengikut SKU seperti biasa. */
+    public function test_imbasan_kedua_padan_dengan_produk_yang_dicipta_imbasan_pertama(): void
+    {
+        $admin = $this->admin();
+
+        $this->palsukanBacaan(new ExtractedInvoice(null, null, null, [
+            new ExtractedLine('142601 010105', 'ABBA Pink Flat File', 20, 2.20),
+        ]));
+        $this->muatNaik($admin);
+
+        $this->palsukanBacaan(new ExtractedInvoice(null, null, null, [
+            new ExtractedLine('142601 010105', 'ABBA Pink Flat File', 30, 2.20),
+        ]));
+        $this->muatNaik($admin);
+
+        $this->assertSame(1, Product::count(), 'Imbasan kedua tidak boleh mencipta produk berganda.');
+
+        $barisKedua = InvoiceScanItem::latest('id')->firstOrFail();
+        $this->assertSame('sku', $barisKedua->kaedah_padanan);
+    }
+
+    /**
+     * Indeks padanan dimuatkan sekali sahaja untuk satu imbasan, jadi tanpa
+     * pendaftaran produk baharu ke dalam indeks itu, baris kedua akan cuba
+     * mencipta SKU yang sama dan melanggar keunikan di tengah imbasan.
+     */
+    public function test_dua_baris_berkod_sama_dalam_satu_invois_hanya_mencipta_satu_produk(): void
+    {
+        $admin = $this->admin();
+
+        $this->palsukanBacaan(new ExtractedInvoice(null, null, null, [
+            new ExtractedLine('142601 010105', 'ABBA Pink Flat File', 20, 2.20),
+            new ExtractedLine('142601 010105', 'ABBA Pink Flat File', 5, 2.20),
+        ]));
+
+        $this->muatNaik($admin)->assertRedirect();
+
+        $this->assertSame(1, Product::count());
+        $this->assertSame(2, InvoiceScanItem::count());
+        $this->assertSame(0, InvoiceScanItem::whereNull('product_id')->count());
+    }
+
+    /** Baris tanpa kod pembekal tetap perlu SKU, kerana medan itu wajib. */
+    public function test_baris_tanpa_kod_pembekal_mendapat_sku_jana(): void
+    {
+        $admin = $this->admin();
+
+        $this->palsukanBacaan(new ExtractedInvoice(null, null, null, [
+            new ExtractedLine(null, 'Barang Tanpa Kod', 4, null),
+        ]));
+
+        $this->muatNaik($admin);
+
+        $produk = Product::firstOrFail();
+        $this->assertSame('AUTO-0001', $produk->sku);
+        $this->assertSame('0.00', $produk->harga_kos, 'Invois tanpa harga unit bermula pada 0.');
+        $this->assertSame($produk->id, InvoiceScanItem::firstOrFail()->product_id);
+    }
+
+    /**
+     * Aliran penuh yang diminta: ambil gambar, kemudian satu klik Confirm.
+     * Tiada langkah memilih produk di antaranya.
+     */
+    public function test_client_boleh_terus_sahkan_selepas_imbasan_tanpa_memilih_produk(): void
+    {
+        $admin = $this->admin();
+
+        $this->palsukanBacaan(new ExtractedInvoice(null, null, null, [
+            new ExtractedLine('142601 010105', 'ABBA Pink Flat File', 20, 2.20),
+            new ExtractedLine('192503 020300', 'A4 Paper', 20, 11.70),
+        ]));
+
+        $this->muatNaik($admin);
+        $imbasan = InvoiceScan::latest('id')->firstOrFail();
+
+        $this->actingAs($admin)->post("/imbas-invois/{$imbasan->id}/sahkan")
+            ->assertRedirect("/imbas-invois/{$imbasan->id}");
+
+        $this->assertSame('selesai', $imbasan->fresh()->status);
+        $this->assertSame(20, Product::where('sku', '142601 010105')->value('stok'));
+        $this->assertSame(20, Product::where('sku', '192503 020300')->value('stok'));
+        $this->assertSame(2, StockMovement::count());
+    }
+
+    /**
+     * Imbasan sentiasa memadankan setiap baris sekarang, tetapi pengguna boleh
+     * mengosongkan padanan itu semula — contohnya apabila produk yang dicipta
+     * automatik itu sebenarnya salah. Jalan itu masih perlu membawa pengguna ke
+     * borang produk yang sudah terisi.
+     */
+    public function test_borang_produk_boleh_dimulakan_daripada_baris_yang_dikosongkan(): void
     {
         $admin = $this->admin();
 
@@ -104,7 +217,8 @@ class InvoiceScanTest extends TestCase
 
         $this->muatNaik($admin);
         $baris = InvoiceScanItem::firstOrFail();
-        $this->assertNull($baris->product_id, 'Baris ini sepatutnya tiada padanan.');
+
+        $this->kosongkanPadanan($admin, $baris);
 
         $this->actingAs($admin)->get("/products/create?baris_imbasan={$baris->id}")
             ->assertOk()
@@ -112,6 +226,17 @@ class InvoiceScanTest extends TestCase
             ->assertSee('value="ABBA Pink Flat File"', false)
             ->assertSee('value="2.20"', false)
             ->assertSee('name="baris_imbasan" value="'.$baris->id.'"', false);
+    }
+
+    /** Mengosongkan padanan sesuatu baris melalui borang pembetulan. */
+    private function kosongkanPadanan(User $pengguna, InvoiceScanItem $baris): void
+    {
+        $this->actingAs($pengguna)->put("/imbas-invois/{$baris->invoice_scan_id}", [
+            'baris' => [$baris->id => ['product_id' => null, 'kuantiti' => $baris->kuantiti]],
+        ]);
+
+        $baris->refresh();
+        $this->assertNull($baris->product_id, 'Prasyarat ujian: baris ini sepatutnya sudah kosong.');
     }
 
     /**
@@ -130,9 +255,11 @@ class InvoiceScanTest extends TestCase
         $this->muatNaik($admin);
         $baris = InvoiceScanItem::firstOrFail();
 
+        $this->kosongkanPadanan($admin, $baris);
+
         $this->actingAs($admin)->post('/products', [
-            'sku' => '142601 010105',
-            'nama' => 'ABBA Pink Flat File',
+            'sku' => 'BETUL-1',
+            'nama' => 'Nama Yang Betul',
             'unit' => 'unit',
             'harga_kos' => 2.20,
             'harga_jual' => 3.50,
@@ -140,7 +267,7 @@ class InvoiceScanTest extends TestCase
             'baris_imbasan' => $baris->id,
         ])->assertRedirect("/imbas-invois/{$baris->invoice_scan_id}");
 
-        $produk = Product::where('sku', '142601 010105')->firstOrFail();
+        $produk = Product::where('sku', 'BETUL-1')->firstOrFail();
 
         $baris->refresh();
         $this->assertSame($produk->id, $baris->product_id);
@@ -162,6 +289,7 @@ class InvoiceScanTest extends TestCase
 
         $this->muatNaik($admin);
         $barisSyarikatA = InvoiceScanItem::firstOrFail();
+        $produkAsal = $barisSyarikatA->product_id;
 
         $syarikatB = Workspace::create(['nama' => 'Syarikat B']);
         $adminB = User::create([
@@ -182,7 +310,7 @@ class InvoiceScanTest extends TestCase
             'baris_imbasan' => $barisSyarikatA->id,
         ])->assertRedirect('/products');
 
-        $this->assertNull($barisSyarikatA->fresh()->product_id, 'Baris syarikat lain mesti kekal tidak disentuh.');
+        $this->assertSame($produkAsal, $barisSyarikatA->fresh()->product_id, 'Baris syarikat lain mesti kekal tidak disentuh.');
     }
 
     public function test_baris_dipadankan_mengikut_sku(): void
@@ -215,7 +343,12 @@ class InvoiceScanTest extends TestCase
         $this->assertSame('nama', $item->kaedah_padanan);
     }
 
-    public function test_baris_tanpa_padanan_ditinggalkan_untuk_pengguna(): void
+    /**
+     * Barang asing tidak lagi ditinggalkan tanpa padanan: ia menjadi produk
+     * baharu. Teks asal invois tetap disimpan supaya baris itu masih boleh
+     * dibandingkan dengan dokumen asal.
+     */
+    public function test_barang_yang_tidak_dikenali_menjadi_produk_baharu(): void
     {
         $this->produk('ELK-001', 'Papan Kekunci');
         $this->palsukanBacaan(new ExtractedInvoice(null, null, null, [
@@ -225,9 +358,10 @@ class InvoiceScanTest extends TestCase
         $this->muatNaik($this->admin());
 
         $item = InvoiceScan::latest('id')->firstOrFail()->items()->first();
-        $this->assertNull($item->product_id);
-        $this->assertSame('tiada', $item->kaedah_padanan);
+        $this->assertSame('auto', $item->kaedah_padanan);
         $this->assertSame('Kabel HDMI 2 meter', $item->nama_invois);
+        $this->assertSame('XYZ-999', $item->product->sku);
+        $this->assertSame(2, Product::count(), 'Produk sedia ada tidak diganggu.');
     }
 
     public function test_pembekal_diteka_daripada_nama_pada_invois(): void
@@ -287,7 +421,11 @@ class InvoiceScanTest extends TestCase
         $this->assertSame($admin->id, $imbasan->disahkan_oleh);
     }
 
-    public function test_baris_tanpa_padanan_dan_baris_dilangkau_tidak_diproses(): void
+    /**
+     * Langkau ialah satu-satunya cara mengecualikan baris sekarang, kerana
+     * setiap baris sudah pasti mempunyai produk selepas imbasan.
+     */
+    public function test_baris_dilangkau_tidak_diproses_walaupun_ia_berpadanan(): void
     {
         $dipadan = $this->produk('A', 'Produk A', stok: 10);
         $dilangkau = $this->produk('B', 'Produk B', stok: 20);
@@ -313,7 +451,10 @@ class InvoiceScanTest extends TestCase
 
         $this->assertSame(15, $dipadan->fresh()->stok);
         $this->assertSame(20, $dilangkau->fresh()->stok, 'Baris yang dilangkau tidak boleh menyentuh stok.');
-        $this->assertSame(1, StockMovement::count());
+
+        // Barang asing itu kini produk baharu, jadi ia turut direkodkan.
+        $this->assertSame(3, Product::where('sku', 'TIADA')->value('stok'));
+        $this->assertSame(2, StockMovement::count());
     }
 
     public function test_pengguna_boleh_memilih_produk_untuk_baris_tak_padan(): void
@@ -341,9 +482,12 @@ class InvoiceScanTest extends TestCase
         $this->assertSame(9, $produk->fresh()->stok);
     }
 
-    public function test_pengesahan_tanpa_sebarang_padanan_ditolak(): void
+    /**
+     * Selepas produk dicipta sendiri, satu-satunya cara sampai ke keadaan
+     * "tiada apa untuk direkod" ialah dengan melangkau setiap baris.
+     */
+    public function test_pengesahan_ditolak_apabila_setiap_baris_dilangkau(): void
     {
-        $this->produk('A', 'Produk A', stok: 10);
         $admin = $this->admin();
 
         $this->palsukanBacaan(new ExtractedInvoice(null, null, null, [
@@ -352,6 +496,11 @@ class InvoiceScanTest extends TestCase
 
         $this->muatNaik($admin);
         $imbasan = InvoiceScan::latest('id')->firstOrFail();
+        $item = $imbasan->items()->firstOrFail();
+
+        $this->actingAs($admin)->put("/imbas-invois/{$imbasan->id}", [
+            'baris' => [$item->id => ['product_id' => $item->product_id, 'kuantiti' => 3, 'dilangkau' => 1]],
+        ]);
 
         $this->actingAs($admin)
             ->from("/imbas-invois/{$imbasan->id}")
