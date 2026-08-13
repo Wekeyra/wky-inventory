@@ -67,6 +67,17 @@ class LandingTest extends TestCase
     }
 
     /**
+     * Kotak 3D hanya pada halaman log masuk. Halaman daftar lebih panjang dan
+     * kandungannya menatal melepasi latar, jadi hiasan berputar di belakangnya
+     * hanya menambah gangguan.
+     */
+    public function test_kotak_3d_pada_log_masuk_sahaja(): void
+    {
+        $this->get('/login')->assertOk()->assertSee('kotak-3d-pentas', false);
+        $this->get('/daftar')->assertOk()->assertDontSee('kotak-3d-pentas', false);
+    }
+
+    /**
      * Kepala bar sisi membawa tanda "W" sahaja, bukan logo penuh: anak panah
      * hitam pada logo penuh hampir hilang di atas bar sisi yang gelap.
      */

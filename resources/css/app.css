@@ -261,6 +261,137 @@
     }
 
     /*
+     | Kotak inventori 3D pada latar halaman log masuk.
+     |
+     | Ukurannya dalam vmin dan bukan rem, supaya kotak itu mengecil bersama
+     | skrin dan tidak menolak borang keluar pandangan pada telefon.
+     */
+    .kotak-3d {
+        @apply pointer-events-none fixed inset-0 flex items-center justify-center overflow-hidden;
+
+        --kotak-l: clamp(13rem, 34vmin, 26rem);
+        --kotak-t: clamp(9rem, 24vmin, 18rem);
+        --kotak-d: clamp(8rem, 22vmin, 17rem);
+
+        perspective: 1400px;
+    }
+
+    .kotak-3d-pentas {
+        position: relative;
+        width: var(--kotak-l);
+        height: var(--kotak-t);
+        transform-style: preserve-3d;
+        animation: kotak-putar 60s linear infinite;
+    }
+
+    /*
+     | Kelegapan rendah dikenakan pada setiap muka dan bukan pada pentas, kerana
+     | opacity pada elemen induk meratakan anaknya menjadi satu lapisan — muka
+     | belakang akan hilang di sebalik muka hadapan dan kotak itu menjadi rata.
+     */
+    .kotak-muka {
+        position: absolute;
+        inset: 0;
+        border: 1px solid rgba(248, 113, 113, 0.14);
+        background: rgba(220, 38, 38, 0.045);
+    }
+
+    .kotak-depan {
+        transform: translateZ(calc(var(--kotak-d) / 2));
+    }
+
+    .kotak-belakang {
+        transform: rotateY(180deg) translateZ(calc(var(--kotak-d) / 2));
+    }
+
+    .kotak-kanan,
+    .kotak-kiri {
+        left: calc((var(--kotak-l) - var(--kotak-d)) / 2);
+        width: var(--kotak-d);
+    }
+
+    .kotak-kanan {
+        transform: rotateY(90deg) translateZ(calc(var(--kotak-l) / 2));
+    }
+
+    .kotak-kiri {
+        transform: rotateY(-90deg) translateZ(calc(var(--kotak-l) / 2));
+    }
+
+    .kotak-atas,
+    .kotak-bawah {
+        top: calc((var(--kotak-t) - var(--kotak-d)) / 2);
+        height: var(--kotak-d);
+    }
+
+    .kotak-atas {
+        transform: rotateX(90deg) translateZ(calc(var(--kotak-t) / 2));
+        background: rgba(220, 38, 38, 0.06);
+    }
+
+    .kotak-bawah {
+        transform: rotateX(-90deg) translateZ(calc(var(--kotak-t) / 2));
+    }
+
+    /* Pita pelekat merentas tutup atas. */
+    .kotak-pita {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 13%;
+        background: rgba(239, 68, 68, 0.22);
+        transform: translateY(-50%);
+    }
+
+    /* Pelekat kecil pada muka hadapan. */
+    .kotak-label {
+        position: absolute;
+        top: 16%;
+        left: 22%;
+        width: 17%;
+        height: 21%;
+        background: rgba(239, 68, 68, 0.20);
+    }
+
+    /* Tanda "bahagian atas" pada muka sisi. */
+    .kotak-panah {
+        position: absolute;
+        top: 34%;
+        left: 30%;
+        width: 12%;
+        height: 34%;
+        background: rgba(239, 68, 68, 0.26);
+        clip-path: polygon(50% 0, 100% 34%, 68% 34%, 68% 100%, 32% 100%, 32% 34%, 0 34%);
+    }
+
+    .kotak-panah-kedua {
+        top: 26%;
+        left: 52%;
+    }
+
+    @keyframes kotak-putar {
+        from {
+            transform: rotateX(-16deg) rotateY(0deg);
+        }
+        to {
+            transform: rotateX(-16deg) rotateY(360deg);
+        }
+    }
+
+    /*
+     | Putaran berterusan di belakang borang log masuk boleh mengganggu, dan
+     | sebahagian orang menetapkan keutamaan sistem untuk mengelaknya. Kotak
+     | kekal dipaparkan pada sudut tetap, cuma berhenti bergerak.
+     */
+    @media (prefers-reduced-motion: reduce) {
+        .kotak-3d-pentas {
+            animation: none;
+            transform: rotateX(-16deg) rotateY(-28deg);
+        }
+    }
+
+    /*
      | Cahaya merah lembut memberi logo kedudukan pada halaman.
      |
      | Tiada kilau putih di sini. Ia pernah ditambah untuk memberi anak panah
