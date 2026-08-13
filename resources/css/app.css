@@ -276,12 +276,39 @@
         perspective: 1400px;
     }
 
+    /*
+     | Lapisan condong. JavaScript menulis transform di sini mengikut kedudukan
+     | tetikus, jadi tiada animasi CSS pada elemen ini — transform ialah satu
+     | sifat, dan dua penulis akan bergaduh memperebutkannya.
+     |
+     | Nilai di bawah ialah keadaan rehat, iaitu apa yang dilihat sebelum
+     | tetikus digerakkan dan apa yang kekal pada peranti sentuh.
+     */
     .kotak-3d-pentas {
         position: relative;
         width: var(--kotak-l);
         height: var(--kotak-t);
         transform-style: preserve-3d;
+        transform: rotateX(-14deg);
+    }
+
+    /* Lapisan putaran perlahan, berasingan daripada condongan tetikus. */
+    .kotak-3d-putar {
+        position: absolute;
+        inset: 0;
+        transform-style: preserve-3d;
         animation: kotak-putar 60s linear infinite;
+    }
+
+    /*
+     | Setiap dinding ialah bekasnya sendiri supaya kepak boleh berengsel pada
+     | tepi atasnya. Bekas inilah yang membawa putaran dinding, jadi kepak di
+     | dalamnya hanya perlu tahu satu perkara: sejauh mana ia terbuka.
+     */
+    .kotak-dinding {
+        position: absolute;
+        inset: 0;
+        transform-style: preserve-3d;
     }
 
     /*
@@ -318,30 +345,27 @@
         transform: rotateY(-90deg) translateZ(calc(var(--kotak-l) / 2));
     }
 
-    .kotak-atas,
+    /* Tiada muka atas: kotak ini terbuka, dan kepaknya yang menggantikan tutup. */
     .kotak-bawah {
         top: calc((var(--kotak-t) - var(--kotak-d)) / 2);
         height: var(--kotak-d);
-    }
-
-    .kotak-atas {
-        transform: rotateX(90deg) translateZ(calc(var(--kotak-t) / 2));
-        background: rgba(220, 38, 38, 0.06);
-    }
-
-    .kotak-bawah {
         transform: rotateX(-90deg) translateZ(calc(var(--kotak-t) / 2));
     }
 
-    /* Pita pelekat merentas tutup atas. */
-    .kotak-pita {
+    /*
+     | Kepak berengsel pada tepi atas dindingnya: bottom:100% meletakkannya
+     | betul-betul di atas dinding, dan transform-origin pada tepi bawah
+     | menjadikan tepi itu engselnya. rotateX negatif membukanya ke luar.
+     */
+    .kotak-kepak {
         position: absolute;
-        top: 50%;
-        left: 0;
-        width: 100%;
-        height: 13%;
-        background: rgba(239, 68, 68, 0.22);
-        transform: translateY(-50%);
+        inset-inline: 0;
+        bottom: 100%;
+        height: calc(var(--kotak-d) / 2);
+        transform-origin: center bottom;
+        transform: rotateX(-38deg);
+        border: 1px solid rgba(248, 113, 113, 0.16);
+        background: rgba(220, 38, 38, 0.05);
     }
 
     /* Pelekat kecil pada muka hadapan. */
@@ -372,10 +396,10 @@
 
     @keyframes kotak-putar {
         from {
-            transform: rotateX(-16deg) rotateY(0deg);
+            transform: rotateY(0deg);
         }
         to {
-            transform: rotateX(-16deg) rotateY(360deg);
+            transform: rotateY(360deg);
         }
     }
 
@@ -383,11 +407,14 @@
      | Putaran berterusan di belakang borang log masuk boleh mengganggu, dan
      | sebahagian orang menetapkan keutamaan sistem untuk mengelaknya. Kotak
      | kekal dipaparkan pada sudut tetap, cuma berhenti bergerak.
+     |
+     | Parallax tetikus turut dimatikan, tetapi di dalam JavaScript: gerakan
+     | yang dicetuskan tetikus tidak dapat dihalang daripada sini.
      */
     @media (prefers-reduced-motion: reduce) {
-        .kotak-3d-pentas {
+        .kotak-3d-putar {
             animation: none;
-            transform: rotateX(-16deg) rotateY(-28deg);
+            transform: rotateY(-28deg);
         }
     }
 

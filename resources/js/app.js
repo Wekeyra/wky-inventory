@@ -133,11 +133,66 @@ function mulakanTunjukKataLaluan() {
     });
 }
 
+/**
+ * Kotak 3D pada halaman auth condong mengikut kedudukan tetikus.
+ *
+ * Sudut yang dikira tidak digunakan terus. Nilai semasa dihanyutkan ke arah
+ * sasaran sedikit demi sedikit pada setiap bingkai, kerana melompat terus ke
+ * sudut tetikus menjadikan kotak itu tersentak-sentak mengikut setiap gerakan
+ * kecil dan bukan bergerak seperti benda yang ada berat.
+ */
+function mulakanKotakParallax() {
+    const pentas = document.querySelector('.kotak-3d-pentas');
+
+    if (! pentas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return;
+    }
+
+    const HAD = 15;      // Sudut condong maksimum, dalam darjah.
+    const CONDONG = -14; // Sudut rehat, sama seperti yang ditetapkan dalam CSS.
+    const HANYUT = 0.07; // Pecahan jarak yang ditempuh setiap bingkai.
+
+    let sasarX = 0;
+    let sasarY = 0;
+    let semasaX = 0;
+    let semasaY = 0;
+    let menungguBingkai = false;
+
+    window.addEventListener('mousemove', (peristiwa) => {
+        // -1 hingga 1 merentas tetingkap, jadi tengah skrin bermakna tiada condong.
+        sasarY = ((peristiwa.clientX / window.innerWidth) * 2 - 1) * HAD;
+        sasarX = ((peristiwa.clientY / window.innerHeight) * 2 - 1) * -HAD;
+
+        if (! menungguBingkai) {
+            menungguBingkai = true;
+            requestAnimationFrame(lukis);
+        }
+    }, { passive: true });
+
+    function lukis() {
+        semasaX += (sasarX - semasaX) * HANYUT;
+        semasaY += (sasarY - semasaY) * HANYUT;
+
+        pentas.style.transform = `rotateX(${CONDONG + semasaX}deg) rotateY(${semasaY}deg)`;
+
+        // Gelung berhenti apabila kotak sudah cukup hampir dengan sasarannya,
+        // supaya tiada bingkai dikira selagi tetikus tidak bergerak.
+        if (Math.abs(sasarX - semasaX) > 0.02 || Math.abs(sasarY - semasaY) > 0.02) {
+            requestAnimationFrame(lukis);
+
+            return;
+        }
+
+        menungguBingkai = false;
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     mulakanMenuJatuh();
     mulakanModal();
     mulakanAmaran();
     mulakanTunjukKataLaluan();
+    mulakanKotakParallax();
 
     // Modal stok pantas dibuka semula selepas ralat pengesahan supaya input kekal kelihatan.
     const modalAuto = document.querySelector('[data-modal-auto]');

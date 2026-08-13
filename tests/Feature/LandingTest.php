@@ -73,8 +73,19 @@ class LandingTest extends TestCase
      */
     public function test_kotak_3d_pada_halaman_log_masuk_dan_daftar(): void
     {
-        $this->get('/login')->assertOk()->assertSee('kotak-3d-pentas', false);
-        $this->get('/daftar')->assertOk()->assertSee('kotak-3d-pentas', false);
+        foreach (['/login', '/daftar'] as $halaman) {
+            $balasan = $this->get($halaman)->assertOk();
+
+            // Lapisan condong dan lapisan putaran mesti berasingan: transform
+            // ialah satu sifat, dan JavaScript menulis pada yang pertama
+            // sementara animasi CSS menulis pada yang kedua.
+            $balasan->assertSee('kotak-3d-pentas', false);
+            $balasan->assertSee('kotak-3d-putar', false);
+
+            // Kotak terbuka: empat kepak, dan tiada muka atas.
+            $balasan->assertSee('kotak-kepak', false);
+            $balasan->assertDontSee('kotak-atas', false);
+        }
     }
 
     /**
