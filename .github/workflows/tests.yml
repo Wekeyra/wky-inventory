@@ -3,8 +3,7 @@ name: Tests
 on:
   push:
     branches:
-      - master
-      - '*.x'
+      - main
   pull_request:
   schedule:
     - cron: '0 0 * * *'
@@ -43,5 +42,24 @@ jobs:
       - name: Generate app key
         run: php artisan key:generate
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      # Setiap susun atur memanggil @vite dan public/build tidak disimpan dalam
+      # Git, jadi tanpa binaan ini setiap ujian yang memaparkan halaman gagal
+      # dengan "Vite manifest not found" — kegagalan persekitaran yang mudah
+      # disalah anggap sebagai pepijat kod. Ia juga mengesahkan binaan aset
+      # masih berjaya, kerana `npm run build` ialah langkah deploy yang wajib.
+      - name: Build assets
+        run: npm run build
+
+      # Ujian berjalan pada SQLite dalam ingatan (lihat phpunit.xml), jadi
+      # tiada perkhidmatan MySQL diperlukan di sini.
       - name: Execute tests
         run: php artisan test

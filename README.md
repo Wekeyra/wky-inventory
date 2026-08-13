@@ -242,6 +242,13 @@ itu sendiri. `php artisan test` sahaja tetap berfungsi apabila tiada cache konfi
 Ujian berjalan pada **SQLite dalam ingatan** (`phpunit.xml`), bukan MySQL. Database pembangunan
 anda tidak disentuh, dan tiada persediaan pangkalan data diperlukan untuk menjalankan suite ini.
 
+Suite yang sama berjalan di GitHub Actions ([`.github/workflows/tests.yml`](.github/workflows/tests.yml))
+pada setiap push ke `main` dan setiap pull request, merentas PHP 8.3, 8.4, dan 8.5. Alur kerja itu
+menjalankan `npm run build` sebelum menguji: setiap susun atur memanggil `@vite` dan `public/build`
+tidak disimpan dalam Git, jadi tanpa binaan itu setiap ujian yang memaparkan halaman akan gagal
+dengan *Vite manifest not found* — kegagalan persekitaran yang mudah disalah anggap sebagai pepijat
+kod. Langkah itu turut mengesahkan binaan aset masih berjaya sebelum deploy.
+
 - `tests/Feature/InventoryTest.php` — kawalan akses, paparan semua halaman utama, logik pergerakan
   stok (termasuk penolakan stok keluar yang melebihi baki), dan laporan bulanan.
 - `tests/Feature/StockCountTest.php` — aliran kiraan stok: gambaran baki, penapisan kategori,
