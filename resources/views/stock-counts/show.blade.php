@@ -17,6 +17,9 @@
             </div>
 
             <dl class="grid gap-y-2 text-sm sm:grid-cols-[10rem_1fr]">
+                <dt class="text-malap">{{ __('wky.medan.lokasi') }}</dt>
+                <dd class="font-medium">{{ $sesi->location?->nama ?? __('wky.umum.kosong') }}</dd>
+
                 <dt class="text-malap">{{ __('wky.kiraan.skop') }}</dt>
                 <dd>{{ $sesi->category?->nama ?? __('wky.umum.semua_kategori') }}</dd>
 

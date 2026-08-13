@@ -76,6 +76,51 @@
                 </div>
             </div>
 
+            {{--
+                Kad amaran luput hanya muncul apabila ada lot yang perlu
+                dilihat. Kad kosong yang kekal di dashboard setiap hari akan
+                berhenti dibaca, dan amaran yang tidak dibaca tidak berguna.
+            --}}
+            @if ($batchLuput->isNotEmpty())
+                <div class="kad">
+                    <div class="kad-kepala">
+                        <span class="flex items-center gap-2 font-semibold">
+                            <x-ikon nama="kalendar" kelas="size-5 text-merah" />
+                            {{ __('wky.batch.amaran_luput') }}
+                        </span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="jadual">
+                            <thead>
+                                <tr>
+                                    <th>{{ __('wky.medan.produk') }}</th>
+                                    <th>{{ __('wky.batch.no_batch') }}</th>
+                                    <th>{{ __('wky.batch.tarikh_luput') }}</th>
+                                    <th class="text-right">{{ __('wky.medan.kuantiti') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @foreach ($batchLuput as $batch)
+                                <tr>
+                                    <td>
+                                        <a href="{{ route('products.show', $batch->product_id) }}" class="font-medium text-teks hover:text-merah-terang">{{ $batch->product?->nama }}</a>
+                                        <p class="text-xs text-malap">{{ $batch->product?->sku }}</p>
+                                    </td>
+                                    <td><code>{{ $batch->no_batch }}</code></td>
+                                    <td>
+                                        <span class="{{ $batch->kelasLuput() }} whitespace-nowrap">{{ $batch->labelLuput() }}</span>
+                                        <p class="mt-0.5 text-xs text-malap">{{ $batch->tarikh_luput?->format('d/m/Y') }}</p>
+                                    </td>
+                                    <td class="text-right font-medium">{{ $batch->kuantiti }} {{ $batch->product?->unit }}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endif
+
             <div class="kad">
                 <div class="kad-kepala">
                     <span class="flex items-center gap-2 font-semibold">

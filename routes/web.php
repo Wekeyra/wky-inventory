@@ -7,11 +7,14 @@ use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\InvoiceScanController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\LocationController;
+use App\Http\Controllers\ProductBatchController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StockCountController;
 use App\Http\Controllers\StockMovementController;
+use App\Http\Controllers\StockTransferController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -40,7 +43,13 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('categories', CategoryController::class)->except('show');
     Route::resource('suppliers', SupplierController::class);
+    Route::resource('locations', LocationController::class);
     Route::resource('products', ProductController::class);
+
+    // Gambar dihidangkan melalui laluan kerana ia disimpan pada cakera peribadi,
+    // jadi pengikatan model yang berskop ruang kerja turut melindunginya.
+    Route::get('products/{product}/gambar', [ProductController::class, 'gambar'])->name('products.gambar');
+    Route::put('products/{product}/batch/{batch}', [ProductBatchController::class, 'update'])->name('products.batch.update');
 
     Route::controller(StockCountController::class)->prefix('kiraan-stok')->name('stock-counts.')->group(function () {
         Route::get('/', 'index')->name('index');
@@ -64,9 +73,19 @@ Route::middleware('auth')->group(function () {
         Route::delete('{invoiceScan}', 'destroy')->name('destroy');
     });
 
+    Route::controller(StockTransferController::class)->prefix('pindah-stok')->name('transfers.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('{transfer}', 'show')->name('show');
+        Route::post('{transfer}/terima', 'receive')->name('receive');
+        Route::delete('{transfer}', 'destroy')->name('destroy');
+    });
+
     Route::get('stock', [StockMovementController::class, 'index'])->name('stock.index');
     Route::get('stock/create', [StockMovementController::class, 'create'])->name('stock.create');
     Route::post('stock', [StockMovementController::class, 'store'])->name('stock.store');
+    Route::get('stock/{movement}/do', [StockMovementController::class, 'deliveryOrder'])->name('stock.do');
 
     Route::get('laporan/bulanan', [ReportController::class, 'monthly'])->name('reports.monthly');
 

@@ -4,8 +4,11 @@ namespace Tests\Feature;
 
 use App\Models\Category;
 use App\Models\InvoiceScan;
+use App\Models\Location;
 use App\Models\Product;
+use App\Models\StockBalance;
 use App\Models\StockMovement;
+use App\Models\StockTransfer;
 use App\Models\Supplier;
 use App\Models\User;
 use App\Models\Workspace;
@@ -65,6 +68,25 @@ class KosongkanRuangKerjaTest extends TestCase
             'dibuka_oleh' => $pengguna->id,
         ]);
 
+        $gudangKedua = Location::create([
+            'workspace_id' => $ruang->id,
+            'kod' => 'KEDUA',
+            'nama' => "Gudang Kedua {$nama}",
+            'aktif' => true,
+        ]);
+
+        $pemindahan = StockTransfer::create([
+            'workspace_id' => $ruang->id,
+            'kod' => "PDH-{$nama}",
+            'status' => 'dalam_perjalanan',
+            'location_asal_id' => Location::withoutGlobalScopes()
+                ->where('workspace_id', $ruang->id)->where('lalai', true)->value('id'),
+            'location_tujuan_id' => $gudangKedua->id,
+            'dihantar_oleh' => $pengguna->id,
+        ]);
+
+        $pemindahan->items()->create(['product_id' => $produk->id, 'kuantiti' => 2]);
+
         return $ruang;
     }
 
@@ -75,9 +97,18 @@ class KosongkanRuangKerjaTest extends TestCase
         $this->artisan('ruang-kerja:kosongkan', ['ruang' => 'Alfa', '--force' => true])
             ->assertSuccessful();
 
-        foreach ([Product::class, Category::class, Supplier::class, StockMovement::class, InvoiceScan::class] as $model) {
-            $this->assertSame(0, $model::withoutGlobalScopes()->count(), $model);
+        $model = [
+            Product::class, Category::class, Supplier::class, StockMovement::class,
+            InvoiceScan::class, StockTransfer::class, StockBalance::class,
+        ];
+
+        foreach ($model as $satu) {
+            $this->assertSame(0, $satu::withoutGlobalScopes()->count(), $satu);
         }
+
+        // Gudang ialah struktur ruang kerja, bukan data inventori: ia kekal
+        // supaya ruang kerja yang dikosongkan masih ada tempat menerima stok.
+        $this->assertSame(2, Location::withoutGlobalScopes()->count());
     }
 
     public function test_akaun_pengguna_dan_ruang_kerja_kekal(): void

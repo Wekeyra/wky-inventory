@@ -5,7 +5,11 @@
     <div class="kad">
         <div class="kad-kepala">
             <form method="GET" class="grid w-full gap-2 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto_auto]">
-                <input type="search" name="cari" value="{{ $cari }}" placeholder="{{ __('wky.produk.cari_placeholder') }}">
+                <div class="flex gap-2">
+                    <input type="search" id="cari" name="cari" value="{{ $cari }}" placeholder="{{ __('wky.produk.cari_placeholder') }}">
+                    {{-- Mengimbas terus menghantar borang: mencari kod yang baru diimbas ialah satu niat, bukan dua. --}}
+                    <x-imbas-barcode sasaran="cari" hantar />
+                </div>
 
                 <select name="category_id">
                     <option value="">{{ __('wky.umum.semua_kategori') }}</option>
@@ -42,12 +46,28 @@
                 <tbody>
                 @forelse ($products as $produk)
                     <tr>
-                        <td><code>{{ $produk->sku }}</code></td>
                         <td>
-                            <a href="{{ route('products.show', $produk) }}" class="pautan-jadual">{{ $produk->nama }}</a>
-                            @unless ($produk->aktif)
-                                <span class="lencana-kelabu ml-1">{{ __('wky.umum.tidak_aktif') }}</span>
-                            @endunless
+                            <code>{{ $produk->sku }}</code>
+                            @if ($produk->barcode)
+                                <span class="mt-0.5 block text-xs text-malap">{{ $produk->barcode }}</span>
+                            @endif
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                @if ($produk->laluan_gambar)
+                                    <img src="{{ route('products.gambar', $produk) }}" alt="" loading="lazy"
+                                         class="size-9 shrink-0 rounded border border-bingkai object-cover">
+                                @endif
+                                <div class="min-w-0">
+                                    <a href="{{ route('products.show', $produk) }}" class="pautan-jadual">{{ $produk->nama }}</a>
+                                    @unless ($produk->aktif)
+                                        <span class="lencana-kelabu ml-1">{{ __('wky.umum.tidak_aktif') }}</span>
+                                    @endunless
+                                    @if ($produk->jejak_batch)
+                                        <span class="lencana-biru ml-1">{{ __('wky.produk.lencana_batch') }}</span>
+                                    @endif
+                                </div>
+                            </div>
                         </td>
                         <td>{{ $produk->category?->nama ?? __('wky.umum.kosong') }}</td>
                         <td>{{ $produk->supplier?->nama ?? __('wky.umum.kosong') }}</td>

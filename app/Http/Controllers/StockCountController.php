@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Location;
 use App\Models\Product;
 use App\Models\StockCount;
-use App\Models\StockCountItem;
 use App\Models\StockMovement;
+use App\Services\Stok\BakiLokasi;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,7 +21,7 @@ class StockCountController extends Controller
     {
         return view('stock-counts.index', [
             'sesi' => StockCount::query()
-                ->with(['pembuka', 'category'])
+                ->with(['pembuka', 'category', 'location'])
                 ->withCount('items')
                 ->latest()
                 ->paginate(15),
@@ -31,6 +32,8 @@ class StockCountController extends Controller
     {
         return view('stock-counts.create', [
             'categories' => Category::withCount('products')->orderBy('nama')->get(),
+            'locations' => Location::aktif()->orderByDesc('lalai')->orderBy('nama')->get(),
+            'lokasiLalai' => Location::lalai()?->id,
         ]);
     }
 
@@ -39,12 +42,22 @@ class StockCountController extends Controller
         $data = $request->validate([
             'category_id' => ['nullable', Rule::exists('categories', 'id')
                 ->where('workspace_id', $request->user()->workspace_id)],
+            // Kiraan fizikal berlaku di satu gudang: seseorang berdiri di situ
+            // dan membilang rak. Sesi yang merangkumi semua gudang sekali gus
+            // tidak boleh dilakukan sesiapa, dan pelarasannya tidak dapat
+            // memberitahu gudang mana yang sebenarnya kurang.
+            'location_id' => ['nullable', Rule::exists('locations', 'id')
+                ->where('workspace_id', $request->user()->workspace_id)
+                ->where('aktif', true)],
             'catatan' => ['nullable', 'string'],
         ]);
+
+        $lokasi = (int) ($data['location_id'] ?? Location::lalai()?->id);
 
         $produk = Product::query()
             ->where('aktif', true)
             ->when($data['category_id'] ?? null, fn ($q, $id) => $q->where('category_id', $id))
+            ->with(['balances' => fn ($q) => $q->where('location_id', $lokasi)])
             ->orderBy('nama')
             ->get(['id', 'stok']);
 
@@ -52,19 +65,23 @@ class StockCountController extends Controller
             return back()->withInput()->with('ralat', __('wky.flash.kiraan_tiada_produk'));
         }
 
-        $sesi = DB::transaction(function () use ($data, $request, $produk) {
+        $sesi = DB::transaction(function () use ($data, $request, $produk, $lokasi) {
             $sesi = StockCount::create([
                 'kod' => $this->kodSeterusnya(),
                 'status' => 'draf',
                 'category_id' => $data['category_id'] ?? null,
+                'location_id' => $lokasi,
                 'dibuka_oleh' => $request->user()?->id,
                 'catatan' => $data['catatan'] ?? null,
             ]);
 
             $sesi->items()->createMany(
+                // Gambaran yang disimpan ialah baki gudang itu, bukan jumlah
+                // keseluruhan produk — itulah yang sepatutnya sepadan dengan
+                // apa yang dilihat di rak.
                 $produk->map(fn (Product $item) => [
                     'product_id' => $item->id,
-                    'kuantiti_rekod' => $item->stok,
+                    'kuantiti_rekod' => (int) $item->balances->firstWhere('location_id', $lokasi)?->kuantiti,
                 ])->all()
             );
 
@@ -77,7 +94,7 @@ class StockCountController extends Controller
 
     public function show(StockCount $stockCount): View
     {
-        $stockCount->load(['items.product.category', 'pembuka', 'pengesah', 'category']);
+        $stockCount->load(['items.product.category', 'pembuka', 'pengesah', 'category', 'location']);
 
         return view('stock-counts.show', ['sesi' => $stockCount]);
     }
@@ -136,19 +153,26 @@ class StockCountController extends Controller
                 // Baki dibaca semula di sini, bukan daripada gambaran sesi, kerana stok
                 // mungkin telah berubah antara pembukaan sesi dan pengesahan.
                 $sebelum = $product->stok;
-                $selepas = $item->kuantiti_fizikal;
+                $bezaLokasi = BakiLokasi::tetapkan($product, $stockCount->location_id, $item->kuantiti_fizikal);
 
-                if ($sebelum === $selepas) {
+                if ($bezaLokasi === 0) {
                     continue;
                 }
+
+                // Jumlah produk bergerak sebanyak perbezaan di gudang ini
+                // sahaja; baki gudang lain tidak dibilang dalam sesi ini dan
+                // tidak sepatutnya terjejas olehnya.
+                $selepas = $sebelum + $bezaLokasi;
 
                 $product->update(['stok' => $selepas]);
 
                 StockMovement::create([
                     'product_id' => $product->id,
+                    'location_id' => $stockCount->location_id,
                     'user_id' => $request->user()?->id,
                     'jenis' => 'pelarasan',
-                    'kuantiti' => $selepas,
+                    'sebab' => 'kiraan_fizikal',
+                    'kuantiti' => $item->kuantiti_fizikal,
                     'stok_sebelum' => $sebelum,
                     'stok_selepas' => $selepas,
                     'rujukan' => $stockCount->kod,

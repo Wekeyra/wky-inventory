@@ -34,6 +34,15 @@
                     </select>
                 </div>
 
+                <div>
+                    <label for="pantas_location_id" class="mb-1 block font-medium">{{ __('wky.medan.lokasi') }} <span class="text-merah">*</span></label>
+                    <select id="pantas_location_id" name="location_id" required>
+                        @foreach ($locations as $lokasi)
+                            <option value="{{ $lokasi->id }}" @selected(old('location_id', $lokasiLalai) == $lokasi->id)>{{ $lokasi->nama }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div>
                         <label for="pantas_jenis" class="mb-1 block font-medium">{{ __('wky.medan.jenis') }} <span class="text-merah">*</span></label>
@@ -51,9 +60,32 @@
                 </div>
 
                 <div>
+                    <label for="pantas_sebab" class="mb-1 block font-medium">{{ __('wky.medan.sebab') }} <span class="text-merah">*</span></label>
+                    <select id="pantas_sebab" name="sebab" data-sebab required>
+                        @foreach ($sebabPilihan as $jenisSebab => $senarai)
+                            @foreach ($senarai as $nilai => $label)
+                                <option value="{{ $nilai }}" data-jenis="{{ $jenisSebab }}" @selected(old('sebab') === $nilai && old('jenis', 'masuk') === $jenisSebab)>{{ $label }}</option>
+                            @endforeach
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
                     <label for="pantas_rujukan" class="mb-1 block font-medium">{{ __('wky.medan.rujukan') }}</label>
                     <input id="pantas_rujukan" name="rujukan" value="{{ old('rujukan') }}" placeholder="{{ __('wky.stok.rujukan_placeholder') }}">
                 </div>
+
+                {{--
+                    Produk berbatch tidak boleh direkod dari borang pantas: ia
+                    memerlukan nombor lot, dan borang ini sengaja pendek. Nota
+                    ini mengarahkan pengguna ke borang penuh sebelum dia
+                    terperanjat dengan ralat pengesahan.
+                --}}
+                <p class="text-xs text-malap">
+                    {!! __('wky.stok.nota_pantas_batch', [
+                        'pautan' => '<a class="underline" href="' . route('stock.create') . '">' . e(__('wky.stok.rekod_tajuk')) . '</a>',
+                    ]) !!}
+                </p>
             </div>
 
             <div class="kad-kaki justify-end">

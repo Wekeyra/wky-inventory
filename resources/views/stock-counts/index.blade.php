@@ -19,6 +19,7 @@
                     <tr>
                         <th>{{ __('wky.medan.kod') }}</th>
                         <th>{{ __('wky.medan.status') }}</th>
+                        <th>{{ __('wky.medan.lokasi') }}</th>
                         <th>{{ __('wky.kiraan.skop') }}</th>
                         <th class="text-right">{{ __('wky.medan.produk') }}</th>
                         <th>{{ __('wky.dashboard.dibuka_oleh') }}</th>
@@ -32,6 +33,7 @@
                     <tr>
                         <td><code>{{ $item->kod }}</code></td>
                         <td><span class="{{ $item->kelasStatus() }}">{{ $item->labelStatus() }}</span></td>
+                        <td>{{ $item->location?->nama ?? __('wky.umum.kosong') }}</td>
                         <td>{{ $item->category?->nama ?? __('wky.umum.semua_kategori') }}</td>
                         <td class="text-right">{{ $item->items_count }}</td>
                         <td>{{ $item->pembuka?->name ?? __('wky.umum.kosong') }}</td>
@@ -48,7 +50,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="py-10 text-center text-malap">
+                        <td colspan="9" class="py-10 text-center text-malap">
                             {!! __('wky.kiraan.tiada_sesi', ['butang' => '<strong class="text-teks">' . e(__('wky.kiraan.buka_sesi_baru')) . '</strong>']) !!}
                         </td>
                     </tr>

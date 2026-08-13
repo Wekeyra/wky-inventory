@@ -4,24 +4,33 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\InvoiceScanItem;
+use App\Models\Location;
 use App\Models\Product;
 use App\Models\Supplier;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ProductController extends Controller
 {
+    /** Saiz maksimum gambar produk dalam kilobait. */
+    private const SAIZ_GAMBAR_KB = 4096;
+
     public function index(Request $request): View
     {
         $cari = $request->string('cari')->toString();
 
         $products = Product::query()
             ->with(['category', 'supplier'])
+            // Barcode disertakan dalam carian supaya kod yang diimbas terus ke
+            // dalam medan ini menemui produknya tanpa halaman berasingan.
             ->when($cari, fn ($q) => $q->where(fn ($sub) => $sub
                 ->where('nama', 'like', "%{$cari}%")
-                ->orWhere('sku', 'like', "%{$cari}%")))
+                ->orWhere('sku', 'like', "%{$cari}%")
+                ->orWhere('barcode', 'like', "%{$cari}%")))
             ->when($request->filled('category_id'), fn ($q) => $q->where('category_id', $request->integer('category_id')))
             ->when($request->boolean('stok_rendah'), fn ($q) => $q->stokRendah())
             ->orderBy('nama')
@@ -63,7 +72,10 @@ class ProductController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $product = Product::create($this->validated($request));
+        $data = $this->validated($request);
+        $data['laluan_gambar'] = $this->simpanGambar($request);
+
+        $product = Product::create($data);
 
         $baris = $this->barisImbasan($request->integer('baris_imbasan'));
 
@@ -82,11 +94,27 @@ class ProductController extends Controller
 
     public function show(Product $product): View
     {
-        $product->load('category', 'supplier');
+        $product->load('category', 'supplier', 'balances');
 
         return view('products.show', [
             'product' => $product,
-            'movements' => $product->movements()->with('user')->latest()->paginate(15),
+            'movements' => $product->movements()->with(['user', 'batch', 'location', 'tujuan'])->latest()->paginate(15),
+            // Baki setiap gudang, termasuk gudang yang kosong buat masa ini —
+            // "tiada di cawangan Ampang" ialah jawapan yang berguna, bukan
+            // baris yang patut disembunyikan.
+            'balances' => Location::aktif()
+                ->orderByDesc('lalai')
+                ->orderBy('nama')
+                ->get()
+                ->map(fn (Location $lokasi) => [
+                    'lokasi' => $lokasi,
+                    'baki' => $product->balances->firstWhere('location_id', $lokasi->id),
+                ]),
+            // Batch kosong disembunyikan: senarai lot yang sudah habis hanya
+            // memanjangkan jadual tanpa memberitahu apa-apa tentang baki semasa.
+            'batches' => $product->jejak_batch
+                ? $product->batches()->adaBaki()->orderByRaw('tarikh_luput is null, tarikh_luput')->get()
+                : collect(),
         ]);
     }
 
@@ -102,16 +130,59 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product): RedirectResponse
     {
-        $product->update($this->validated($request, $product));
+        $data = $this->validated($request, $product);
+        $lama = $product->laluan_gambar;
+        $baharu = $this->simpanGambar($request);
+
+        if ($baharu !== null) {
+            $data['laluan_gambar'] = $baharu;
+        } elseif ($request->boolean('buang_gambar')) {
+            $data['laluan_gambar'] = null;
+        }
+
+        $product->update($data);
+
+        // Gambar lama dibuang selepas rekod dikemas kini, supaya kegagalan
+        // pengesahan tidak meninggalkan produk yang gambarnya sudah lesap.
+        if ($lama !== null && $product->laluan_gambar !== $lama) {
+            Storage::disk('local')->delete($lama);
+        }
 
         return redirect()->route('products.index')->with('status', __('wky.flash.produk_kemas_kini'));
     }
 
     public function destroy(Product $product): RedirectResponse
     {
+        $gambar = $product->laluan_gambar;
+
         $product->delete();
 
+        if ($gambar !== null) {
+            Storage::disk('local')->delete($gambar);
+        }
+
         return redirect()->route('products.index')->with('status', __('wky.flash.produk_padam'));
+    }
+
+    /**
+     * Menstrim gambar produk.
+     *
+     * Gambar disimpan pada cakera peribadi dan bukan dalam public/, jadi ia
+     * melalui pengikatan model yang berskop ruang kerja — sama seperti fail
+     * invois. Produk syarikat lain memulangkan 404 dan bukan gambar.
+     */
+    public function gambar(Product $product): StreamedResponse
+    {
+        abort_if($product->laluan_gambar === null, 404);
+        abort_unless(Storage::disk('local')->exists($product->laluan_gambar), 404);
+
+        return Storage::disk('local')->response($product->laluan_gambar, null, [
+            'Content-Type' => Storage::disk('local')->mimeType($product->laluan_gambar),
+            // Gambar produk jarang berubah dan setiap baris senarai memintanya,
+            // jadi ia dicache pada pelayar. URL kekal sama apabila gambar
+            // ditukar, jadi cache sengaja dipendekkan kepada sejam.
+            'Cache-Control' => 'private, max-age=3600',
+        ]);
     }
 
     /**
@@ -137,12 +208,27 @@ class ProductController extends Controller
             ->first();
     }
 
+    /** Menyimpan gambar yang dimuat naik dan memulangkan laluannya, atau null jika tiada. */
+    private function simpanGambar(Request $request): ?string
+    {
+        return $request->hasFile('gambar')
+            ? $request->file('gambar')->store('produk', 'local')
+            : null;
+    }
+
     private function validated(Request $request, ?Product $product = null): array
     {
         $data = $request->validate([
             'sku' => ['required', 'string', 'max:50', Rule::unique('products', 'sku')
                 ->where('workspace_id', $request->user()->workspace_id)
                 ->ignore($product)],
+            // Barcode tidak wajib: banyak produk SME dibungkus sendiri dan tiada
+            // kod tercetak. Yang ada mesti unik, kerana imbasan mencari satu
+            // produk dan bukan senarai.
+            'barcode' => ['nullable', 'string', 'max:100', Rule::unique('products', 'barcode')
+                ->where('workspace_id', $request->user()->workspace_id)
+                ->ignore($product)],
+            'gambar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:'.self::SAIZ_GAMBAR_KB],
             'nama' => ['required', 'string', 'max:255'],
             'keterangan' => ['nullable', 'string'],
             // Berskop supaya kategori atau pembekal syarikat lain tidak boleh
@@ -155,10 +241,15 @@ class ProductController extends Controller
             'harga_kos' => ['required', 'numeric', 'min:0'],
             'harga_jual' => ['required', 'numeric', 'min:0'],
             'stok_minimum' => ['required', 'integer', 'min:0'],
+            'jejak_batch' => ['nullable', 'boolean'],
             'aktif' => ['nullable', 'boolean'],
         ]);
 
         $data['aktif'] = $request->boolean('aktif');
+        $data['jejak_batch'] = $request->boolean('jejak_batch');
+
+        // Gambar dikendalikan berasingan kerana ia fail, bukan nilai lajur.
+        unset($data['gambar']);
 
         // Stok hanya boleh diubah melalui modul Pergerakan Stok supaya jejak audit kekal utuh.
         unset($data['stok']);

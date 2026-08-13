@@ -93,7 +93,9 @@ class InventoryTest extends TestCase
             '/products', '/products/create', "/products/{$produk->id}", "/products/{$produk->id}/edit",
             '/categories', '/categories/create', "/categories/{$produk->category_id}/edit",
             '/suppliers', '/suppliers/create', "/suppliers/{$produk->supplier_id}", "/suppliers/{$produk->supplier_id}/edit",
+            '/locations', '/locations/create',
             '/stock', '/stock/create',
+            '/pindah-stok', '/pindah-stok/create',
             '/kiraan-stok', '/kiraan-stok/create',
             '/imbas-invois', '/imbas-invois/create',
             '/laporan/bulanan', '/laporan/bulanan?bulan=' . now()->format('Y-m'),
@@ -115,7 +117,7 @@ class InventoryTest extends TestCase
         $produk = $this->produk(['stok' => 50]);
 
         $this->actingAs($this->admin())
-            ->post('/stock', ['product_id' => $produk->id, 'jenis' => 'masuk', 'kuantiti' => 25])
+            ->post('/stock', ['product_id' => $produk->id, 'jenis' => 'masuk', 'sebab' => 'pembelian', 'kuantiti' => 25])
             ->assertRedirect('/stock');
 
         $this->assertSame(75, $produk->fresh()->stok);
@@ -132,7 +134,7 @@ class InventoryTest extends TestCase
         $produk = $this->produk(['stok' => 50]);
 
         $this->actingAs($this->admin())
-            ->post('/stock', ['product_id' => $produk->id, 'jenis' => 'keluar', 'kuantiti' => 20]);
+            ->post('/stock', ['product_id' => $produk->id, 'jenis' => 'keluar', 'sebab' => 'jualan', 'kuantiti' => 20]);
 
         $this->assertSame(30, $produk->fresh()->stok);
     }
@@ -142,7 +144,7 @@ class InventoryTest extends TestCase
         $produk = $this->produk(['stok' => 50]);
 
         $this->actingAs($this->admin())
-            ->post('/stock', ['product_id' => $produk->id, 'jenis' => 'pelarasan', 'kuantiti' => 12]);
+            ->post('/stock', ['product_id' => $produk->id, 'jenis' => 'pelarasan', 'sebab' => 'kiraan_fizikal', 'kuantiti' => 12]);
 
         $this->assertSame(12, $produk->fresh()->stok);
     }
@@ -153,7 +155,7 @@ class InventoryTest extends TestCase
 
         $this->actingAs($this->admin())
             ->from('/stock/create')
-            ->post('/stock', ['product_id' => $produk->id, 'jenis' => 'keluar', 'kuantiti' => 10])
+            ->post('/stock', ['product_id' => $produk->id, 'jenis' => 'keluar', 'sebab' => 'jualan', 'kuantiti' => 10])
             ->assertRedirect('/stock/create')
             ->assertSessionHas('ralat');
 
@@ -195,7 +197,7 @@ class InventoryTest extends TestCase
         $produk = $this->produk(['stok' => 10]);
 
         $this->actingAs($this->admin())
-            ->post('/stock', ['product_id' => $produk->id, 'jenis' => 'masuk', 'kuantiti' => 5, 'sumber' => 'pantas'])
+            ->post('/stock', ['product_id' => $produk->id, 'jenis' => 'masuk', 'sebab' => 'pembelian', 'kuantiti' => 5, 'sumber' => 'pantas'])
             ->assertRedirect('/dashboard');
 
         $this->assertSame(15, $produk->fresh()->stok);
@@ -206,8 +208,8 @@ class InventoryTest extends TestCase
         $produk = $this->produk(['stok' => 100]);
         $admin = $this->admin();
 
-        $this->actingAs($admin)->post('/stock', ['product_id' => $produk->id, 'jenis' => 'masuk', 'kuantiti' => 30]);
-        $this->actingAs($admin)->post('/stock', ['product_id' => $produk->id, 'jenis' => 'keluar', 'kuantiti' => 12]);
+        $this->actingAs($admin)->post('/stock', ['product_id' => $produk->id, 'jenis' => 'masuk', 'sebab' => 'pembelian', 'kuantiti' => 30]);
+        $this->actingAs($admin)->post('/stock', ['product_id' => $produk->id, 'jenis' => 'keluar', 'sebab' => 'jualan', 'kuantiti' => 12]);
 
         $this->actingAs($admin)
             ->get('/laporan/bulanan')

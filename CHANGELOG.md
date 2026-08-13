@@ -10,6 +10,32 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ### Ditambah
 
+- **Gudang dan cawangan.** Setiap ruang kerja bermula dengan satu Gudang Utama, dan gudang
+  lain boleh ditambah. Baki setiap produk kini disimpan bagi setiap gudang, berserta catatan
+  rak atau bin, sementara jumlah keseluruhan produk kekal seperti biasa. Halaman produk
+  memaparkan pecahan mengikut gudang.
+- **Pemindahan stok** antara gudang dalam dua peringkat: menghantar menolak baki gudang asal,
+  dan stok itu berada "dalam perjalanan" sehingga gudang tujuan mengesahkan penerimaan.
+  Pemindahan yang belum diterima boleh dibatalkan dan stoknya dipulangkan.
+- **Lokasi pada setiap pergerakan stok.** Stok keluar kini disemak terhadap baki gudang
+  berkenaan, bukan hanya jumlah keseluruhan — satu gudang tidak boleh menghantar barang yang
+  berada di gudang lain. Senarai pergerakan boleh ditapis mengikut gudang.
+- **Barcode produk dan pengimbas.** Setiap produk boleh membawa barcode selain SKUnya, dan
+  kod boleh dimasukkan dengan menaipnya, dengan pengimbas USB di kaunter, atau dengan kamera
+  peranti. Butang kamera menyembunyikan dirinya pada pelayar tanpa `BarcodeDetector`.
+  Pengimbas tersedia pada borang produk, carian senarai produk, dan borang pergerakan stok.
+- **Gambar produk**, disimpan pada cakera peribadi dan dihidangkan melalui laluan berskop
+  ruang kerja seperti fail invois. Gambar lama dibuang apabila diganti atau dipadam.
+- **Nombor batch, tarikh luput dan nombor siri**, dihidupkan produk demi produk. Stok masuk
+  meminta nombor lot; stok keluar meminta lot mana yang diambil, disusun mengikut tarikh
+  luput terawal. Imbasan invois mencipta lot penerimaan bernamakan nombor invois.
+- **Amaran batch hampir tamat tempoh** pada dashboard, bagi lot yang sudah luput atau akan
+  luput dalam 30 hari. Kad itu hanya muncul apabila ada lot sedemikian.
+- **Sebab pergerakan stok** — jualan, sampel, kegunaan dalaman, rosak, hilang, pemulangan,
+  pembelian, kiraan fizikal. Senarainya dikunci mengikut jenis pergerakan, dan senarai
+  pergerakan boleh ditapis mengikutnya.
+- **Delivery Order** bagi setiap stok keluar: nombor berjujukan dalam ruang kerja
+  (`DO-2026-001`), medan penerima, dan halaman cetakan dengan ruang tandatangan.
 - **Produk dicipta sendiri semasa imbasan.** Baris invois yang tiada padanan tidak lagi
   ditinggalkan kosong — sistem menciptanya sebagai produk baharu dan terus memadankannya,
   menggunakan kod pembekal sebagai SKU supaya invois berikutnya daripada pembekal yang
@@ -30,6 +56,16 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ### Diubah
 
+- **`ruang-kerja:kosongkan` turut membuang pemindahan stok** dan baki gudang, supaya ruang
+  kerja yang dikosongkan tidak meninggalkan rekod pemindahan yang produknya sudah hilang.
+  Gudang itu sendiri kekal.
+- **Sesi kiraan stok kini terikat pada satu gudang.** Kuantiti rekod yang disimpan ialah baki
+  gudang itu dan bukan jumlah keseluruhan produk, dan pelarasannya hanya menyentuh baki di
+  situ. Sesi lama dinisbahkan kepada Gudang Utama oleh migrasi.
+- **Pelarasan stok menetapkan baki gudang yang dipilih**, kemudian jumlah produk dikira semula
+  daripada semua gudang. Pada pemasangan satu gudang, hasilnya sama seperti sebelum ini.
+- **Setiap pergerakan stok kini memerlukan sebab.** Borang lama yang hanya menghantar jenis
+  dan kuantiti akan ditolak. Ini termasuk borang Tambah Stok Pantas pada dashboard.
 - **Padam imbasan benar-benar memadam.** Sebelum ini butang itu hanya menukar status
   kepada *Dibatalkan* dan barisnya kekal dalam senarai selama-lamanya. Kini rekod dan
   gambar invoisnya dibuang terus. Hanya imbasan draf boleh dipadam — imbasan yang telah
@@ -55,6 +91,26 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
   baharu ditambah untuk pemadaman imbasan, ketiadaan dialog pengesahan, dan hiasan 3D.
 - `ANTHROPIC_TIMEOUT` dan `ANTHROPIC_SAIZ_MAKS_KB` dimasukkan ke dalam `.env.example`.
   Kedua-duanya sudah didokumenkan dalam README tetapi tiada dalam fail contoh.
+- Seksyen baharu untuk perkara yang selama ini hanya wujud dalam kod: tempat fail invois
+  disimpan dan sebab ia dihidangkan melalui laluan dan bukan `public/`; apa yang berlaku
+  semasa pengesahan imbasan, termasuk rujukan yang dicap pada pergerakan stok dan padanan
+  nama pembekal; serta sekatan pengurusan pengguna yang menghalang admin daripada
+  menurunkan pangkat atau memadam akaunnya sendiri.
+- Nota bahawa emel pengguna unik merentas seluruh sistem sedangkan SKU dan kod jujukan unik
+  dalam ruang kerja sahaja — perbezaan yang mudah disalah anggap sebagai terlepas pandang.
+- Nota bahawa membatalkan sesi kiraan mengekalkan rekodnya, berbeza daripada memadam
+  imbasan invois yang membuangnya terus.
+- Butiran kecil yang tertinggal: carian dan tapisan pada halaman Produk dan Pergerakan
+  Stok, sekatan padam pada pembekal, `npm run build` sebagai langkah deploy yang wajib,
+  laluan kesihatan `/up` yang tidak menyentuh pangkalan data, dan jadual ujian harian
+  di GitHub Actions.
+- Seksyen baharu untuk barcode dan pengimbas, gambar produk, batch dan tarikh luput, serta
+  sebab pergerakan dan Delivery Order — termasuk had yang diketahui: pelarasan menyeluruh
+  tidak menyentuh lot, jadi jumlah lot boleh terpesong daripada baki produk dan perbezaan
+  itu dipaparkan pada halaman produk.
+- Seksyen gudang dan pemindahan stok: hubungan antara jumlah produk, baki setiap gudang dan
+  stok dalam perjalanan; sebab pemindahan direkod sebagai jenis tersendiri dan bukan sepasang
+  masuk/keluar; serta had bahawa baki batch belum dipecahkan mengikut gudang.
 
 ### Penyelenggaraan
 

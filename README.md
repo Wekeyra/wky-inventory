@@ -11,13 +11,15 @@ bertemu antara satu sama lain.
 
 | Modul | Keterangan |
 |---|---|
-| **Dashboard** | Kad statistik, carta Ringkasan Bulanan (kemasukan vs. pengeluaran 6 bulan), amaran stok rendah, pergerakan terkini, dan borang Tambah Stok Pantas |
-| **Produk** | CRUD produk dengan SKU, harga kos/jual, unit, paras stok minimum |
+| **Dashboard** | Kad statistik, carta Ringkasan Bulanan (kemasukan vs. pengeluaran 6 bulan), amaran stok rendah, amaran batch hampir tamat tempoh, pergerakan terkini, sesi kiraan terbaharu, dan borang Tambah Stok Pantas |
+| **Produk** | CRUD produk dengan SKU, barcode, gambar, harga kos/jual, unit, paras stok minimum, dan pilihan menjejak batch/tarikh luput. Carian nama/SKU/barcode, tapisan kategori dan tapisan stok rendah. Halaman produk turut memaparkan lot dan sejarah pergerakannya |
 | **Kategori** | Pengelasan produk. Tidak boleh dipadam selagi masih digunakan produk |
-| **Pembekal** | Maklumat pembekal dan senarai produk yang dibekalkan |
+| **Pembekal** | Maklumat pembekal dan senarai produk yang dibekalkan. Sama seperti kategori, tidak boleh dipadam selagi masih ada produk yang memautnya |
+| **Gudang** | Gudang dan cawangan, dengan baki setiap produk pada setiap gudang serta catatan rak/bin |
+| **Pindah Stok** | Pemindahan antara gudang dalam dua peringkat — hantar dan terima — dengan stok dalam perjalanan di antaranya |
 | **Imbas Invois** | Ambil gambar terus dengan kamera atau muat naik foto/PDF — AI membaca baris barang, memadankannya dengan produk (mencipta produk baharu bagi barang yang belum wujud), dan merekod stok masuk selepas disahkan. Boleh juga disimpan dahulu dan dibaca kemudian |
 | **Kiraan Stok** | Sesi kiraan fizikal (stock take): sistem simpan gambaran baki, staf masukkan kiraan sebenar, sistem tunjuk perbezaan dan laraskan stok selepas disahkan |
-| **Pergerakan Stok** | Rekod stok masuk, keluar, dan pelarasan — setiap satu menyimpan baki sebelum/selepas |
+| **Pergerakan Stok** | Rekod stok masuk, keluar, dan pelarasan — setiap satu menyimpan baki sebelum/selepas, sebab, dan lot yang terlibat. Stok keluar menjana Delivery Order yang boleh dicetak. Boleh ditapis mengikut produk, jenis, dan sebab |
 | **Laporan Bulanan** | Pecahan masuk/keluar per produk mengikut bulan, perubahan bersih, dan susun atur mesra cetak |
 | **Pengguna** | Pengurusan akaun dan peranan (admin / staf) dalam ruang kerja sendiri. Hanya admin boleh akses |
 
@@ -25,18 +27,232 @@ Kuantiti stok **tidak boleh** diubah terus melalui borang produk. Ia hanya berub
 Pergerakan Stok atau pengesahan sesi Kiraan Stok, supaya setiap perubahan baki mempunyai rekod
 siapa, bila, dan sebab.
 
+### Belum ada
+
+Supaya jelas apa yang sistem ini belum lakukan, dan tidak disangka hilang:
+
+- **Purchase Order.** Tiada permohonan pembelian, kelulusan, penerimaan separa, mahupun
+  padanan PO dengan invois pembekal.
+- **Kewangan.** Tiada jualan/POS, kos barang dijual (COGS), untung kasar, mahupun kaedah
+  kos berlapis seperti FIFO. Nilai stok dikira pada harga kos semasa produk.
+- **Kawalan kelulusan berperingkat.** Peranan admin/staf sahaja; tiada had kuasa kelulusan
+  mahupun maker-checker.
+- **Analitik lanjutan.** Tiada produk paling laris, inventory turnover, DIO, dead stock,
+  mahupun ramalan permintaan.
+- **Batch mengikut gudang.** Baki lot dikira untuk seluruh ruang kerja, bukan setiap gudang.
+  Pemindahan memindahkan kuantiti tanpa menyebut lot mana yang bergerak.
+
 ### Aliran Kiraan Stok
 
-1. **Buka sesi** — pilih skop (semua kategori atau satu kategori). Sistem menyenaraikan semua produk
-   aktif dan menyimpan baki semasa sebagai *Kuantiti Rekod*. Stok belum berubah.
+1. **Buka sesi** — pilih gudang yang hendak dibilang, dan skop (semua kategori atau satu
+   kategori). Sistem menyenaraikan semua produk aktif dan menyimpan baki gudang itu sebagai
+   *Kuantiti Rekod*. Stok belum berubah.
 2. **Isi kiraan** — staf memasukkan *Kuantiti Fizikal*. Perbezaan dikira serta-merta dalam pelayar.
    Boleh disimpan sebagai draf dan disambung kemudian; produk yang dibiarkan kosong dilangkau.
 3. **Sahkan** — setiap produk yang berbeza menjana satu pergerakan stok jenis `pelarasan` dengan
-   rujukan kod sesi, dan baki produk ditetapkan kepada kuantiti fizikal.
+   rujukan kod sesi. Baki **gudang itu** ditetapkan kepada kuantiti fizikal, dan jumlah produk
+   bergerak sebanyak perbezaan itu sahaja — gudang lain tidak dibilang dan tidak terjejas.
 
 Pada langkah pengesahan, baki dibaca semula daripada pangkalan data dan bukan daripada gambaran
-sesi, kerana stok mungkin berubah antara pembukaan sesi dan pengesahan. Sesi yang telah selesai
-atau dibatalkan tidak boleh diubah lagi.
+sesi, kerana stok mungkin berubah antara pembukaan sesi dan pengesahan. Produk yang kuantiti
+fizikalnya sama dengan baki dilangkau — tiada pergerakan kosong direkodkan. Sesi yang telah
+selesai atau dibatalkan tidak boleh diubah lagi.
+
+Membatalkan sesi hanya menukar statusnya kepada *Dibatalkan*; rekod dan kiraan yang sudah
+dimasukkan kekal dalam senarai, cuma tidak boleh diubah lagi. Ini berbeza daripada butang padam
+pada imbasan invois, yang membuang rekod itu terus — perbezaan yang perlu diingat apabila
+membandingkan kedua-dua modul.
+
+## Gudang dan lokasi
+
+Setiap ruang kerja bermula dengan satu gudang, **Gudang Utama**, yang dicipta serentak dengan
+ruang kerja itu sendiri. Syarikat yang hanya ada satu premis tidak perlu menyentuh modul ini
+langsung: setiap borang memilih gudang lalai dengan sendirinya.
+
+Dua nombor dijaga untuk setiap produk, dan ia menjawab dua soalan berbeza:
+
+- `products.stok` — **berapa banyak** barang ini ada semuanya.
+- `stock_balances` — **di mana** ia berada, satu baris bagi setiap pasangan produk dan gudang,
+  berserta catatan rak atau bin.
+
+Hubungan antara keduanya: `stok` = jumlah baki semua gudang + stok dalam perjalanan. Halaman
+produk memaparkan pecahan itu, dan menandakan perbezaan dengan lencana apabila jumlahnya tidak
+sepadan — kerana angka gudang yang senyap-senyap salah lebih memudaratkan daripada angka yang
+jelas tidak berbaki.
+
+Jumlah keseluruhan tidak digantikan oleh jadual baki kerana setiap halaman, laporan dan amaran
+stok rendah yang sedia ada bergantung padanya, dan "berapa banyak barang ini ada" memang soalan
+yang paling kerap ditanya.
+
+Semua perubahan baki melalui satu tempat,
+[`BakiLokasi`](app/Services/Stok/BakiLokasi.php). Empat aliran menyentuh stok — pergerakan
+manual, pengesahan imbasan invois, pengesahan kiraan stok, dan pemindahan — dan kalau setiap
+satu mengira barisnya sendiri, satu daripadanya akan terlupa mengunci baris atau menyemak baki
+negatif.
+
+### Gudang lalai
+
+Satu gudang setiap ruang kerja ditanda **lalai**. Ia menerima stok apabila permintaan tidak
+menyebut lokasi: pengesahan imbasan invois, dan borang lama yang belum membawa medan gudang.
+Ia tidak boleh dinyahtanda mahupun dipadam — ia hanya berpindah apabila gudang lain ditandakan
+sebagai lalai.
+
+Gudang yang masih ada stok tidak boleh dipadam. Membuangnya bermakna baki itu lenyap tanpa
+sebarang pergerakan yang menerangkannya: jumlah produk kekal sedangkan tiada gudang yang
+memegangnya lagi.
+
+### Kesan pada modul sedia ada
+
+- **Pergerakan stok** membawa gudang. Stok keluar disemak terhadap baki **gudang itu**, bukan
+  hanya jumlah keseluruhan — satu gudang tidak boleh menghantar barang yang sebenarnya berada
+  di gudang lain.
+- **Pelarasan** menetapkan baki gudang yang dipilih, kemudian jumlah produk dikira semula
+  daripada semua gudang. Pelarasan bermaksud "inilah yang sebenarnya ada di sini", dan jumlah
+  keseluruhan ialah hasil tambahnya.
+- **Kiraan stok** terikat pada satu gudang. *Kuantiti Rekod* yang disimpan ialah baki gudang
+  itu dan bukan jumlah produk, kerana itulah yang sepatutnya sepadan dengan apa yang dilihat
+  di rak. Pelarasannya hanya menyentuh baki di situ; gudang lain tidak dibilang dan tidak
+  terjejas.
+- **Imbasan invois** memasukkan stok ke gudang lalai, kerana invois tidak menyebut gudang.
+
+## Pemindahan stok
+
+Memindahkan barang antara gudang berlaku dalam dua peringkat, dengan satu peringkat ketiga di
+antaranya:
+
+1. **Hantar** — baki gudang asal ditolak serta-merta, dan pemindahan berstatus *Dalam
+   Perjalanan*.
+2. **Dalam perjalanan** — kuantiti itu tidak berada dalam baki mana-mana gudang, tetapi masih
+   dikira dalam jumlah stok syarikat, kerana barang itu masih miliknya.
+3. **Terima** — baki gudang tujuan ditambah, dan pemindahan menjadi *Selesai*.
+
+Peringkat tengah itu wujud kerana tanpanya sistem terpaksa memilih antara dua pembohongan:
+barang itu masih di gudang asal (sedangkan lori sudah bertolak) atau sudah di gudang tujuan
+(sedangkan tiada sesiapa lagi menerimanya).
+
+Pemindahan yang belum diterima boleh **dibatalkan**; stoknya kembali ke gudang asal. Yang sudah
+diterima tidak boleh — barangnya sudah berada di gudang tujuan, dan memulangkannya ialah satu
+lagi pemindahan yang berhak mendapat rekodnya sendiri.
+
+### Mengapa pemindahan bukan sepasang masuk/keluar
+
+Pemindahan direkodkan sebagai jenis pergerakan tersendiri, `pindah`, dan bukan sebagai stok
+keluar di satu gudang berpasangan dengan stok masuk di gudang lain.
+
+Jumlah stok syarikat tidak berubah apabila barang berpindah rak, sedangkan laporan bulanan
+mengira `masuk` dan `keluar` sebagai stok yang benar-benar datang dan pergi. Sepasang baris
+palsu akan menunjukkan pembelian dan jualan yang tidak pernah berlaku. Jenis tersendiri
+terkecuali daripada kiraan itu dengan sendirinya, tanpa satu pun laporan perlu ditulis semula.
+
+Setiap peringkat meninggalkan barisnya sendiri dalam jejak audit — `pindah_hantar`,
+`pindah_terima`, `pindah_batal` — dan setiap baris membawa gudang asal dan gudang tujuan.
+`stok_sebelum` dan `stok_selepas` pada baris itu adalah sama, yang memang betul: yang berubah
+ialah tempat, bukan jumlah.
+
+## Barcode dan pengimbas
+
+Setiap produk boleh membawa satu **barcode** selain SKUnya. Kedua-duanya diasingkan kerana
+mereka menjawab soalan berbeza: SKU ialah kod dalaman yang anda pilih sendiri, manakala barcode
+ialah kod yang sudah tercetak pada bungkusan oleh pengilang. Ia unik dalam ruang kerja, sama
+seperti SKU.
+
+Kod boleh dimasukkan dengan tiga cara, dan ketiga-tiganya berakhir di medan yang sama:
+
+- **Menaipnya** ke dalam medan barcode pada borang produk.
+- **Pengimbas USB** di kaunter, yang menaip kod itu seperti papan kekunci. Tiada tetapan
+  diperlukan — sistem tidak dapat membezakannya daripada taipan tangan, dan itu memang niatnya.
+- **Kamera peranti**, melalui butang imbas di sebelah medan.
+
+Butang kamera menggunakan `BarcodeDetector`, iaitu API pelayar dan bukan pustaka yang dimuat
+turun. Pada pelayar yang tidak menyokongnya (Safari, Firefox pada masa ini) butang itu
+**tidak dipaparkan langsung**, kerana butang yang menjanjikan sesuatu yang tidak akan berlaku
+lebih mengelirukan daripada ketiadaannya. Pengimbas USB tetap berjalan pada pelayar itu.
+
+Pengimbas muncul di tiga tempat: medan barcode pada borang produk, kotak carian pada senarai
+produk (mengimbas terus menghantar carian), dan borang pergerakan stok, di mana kod yang
+diimbas memilih produknya sendiri daripada senarai.
+
+Pemadanan pada borang stok dibuat **dalam pelayar** dan bukan dengan satu lagi permintaan ke
+pelayan, kerana senarai produk sudah pun berada di halaman itu — kod yang diimbas sepatutnya
+memilih produknya serta-merta, bukan selepas satu pusingan rangkaian.
+
+## Gambar produk
+
+Setiap produk boleh membawa satu gambar (JPG, PNG, GIF, WEBP; maksimum 4 MB). Ia disimpan pada
+cakera **peribadi** yang sama seperti fail invois dan dihidangkan melalui
+`products/{produk}/gambar`, jadi gambar produk syarikat lain memulangkan **404** dan bukan
+imej. Tiada `storage:link`, dan tiada URL awam yang boleh diteka.
+
+Gambar lama dibuang apabila diganti atau apabila produknya dipadam, supaya storan tidak
+mengumpul fail yang tiada sesiapa boleh capai lagi.
+
+## Batch dan tarikh luput
+
+Penjejakan batch dihidupkan **produk demi produk** melalui pilihan *Jejak nombor batch dan
+tarikh luput* pada borang produk. Kebanyakan barang SME — skru, kabel, alat tulis — tidak
+memerlukannya, dan menghidupkannya untuk semua produk hanya menambah dua medan wajib pada
+setiap kemasukan stok.
+
+Bagi produk yang dijejak:
+
+- **Stok masuk** meminta nombor batch, dan pilihan tarikh luput serta nombor siri. Kemasukan
+  kedua bagi nombor batch yang sama menambah lot sedia ada, bukan mencipta lot kembar.
+- **Stok keluar** meminta lot mana yang diambil. Senarainya disusun mengikut **tarikh luput
+  terawal**, jadi lot yang paling hampir tamat tempoh muncul di atas.
+- **Dashboard** memaparkan kad amaran bagi lot yang sudah luput atau akan luput dalam 30 hari,
+  dan hanya apabila ada lot sedemikian. Kad kosong yang kekal setiap hari akan berhenti dibaca.
+- Lot yang sudah habis tidak disenaraikan mahupun diberi amaran.
+
+Imbasan invois turut mencipta lot. Invois tidak membawa nombor batch, jadi satu penghantaran
+dianggap satu lot dan dinamakan mengikut nombor invoisnya. Tarikh luputnya dibiarkan kosong
+kerana ia memang tidak diketahui pada masa itu, dan diisi kemudian pada halaman produk selepas
+kotak sebenar diperiksa.
+
+**Kuantiti lot tidak boleh disunting dengan tangan.** Ia tertakluk pada peraturan yang sama
+seperti baki produk: hanya pergerakan stok boleh mengubahnya. Yang boleh disunting pada halaman
+produk ialah tarikh luput dan nombor siri.
+
+> ⚠️ Pelarasan menyeluruh — pelarasan manual dan pengesahan sesi kiraan stok — menetapkan baki
+> **produk** tanpa menyebut lot mana yang berubah, jadi jumlah lot boleh terpesong daripada baki
+> produk. Perbezaan itu dipaparkan sebagai lencana pada jadual batch dan bukan disembunyikan,
+> kerana angka batch yang senyap-senyap salah lebih memudaratkan daripada angka yang jelas tidak
+> sepadan. Membetulkannya lot demi lot ialah kerja fasa berikutnya, bersama gudang berbilang.
+
+## Sebab pergerakan dan Delivery Order
+
+Setiap pergerakan stok membawa satu **sebab** selain jenisnya. Jenis hanya memberitahu arah
+(masuk, keluar, pelarasan); sebab memberitahu mengapa, dan itulah yang membezakan stok yang
+menjana wang daripada stok yang lesap.
+
+| Jenis | Sebab yang dibenarkan |
+|---|---|
+| Masuk | Pembelian, pemulangan pelanggan, lain-lain |
+| Keluar | Jualan, sampel percuma, kegunaan dalaman, rosak, hilang, pemulangan kepada pembekal, lain-lain |
+| Pelarasan | Kiraan fizikal, rosak, hilang, lain-lain |
+
+Senarai ini ditakrifkan **sekali** dalam [`StockMovement::SEBAB`](app/Models/StockMovement.php):
+borang membina pilihannya daripadanya dan pengesahan menyemak terhadapnya, jadi pilihan yang
+dipaparkan tidak boleh menjadi pilihan yang ditolak. Gabungan yang tidak masuk akal — *stok
+masuk kerana jualan* — ditolak walaupun disuap terus ke dalam borang, kerana laporan yang
+mengira jualan daripada medan ini akan rosak olehnya.
+
+Pergerakan yang dijana sistem membawa sebabnya sendiri: pengesahan imbasan invois merekod
+`pembelian`, dan pengesahan sesi kiraan stok merekod `kiraan_fizikal`.
+
+### Delivery Order
+
+Setiap **stok keluar** menjana satu nombor DO (`DO-2026-001`) dan halaman cetakan di
+`stock/{pergerakan}/do`, lengkap dengan penerima, lot yang dikeluarkan, dan ruang tandatangan
+penghantar dan penerima.
+
+Nombornya dijana **dalam transaksi yang sama** seperti pergerakan itu, jadi dua permintaan
+serentak tidak boleh berkongsi nombor dokumen. Ia berskop ruang kerja: setiap syarikat bermula
+semula dari `001` setiap tahun.
+
+DO dijana daripada rekod pergerakan dan tidak disimpan sebagai dokumen berasingan, jadi apa
+yang dicetak sentiasa sepadan dengan apa yang benar-benar keluar daripada stok. Satu DO membawa
+satu baris kerana ia terikat pada satu pergerakan; menggabungkan beberapa produk ke dalam satu
+dokumen memerlukan lapisan pesanan penghantarannya sendiri.
 
 ## Butang tindakan pantas
 
@@ -80,9 +296,9 @@ hanya menambah kekeliruan.
 
 ## Ruang kerja
 
-Setiap syarikat memiliki satu **ruang kerja**. Produk, kategori, pembekal, pergerakan stok,
-sesi kiraan, imbasan invois dan pengguna semuanya dimiliki oleh satu ruang kerja, dan tidak
-pernah bertemu data ruang kerja lain.
+Setiap syarikat memiliki satu **ruang kerja**. Produk, kategori, pembekal, gudang, baki setiap
+gudang, pergerakan stok, pemindahan, sesi kiraan, imbasan invois dan pengguna semuanya dimiliki
+oleh satu ruang kerja, dan tidak pernah bertemu data ruang kerja lain.
 
 Pengasingan dikuatkuasakan pada peringkat **model** melalui
 [`MilikRuangKerja`](app/Models/Concerns/MilikRuangKerja.php), bukan dengan menapis pada setiap
@@ -104,6 +320,13 @@ Beberapa akibat yang perlu diketahui semasa menyunting kod:
 - Kod dan SKU unik **dalam ruang kerja**, bukan merentas sistem. Dua syarikat berlainan bebas
   menggunakan `ELK-001` yang sama. Peraturan `unique` dan `exists` dalam controller turut
   berskop, jadi id milik syarikat lain tidak boleh dipaut dengan menyuapnya terus ke borang.
+- Kod jujukan imbasan dan sesi kiraan (`SCAN-2026-001`, `KIRA-2026-001`) dinomborkan dengan
+  mengira rekod sedia ada, jadi ia turut berskop ruang kerja: setiap syarikat bermula semula
+  dari `001` setiap tahun.
+- **Emel pengguna pula unik merentas seluruh sistem**, bukan dalam ruang kerja. Satu emel
+  bermakna satu akaun dalam satu ruang kerja sahaja; orang yang sama tidak boleh menjadi ahli
+  dua syarikat dengan emel yang sama. Ia selari dengan cara log masuk berfungsi — borang hanya
+  menerima emel dan kata laluan, tanpa langkah memilih ruang kerja.
 
 ### Memisahkan akaun sedia ada
 
@@ -125,6 +348,23 @@ Sesiapa boleh mendaftar di `/daftar` dengan mengisi nama syarikat. Sistem mencip
 baharu yang kosong dan pendaftar menjadi **admin** ruang kerja itu, jadi dia boleh menambah
 stafnya sendiri melalui halaman Pengguna. Peranan ditetapkan dalam controller dan bukan
 daripada borang, supaya pendaftaran sendiri tidak boleh menghasilkan admin sistem.
+
+### Pengurusan pengguna
+
+Halaman Pengguna dibuka kepada **admin** sahaja, melalui middleware `admin`
+([`EnsureUserIsAdmin`](app/Http/Middleware/EnsureUserIsAdmin.php)). Akaun yang ditambah di situ
+sentiasa masuk ke ruang kerja admin yang menciptanya — tiada medan ruang kerja pada borang.
+
+Dua sekatan menghalang admin daripada mengunci dirinya sendiri di luar sistem:
+
+- Admin yang menyunting akaunnya sendiri kekal **admin** walaupun borang menghantar `staf`.
+  Tanpa sekatan ini, satu-satunya admin dalam ruang kerja boleh menurunkan pangkatnya sendiri
+  dan tiada sesiapa lagi yang boleh menaikkannya semula.
+- Admin tidak boleh memadam akaunnya sendiri.
+
+Model `User` tidak berskop ruang kerja secara automatik (lihat [Ruang kerja](#ruang-kerja)), jadi
+`UserController` menyemak pemilikan sendiri dan memulangkan **404** bagi akaun milik syarikat
+lain — layanan yang sama seperti model berskop.
 
 ### Log masuk Google
 
@@ -217,9 +457,13 @@ php artisan ruang-kerja:kosongkan "Nama Syarikat"
 ```
 
 Arahan memaparkan bilangan setiap jenis rekod yang akan dibuang dan meminta pengesahan dahulu.
-Akaun pengguna dan ruang kerja itu sendiri tidak disentuh — hanya produk, kategori, pembekal,
-pergerakan stok, sesi kiraan dan imbasan invois. Fail invois yang tersimpan turut dibuang.
-Gunakan `--force` untuk melangkau soalan pengesahan dalam skrip.
+Akaun pengguna, gudang, dan ruang kerja itu sendiri tidak disentuh — hanya produk, kategori,
+pembekal, pergerakan stok, pemindahan, sesi kiraan dan imbasan invois. Baki gudang dan lot
+dibuang bersama produknya. Fail invois yang tersimpan turut dibuang. Gunakan `--force` untuk
+melangkau soalan pengesahan dalam skrip.
+
+Gudang dikekalkan kerana ia struktur ruang kerja dan bukan data inventori, sama seperti akaun
+penggunanya — dan setiap ruang kerja mesti sentiasa ada satu gudang lalai untuk menerima stok.
 
 ## Deploy
 
@@ -233,6 +477,13 @@ Letakkan arahan ini dalam *deploy command* hos anda supaya ia berjalan automatik
 tidak dijalankan menyebabkan setiap halaman yang menyentuh pangkalan data memulangkan ralat
 500, sementara halaman statik seperti log masuk masih kelihatan normal — corak yang mudah
 disalah anggap sebagai pepijat kod.
+
+`npm run build` juga wajib pada setiap deploy, kerana `public/build` tidak disimpan dalam Git.
+Tanpanya setiap halaman gagal dengan *Vite manifest not found*.
+
+Aplikasi menyediakan `/up` untuk pemeriksaan kesihatan hos. Ia menyentuh aplikasi tetapi bukan
+pangkalan data, jadi ia menjawab *sihat* walaupun migrasi belum dijalankan — jangan bergantung
+padanya untuk mengesahkan deploy yang lengkap.
 
 ## Ujian
 
@@ -249,7 +500,9 @@ Ujian berjalan pada **SQLite dalam ingatan** (`phpunit.xml`), bukan MySQL. Datab
 anda tidak disentuh, dan tiada persediaan pangkalan data diperlukan untuk menjalankan suite ini.
 
 Suite yang sama berjalan di GitHub Actions ([`.github/workflows/tests.yml`](.github/workflows/tests.yml))
-pada setiap push ke `main` dan setiap pull request, merentas PHP 8.3, 8.4, dan 8.5. Alur kerja itu
+pada setiap push ke `main`, setiap pull request, dan sekali sehari pada tengah malam UTC,
+merentas PHP 8.3, 8.4, dan 8.5. Jadual harian itu menangkap kerosakan yang datang dari luar
+repositori — kemas kini kebergantungan atau imej pelari — dan bukan daripada commit. Alur kerja itu
 menjalankan `npm run build` sebelum menguji: setiap susun atur memanggil `@vite` dan `public/build`
 tidak disimpan dalam Git, jadi tanpa binaan itu setiap ujian yang memaparkan halaman akan gagal
 dengan *Vite manifest not found* — kegagalan persekitaran yang mudah disalah anggap sebagai pepijat
@@ -283,8 +536,26 @@ kod. Langkah itu turut mengesahkan binaan aset masih berjaya sebelum deploy.
 - `tests/Feature/PisahkanPenggunaTest.php` — arahan `pengguna:pisah`, termasuk penolakan
   apabila akaun itu satu-satunya pengguna dalam ruang kerjanya.
 - `tests/Feature/KosongkanRuangKerjaTest.php` — arahan `ruang-kerja:kosongkan`: semua rekod
-  inventori dibuang, akaun pengguna kekal, ruang kerja lain tidak disentuh, dan tiada apa
-  yang dibuang apabila pengesahan ditolak.
+  inventori dibuang termasuk pemindahan dan baki gudang, akaun pengguna dan gudang kekal,
+  ruang kerja lain tidak disentuh, dan tiada apa yang dibuang apabila pengesahan ditolak.
+- `tests/Feature/BarcodeGambarTest.php` — barcode unik dalam ruang kerja (dan boleh dikongsi
+  antara ruang kerja), carian yang menemuinya, serta gambar produk: muat naik, penghidangan
+  berskop ruang kerja, penggantian yang membuang fail lama, dan pemadaman.
+- `tests/Feature/BatchLuputTest.php` — lot: penciptaan semasa stok masuk, penggabungan
+  kemasukan kedua, medan wajib mengikut arah, penolakan baki lot semasa stok keluar, lot milik
+  produk lain yang ditolak, amaran luput pada dashboard, dan lot penerimaan daripada imbasan
+  invois.
+- `tests/Feature/SebabDoTest.php` — sebab pergerakan (wajib, dan mesti padan dengan jenisnya),
+  penapisan mengikut sebab, dan Delivery Order: penomboran berskop ruang kerja, halaman
+  cetakan, serta 404 bagi pergerakan masuk dan pergerakan syarikat lain.
+- `tests/Feature/GudangTest.php` — gudang: penciptaan automatik bagi ruang kerja baharu,
+  perpindahan tanda lalai, sekatan padam (lalai dan yang masih berstok), baki per gudang pada
+  stok masuk/keluar, permintaan tanpa lokasi yang mendarat di gudang lalai, dan sesi kiraan
+  yang hanya melaraskan gudang yang dibilang.
+- `tests/Feature/PindahStokTest.php` — pemindahan: baki asal ditolak semasa hantar, stok dalam
+  perjalanan, baki tujuan ditambah semasa terima, pembatalan yang memulangkan stok, penolakan
+  penghantaran melebihi baki gudang, produk berulang yang digabungkan, dan pengecualian
+  pemindahan daripada kiraan masuk/keluar laporan bulanan.
 
 ## Imbas Invois (AI)
 
@@ -322,6 +593,40 @@ perkhidmatan sibuk, invois tidak jelas, kunci tiada — gambar tidak hilang; imb
 
 Imbasan yang belum dibaca tidak boleh disahkan, kerana tiada baris untuk direkod sebagai stok.
 
+### Apa yang berlaku semasa pengesahan
+
+Setiap baris yang dipadankan dan tidak dilangkau menjana satu pergerakan stok jenis `masuk`,
+dengan baki dibaca semula di bawah kunci baris kerana stok mungkin berubah antara imbasan
+dibuat dan disahkan. Selepas itu imbasan berstatus *Selesai* dan tidak boleh disunting lagi.
+
+Rujukan pada pergerakan itu ialah **nombor invois** apabila AI berjaya membacanya, dan kod
+imbasan (`SCAN-2026-001`) apabila tidak. Nombor invois dipilih dahulu kerana itulah yang dicari
+orang apabila menyemak semula kemasukan stok terhadap invois kertas.
+
+Nama pembekal yang dibaca daripada invois dipadankan dengan senarai pembekal mengikut **nama
+yang sama tepat** (tidak mengira besar kecil huruf) dan mengisi medan pembekal pada imbasan.
+Kalau tiada padanan, medan itu dibiarkan kosong untuk dipilih sendiri — pembekal tidak pernah
+dicipta automatik, tidak seperti produk.
+
+### Di mana fail invois disimpan
+
+Fail yang dimuat naik diterima dalam format `jpg`, `jpeg`, `png`, `gif`, `webp` dan `pdf`, dan
+disimpan pada cakera **`local`** — iaitu `storage/app/private/invois`, bukan `public/`. Halaman
+butiran memaparkannya melalui laluan `imbas-invois/{imbasan}/fail`, jadi:
+
+- Fail melalui pengikatan model pada laluan, dan pengikatan itu berskop ruang kerja. Invois
+  syarikat lain memulangkan **404**, sama seperti mana-mana rekod lain.
+- Tiada `php artisan storage:link` diperlukan, dan tiada URL awam yang boleh diteka. Invois
+  membawa harga dan nama pembekal — ia tidak sepatutnya boleh dibuka oleh sesiapa yang
+  mempunyai pautannya.
+
+Kerana fail berada dalam `storage/`, direktori itu **mesti kekal** antara deploy. Pada hos yang
+cakeranya dibina semula pada setiap deploy, gambar invois akan hilang sementara rekodnya kekal.
+Cakera itu dinamakan terus sebagai `local` dalam `InvoiceScanController` (simpan, baca, hidang,
+padam) dan **bukan** dibaca daripada `FILESYSTEM_DISK`, jadi berpindah ke storan objek bermakna
+menukar takrif cakera `local` dalam `config/filesystems.php` kepada pemacu `s3` — bukan sekadar
+menukar satu nilai `.env`.
+
 ### Memadam imbasan
 
 Butang tong sampah pada senarai imbasan, dan **Padam Imbasan** pada halaman butirannya,
@@ -329,7 +634,7 @@ membuang rekod itu **berserta gambarnya** daripada storan. Ia bukan pembatalan �
 hilang terus daripada senarai.
 
 Hanya imbasan **draf** boleh dipadam. Imbasan yang telah disahkan sudah menjana pergerakan
-stok yang merujuk kodnya, dan membuangnya akan meninggalkan pergerakan yang menunjuk kepada
+stok yang merujuk kepadanya, dan membuangnya akan meninggalkan pergerakan yang menunjuk kepada
 imbasan yang tidak lagi wujud. Sekatan itu berada dalam controller dan bukan sekadar butang
 yang disembunyikan.
 
@@ -386,7 +691,13 @@ tiada langkah mendaftar produk di tengah jalan.
 
 Kod pembekal pada invois dijadikan SKU produk itu, kerana itulah yang menjadikan invois
 berikutnya daripada pembekal yang sama padan dengan sendirinya. Baris tanpa kod mendapat SKU
-jana (`AUTO-0001`) dan bergantung pada nama untuk padanan seterusnya.
+jana (`AUTO-0001`) dan bergantung pada nama untuk padanan seterusnya. Kod yang dipotong pada
+50 aksara dan bertembung dengan SKU sedia ada turut jatuh kepada nombor jana — SKU unik dalam
+ruang kerja, dan pelanggarannya akan mematikan imbasan di tengah jalan.
+
+Kuantiti pada invois **tidak** terus menjadi stok produk baharu itu. Stoknya kekal `0` sehingga
+imbasan disahkan, kemudian bertambah melalui pergerakan stok yang sama seperti mana-mana
+kemasukan lain — jejak auditnya tidak berlubang walaupun produk itu wujud kerana invois.
 
 > ⚠️ Invois tidak membawa **harga jual** mahupun **paras stok minimum**, jadi produk yang
 > dicipta begini bermula dengan kedua-duanya `0`. Betulkan di halaman Produk, jika tidak
@@ -435,8 +746,8 @@ Laluan lama `/bahasa/{locale}` masih berfungsi untuk pautan yang ditanda buku.
 | Fail | Kandungan |
 |---|---|
 | `lang/{ms,en}/wky.php` | Semua teks antara muka: menu, tajuk, label medan, butang, mesej |
-| `lang/ms/validation.php` | Mesej pengesahan BM + nama medan (`attributes`) |
-| `lang/ms/{auth,pagination}.php` | Mesej log masuk dan pautan penomboran |
+| `lang/{ms,en}/validation.php` | Mesej pengesahan + nama medan (`attributes`) |
+| `lang/{ms,en}/{auth,pagination}.php` | Mesej log masuk dan pautan penomboran |
 | `config/bahasa.php` | Senarai bahasa yang disokong |
 
 Untuk menambah bahasa ketiga: salin folder `lang/ms` ke kod locale baharu, terjemah isinya,
@@ -462,6 +773,7 @@ dibungkus ke dalam `public/build`, jadi sistem berfungsi sepenuhnya tanpa sambun
 | `resources/views/components/latar-log-masuk.blade.php` | Latar konstelasi dan siluet bandar untuk halaman log masuk dan pendaftaran |
 | `resources/views/components/hiasan-3d.blade.php` | Empat objek gudang 3D pada latar halaman auth |
 | `resources/views/components/medan-kata-laluan.blade.php` | Medan kata laluan berserta butang mata |
+| `resources/views/components/imbas-barcode.blade.php` | Butang dan modal pengimbas barcode; menyembunyikan dirinya apabila pelayar tiada `BarcodeDetector` |
 | `resources/views/components/tajuk-seksyen.blade.php` | Tajuk seksyen halaman pendaratan: garis aksen, tajuk, teks pengenalan |
 | `resources/views/partials/butang-google.blade.php` | Butang log masuk Google; menyembunyikan dirinya apabila OAuth belum dikonfigur |
 
@@ -551,7 +863,23 @@ Tiga perkara yang perlu diberi perhatian apabila menyunting:
 ## Nota teknikal
 
 - Kemas kini stok dibungkus dalam transaksi dengan `lockForUpdate()` untuk mengelak dua
-  pengguna mengubah baki produk yang sama secara serentak.
+  pengguna mengubah baki produk yang sama secara serentak. Ini terpakai pada ketiga-tiga jalan
+  yang menyentuh baki: pergerakan stok, pengesahan imbasan invois, dan pengesahan sesi kiraan.
+- Carta Ringkasan Bulanan dikumpulkan mengikut bulan dalam **PHP**, bukan dengan `GROUP BY`
+  dalam SQL, kerana sintaks fungsi tarikh berbeza antara MySQL (aplikasi) dan SQLite (ujian).
+  Pertanyaan yang ditulis untuk satu daripadanya akan gagal pada satu lagi.
+- Blok yang perlu disembunyikan membawa `hidden` pada **pembungkusnya**, bukan pada elemen
+  yang sama seperti `grid` atau `flex`. Kedua-duanya menetapkan `display`, jadi yang terakhir
+  dijana dalam CSS akan menang — dan blok yang sepatutnya tersembunyi boleh kekal kelihatan.
+- Medan yang disembunyikan oleh JavaScript turut kehilangan `required`nya. Medan wajib yang
+  tidak kelihatan menghalang penghantaran borang tanpa menunjukkan kepada pengguna medan mana
+  yang menahannya.
+- `@json([...])` dengan array berbilang baris terus di dalamnya menghasilkan PHP yang tidak
+  sah — kurungan penutupnya tercicir semasa Blade menghurai argumen arahan itu, dan halaman
+  gagal dengan *ParseError*. Bina array dalam `@php` dahulu, kemudian `@json($pemboleh)`.
+- `app.css` menyenaraikan `storage/framework/views` sebagai sumber Tailwind, jadi saiz CSS yang
+  dibina bergantung pada halaman mana yang kebetulan telah dikompil ke dalam cache itu. Untuk
+  binaan yang boleh diramal, jalankan `php artisan view:clear` sebelum `npm run build`.
 - `public/build` tidak disimpan dalam Git. Selepas `git clone` atau `git pull` yang menyentuh
   antara muka, jalankan `npm run build` semula.
 - Halaman log masuk dan pendaftaran menggunakan `overflow-x-hidden` pada `<body>`, bukan

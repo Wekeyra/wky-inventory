@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\InvoiceScan;
+use App\Models\Location;
 use App\Models\Product;
+use App\Models\ProductBatch;
 use App\Models\StockMovement;
 use App\Models\Supplier;
+use App\Services\Stok\BakiLokasi;
 use App\Services\Invoice\ExtractedInvoice;
 use App\Services\Invoice\ExtractedLine;
 use App\Services\Invoice\InvoiceExtractionException;
@@ -243,9 +246,13 @@ class InvoiceScanController extends Controller
             return back()->with('ralat', __('wky.imbas.ralat_tiada_padanan'));
         }
 
+        // Invois tidak menyebut gudang mana yang menerima barang, jadi ia masuk
+        // ke gudang lalai. Pindahkan kemudian jika ia sepatutnya di tempat lain
+        // — itu pergerakan yang berhak mendapat rekodnya sendiri.
+        $lokasi = Location::lalai();
         $direkod = 0;
 
-        DB::transaction(function () use ($invoiceScan, $bolehDiproses, $request, &$direkod) {
+        DB::transaction(function () use ($invoiceScan, $bolehDiproses, $request, $lokasi, &$direkod) {
             foreach ($bolehDiproses as $item) {
                 // Baki dibaca semula dengan kunci di sini kerana stok mungkin
                 // berubah antara imbasan dibuat dan disahkan.
@@ -258,12 +265,19 @@ class InvoiceScanController extends Controller
                 $sebelum = $product->stok;
                 $selepas = $sebelum + $item->kuantiti;
 
+                if ($lokasi !== null) {
+                    BakiLokasi::laraskan($product, $lokasi->id, $item->kuantiti);
+                }
+
                 $product->update(['stok' => $selepas]);
 
                 StockMovement::create([
                     'product_id' => $product->id,
+                    'product_batch_id' => $this->batchPenerimaan($product, $invoiceScan, $item->kuantiti)?->id,
+                    'location_id' => $lokasi?->id,
                     'user_id' => $request->user()?->id,
                     'jenis' => 'masuk',
+                    'sebab' => 'pembelian',
                     'kuantiti' => $item->kuantiti,
                     'stok_sebelum' => $sebelum,
                     'stok_selepas' => $selepas,
@@ -310,6 +324,35 @@ class InvoiceScanController extends Controller
 
         return redirect()->route('invoice-scans.index')
             ->with('status', __('wky.flash.imbas_dipadam', ['kod' => $kod]));
+    }
+
+    /**
+     * Lot penerimaan bagi produk yang dijejak batchnya.
+     *
+     * Invois tidak membawa nombor batch, jadi satu penghantaran dianggap satu
+     * lot dan dinamakan mengikut rujukan invois itu. Tanpa ini, baki batch akan
+     * tertinggal di belakang baki produk setiap kali stok masuk melalui
+     * imbasan — dan angka batch yang tidak boleh dipercayai lebih buruk
+     * daripada tiada batch langsung.
+     *
+     * Tarikh luputnya dibiarkan kosong kerana ia memang tidak diketahui di
+     * sini; ia diisi pada halaman produk selepas kotak sebenar diperiksa.
+     */
+    private function batchPenerimaan(Product $product, InvoiceScan $imbasan, int $kuantiti): ?ProductBatch
+    {
+        if (! $product->jejak_batch) {
+            return null;
+        }
+
+        $batch = ProductBatch::lockForUpdate()->firstOrNew([
+            'product_id' => $product->id,
+            'no_batch' => $imbasan->rujukanStok(),
+        ]);
+
+        $batch->kuantiti = ($batch->kuantiti ?? 0) + $kuantiti;
+        $batch->save();
+
+        return $batch;
     }
 
     /**

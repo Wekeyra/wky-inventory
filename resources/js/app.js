@@ -134,6 +134,177 @@ function mulakanTunjukKataLaluan() {
 }
 
 /**
+ * Menapis senarai sebab mengikut jenis pergerakan yang dipilih.
+ *
+ * Semua sebab dipaparkan dalam satu <select> dan ditanda dengan data-jenis,
+ * bukan dibina semula daripada JSON. Dengan cara ini teksnya diterjemah oleh
+ * Blade seperti teks lain di halaman, dan borang yang dihantar tanpa JavaScript
+ * tetap membawa nilai yang sah.
+ */
+function mulakanSebabPergerakan() {
+    document.querySelectorAll('[data-sebab]').forEach((sebab) => {
+        const jenis = sebab.form?.querySelector('[name="jenis"]');
+
+        if (! jenis) {
+            return;
+        }
+
+        const segarkan = () => {
+            let pertama = null;
+
+            [...sebab.options].forEach((pilihan) => {
+                const padan = pilihan.dataset.jenis === jenis.value;
+
+                pilihan.hidden = ! padan;
+                pilihan.disabled = ! padan;
+
+                if (padan && pertama === null) {
+                    pertama = pilihan;
+                }
+            });
+
+            // Menetapkan .selected dan bukan select.value, kerana sebab yang
+            // sama muncul di bawah lebih daripada satu jenis — menetapkan nilai
+            // akan memilih kembaran pertamanya, yang mungkin yang tersembunyi.
+            if (sebab.selectedOptions[0]?.disabled && pertama) {
+                pertama.selected = true;
+            }
+        };
+
+        jenis.addEventListener('change', segarkan);
+        segarkan();
+    });
+}
+
+/**
+ * Pengimbas barcode dengan kamera peranti.
+ *
+ * Pencetus membawa data-imbas-barcode="<id medan>" dan membuka modal yang
+ * dicipta oleh komponen <x-imbas-barcode>. Kod yang dijumpai ditulis ke dalam
+ * medan itu, dan data-imbas-hantar menghantar borangnya terus — kerana pada
+ * halaman carian, mengimbas dan kemudian menekan Cari ialah dua langkah untuk
+ * satu niat.
+ *
+ * Butang bermula tersembunyi dalam HTML dan hanya didedahkan di sini. Pelayar
+ * tanpa BarcodeDetector (Safari, Firefox) tidak sepatutnya menunjukkan butang
+ * yang tidak akan berfungsi; pengimbas USB yang menaip ke dalam medan tetap
+ * berjalan seperti biasa pada pelayar itu.
+ */
+function mulakanPengimbasBarcode() {
+    const pencetus = document.querySelectorAll('[data-imbas-barcode]');
+
+    if (pencetus.length === 0) {
+        return;
+    }
+
+    const disokong = 'BarcodeDetector' in window
+        && Boolean(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+
+    if (! disokong) {
+        return;
+    }
+
+    // Format satu dimensi ialah yang tercetak pada bungkusan runcit; QR
+    // disertakan kerana label dalaman yang dicetak sendiri selalunya QR.
+    const FORMAT = ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'itf', 'qr_code'];
+    const SELANG = 250; // Milisaat antara percubaan; setiap bingkai ialah kerja yang terbuang.
+
+    pencetus.forEach((butang) => {
+        const medan = document.getElementById(butang.dataset.imbasBarcode);
+        const modal = document.getElementById(butang.dataset.modalBuka);
+
+        if (! medan || ! modal) {
+            return;
+        }
+
+        const video = modal.querySelector('[data-imbas-video]');
+        const kotakRalat = modal.querySelector('[data-imbas-ralat]');
+        const teksRalat = modal.querySelector('[data-imbas-ralat-teks]');
+
+        let strim = null;
+        let pemasa = null;
+
+        butang.classList.remove('hidden');
+        butang.addEventListener('click', mula);
+
+        // Modal boleh ditutup melalui Escape, klik latar atau butang Batal.
+        // Memerhati kelasnya bermakna kamera dimatikan pada ketiga-tiga cara.
+        new MutationObserver(() => {
+            if (modal.classList.contains('hidden')) {
+                henti();
+            }
+        }).observe(modal, { attributes: true, attributeFilter: ['class'] });
+
+        async function mula() {
+            kotakRalat.classList.add('hidden');
+
+            try {
+                strim = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { ideal: 'environment' } },
+                    audio: false,
+                });
+
+                video.srcObject = strim;
+
+                const pengesan = new window.BarcodeDetector({ formats: FORMAT });
+
+                pemasa = setInterval(() => kesan(pengesan), SELANG);
+            } catch (ralat) {
+                // Teks ralat dibawa sebagai data-* pada modal supaya JavaScript
+                // ini tidak perlu tahu bahasa halaman.
+                teksRalat.textContent = ralat.name === 'NotAllowedError'
+                    ? modal.dataset.ralatDitolak
+                    : modal.dataset.ralatGagal;
+                kotakRalat.classList.remove('hidden');
+            }
+        }
+
+        async function kesan(pengesan) {
+            if (! video.videoWidth) {
+                return;
+            }
+
+            try {
+                const jumpa = await pengesan.detect(video);
+
+                if (jumpa.length === 0) {
+                    return;
+                }
+
+                medan.value = jumpa[0].rawValue;
+
+                // Kod yang ditulis oleh JavaScript tidak mencetuskan peristiwa
+                // input dengan sendirinya, jadi pendengar pada halaman —
+                // seperti pemilih produk pada borang stok — tidak akan tahu.
+                medan.dispatchEvent(new Event('input', { bubbles: true }));
+                medan.dispatchEvent(new Event('change', { bubbles: true }));
+
+                modal.classList.add('hidden');
+
+                if (butang.dataset.imbasHantar) {
+                    medan.form?.submit();
+                }
+            } catch {
+                // Bingkai yang tidak dapat dibaca bukan ralat; bingkai
+                // seterusnya datang dalam beberapa milisaat.
+            }
+        }
+
+        function henti() {
+            clearInterval(pemasa);
+            pemasa = null;
+
+            if (strim) {
+                strim.getTracks().forEach((trek) => trek.stop());
+                strim = null;
+            }
+
+            video.srcObject = null;
+        }
+    });
+}
+
+/**
  * Objek gudang 3D pada halaman auth condong mengikut kedudukan tetikus.
  *
  * Setiap objek membawa data-dalam, iaitu faktor kedalamannya. Objek yang
@@ -205,6 +376,8 @@ document.addEventListener('DOMContentLoaded', () => {
     mulakanModal();
     mulakanAmaran();
     mulakanTunjukKataLaluan();
+    mulakanSebabPergerakan();
+    mulakanPengimbasBarcode();
     mulakanHiasanParallax();
 
     // Modal stok pantas dibuka semula selepas ralat pengesahan supaya input kekal kelihatan.

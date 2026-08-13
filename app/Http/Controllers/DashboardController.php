@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Location;
 use App\Models\Product;
+use App\Models\ProductBatch;
 use App\Models\StockCount;
 use App\Models\StockMovement;
 use App\Models\Supplier;
@@ -21,9 +23,24 @@ class DashboardController extends Controller
             'jumlahPembekal' => Supplier::count(),
             'nilaiStok' => Product::query()->selectRaw('SUM(harga_kos * stok) as nilai')->value('nilai') ?? 0,
             'stokRendah' => Product::stokRendah()->with('category')->orderBy('stok')->limit(10)->get(),
+            // Lot yang sudah luput disenaraikan sekali dengan yang hampir luput:
+            // barang yang terlepas tarikhnya masih di rak sehingga seseorang
+            // mengeluarkannya, jadi ia perlu kekal kelihatan.
+            'batchLuput' => ProductBatch::query()
+                ->adaBaki()
+                ->hampirLuput()
+                ->with('product')
+                ->orderBy('tarikh_luput')
+                ->limit(10)
+                ->get(),
             'pergerakanTerkini' => StockMovement::with(['product', 'user'])->latest()->limit(10)->get(),
             'ringkasanBulanan' => $this->ringkasanBulanan(),
             'produkAktif' => Product::where('aktif', true)->orderBy('nama')->get(),
+            // Borang pantas menghantar ke laluan yang sama seperti borang penuh,
+            // jadi ia perlu senarai sebab dan lokasi yang sama juga.
+            'sebabPilihan' => StockMovementController::sebabPilihan(),
+            'locations' => Location::aktif()->orderByDesc('lalai')->orderBy('nama')->get(),
+            'lokasiLalai' => Location::lalai()?->id,
             'sesiKiraan' => StockCount::query()
                 ->with('pembuka')
                 ->withCount([

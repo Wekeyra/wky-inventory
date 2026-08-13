@@ -17,6 +17,7 @@ class StockCount extends Model
         'kod',
         'status',
         'category_id',
+        'location_id',
         'dibuka_oleh',
         'disahkan_oleh',
         'disahkan_pada',
@@ -36,6 +37,11 @@ class StockCount extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class);
     }
 
     public function pembuka(): BelongsTo

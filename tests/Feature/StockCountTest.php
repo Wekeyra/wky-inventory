@@ -232,7 +232,7 @@ class StockCountTest extends TestCase
         $this->actingAs($admin)->put("/kiraan-stok/{$sesi->id}", ['kuantiti' => [$item->id => 50]]);
 
         // Stok berubah selepas sesi dibuka tetapi sebelum disahkan.
-        $this->actingAs($admin)->post('/stock', ['product_id' => $produk->id, 'jenis' => 'keluar', 'kuantiti' => 5]);
+        $this->actingAs($admin)->post('/stock', ['product_id' => $produk->id, 'jenis' => 'keluar', 'sebab' => 'jualan', 'kuantiti' => 5]);
 
         $this->actingAs($admin)->post("/kiraan-stok/{$sesi->id}/sahkan");
 

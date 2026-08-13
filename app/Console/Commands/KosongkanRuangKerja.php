@@ -7,6 +7,7 @@ use App\Models\InvoiceScan;
 use App\Models\Product;
 use App\Models\StockCount;
 use App\Models\StockMovement;
+use App\Models\StockTransfer;
 use App\Models\Supplier;
 use App\Models\Workspace;
 use Illuminate\Console\Command;
@@ -81,6 +82,7 @@ class KosongkanRuangKerja extends Command
             'Pembekal' => $this->skop(Supplier::class, $ruang)->count(),
             'Pergerakan stok' => $this->skop(StockMovement::class, $ruang)->count(),
             'Sesi kiraan stok' => $this->skop(StockCount::class, $ruang)->count(),
+            'Pemindahan stok' => $this->skop(StockTransfer::class, $ruang)->count(),
             'Imbasan invois' => $this->skop(InvoiceScan::class, $ruang)->count(),
         ];
     }
@@ -95,13 +97,19 @@ class KosongkanRuangKerja extends Command
             ->each(fn (string $laluan) => Storage::disk('local')->delete($laluan));
 
         DB::transaction(function () use ($ruang) {
-            // Baris anak dibuang melalui cascade pada kunci asing induknya.
+            // Baris anak dibuang melalui cascade pada kunci asing induknya —
+            // termasuk baki gudang dan batch, yang bergantung pada produk.
             $this->skop(InvoiceScan::class, $ruang)->delete();
             $this->skop(StockCount::class, $ruang)->delete();
+            $this->skop(StockTransfer::class, $ruang)->delete();
             $this->skop(StockMovement::class, $ruang)->delete();
             $this->skop(Product::class, $ruang)->delete();
             $this->skop(Category::class, $ruang)->delete();
             $this->skop(Supplier::class, $ruang)->delete();
+
+            // Gudang tidak dibuang. Ia struktur ruang kerja dan bukan data
+            // inventori — sama seperti akaun penggunanya — dan setiap ruang
+            // kerja mesti sentiasa ada satu gudang lalai untuk menerima stok.
         });
     }
 

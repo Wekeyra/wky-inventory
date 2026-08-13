@@ -15,8 +15,10 @@
         ['products.index', 'products.*', 'kotak', 'nav.produk'],
         ['categories.index', 'categories.*', 'tag', 'nav.kategori'],
         ['suppliers.index', 'suppliers.*', 'trak', 'nav.pembekal'],
+        ['locations.index', 'locations.*', 'gudang', 'nav.lokasi'],
         ['invoice-scans.index', 'invoice-scans.*', 'imbas', 'nav.imbas_invois'],
         ['stock-counts.index', 'stock-counts.*', 'papan-klip', 'nav.kiraan_stok'],
+        ['transfers.index', 'transfers.*', 'pindah', 'nav.pindah_stok'],
         ['stock.index', 'stock.*', 'anak-panah-dua-arah', 'nav.pergerakan_stok'],
         ['reports.monthly', 'reports.*', 'dokumen-carta', 'nav.laporan_bulanan'],
     ];
