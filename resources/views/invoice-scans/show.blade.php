@@ -182,6 +182,21 @@
                                         </option>
                                     @endforeach
                                 </select>
+
+                                {{--
+                                    Baris yang tiada padanan selalunya bermakna produk itu
+                                    memang belum wujud, bukan pengguna terlepas pandang.
+                                    Pautan ini membuka borang produk dengan kod, nama dan
+                                    harga daripada invois sudah terisi, dan memautkannya
+                                    semula ke baris ini selepas disimpan.
+                                --}}
+                                @unless ($item->sudahPadan())
+                                    <a href="{{ route('products.create', ['baris_imbasan' => $item->id]) }}"
+                                       class="mt-1.5 inline-flex items-center gap-1 text-xs text-malap hover:text-merah">
+                                        <x-ikon nama="tambah" kelas="size-3.5" />
+                                        {{ __('wky.imbas.cipta_produk') }}
+                                    </a>
+                                @endunless
                             @else
                                 {{ $item->product?->nama ?? __('wky.umum.kosong') }}
                             @endif

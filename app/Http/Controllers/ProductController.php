@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\InvoiceScanItem;
 use App\Models\Product;
 use App\Models\Supplier;
 use Illuminate\Contracts\View\View;
@@ -34,10 +35,27 @@ class ProductController extends Controller
         ]);
     }
 
-    public function create(): View
+    /**
+     * Borang produk baharu, yang boleh dimulakan daripada satu baris imbasan
+     * invois yang tiada padanan.
+     *
+     * Nilai awal dibaca daripada baris itu sendiri dan bukan daripada parameter
+     * URL, supaya apa yang terisi memang apa yang AI baca dan bukan apa yang
+     * disuap ke dalam pautan.
+     */
+    public function create(Request $request): View
     {
+        $baris = $this->barisImbasan($request->integer('baris_imbasan'));
+
         return view('products.form', [
-            'product' => new Product(['unit' => 'unit', 'aktif' => true]),
+            'product' => new Product([
+                'sku' => $baris?->sku_invois,
+                'nama' => $baris?->nama_invois,
+                'harga_kos' => $baris?->harga_unit,
+                'unit' => 'unit',
+                'aktif' => true,
+            ]),
+            'barisImbasan' => $baris,
             'categories' => Category::orderBy('nama')->get(),
             'suppliers' => Supplier::orderBy('nama')->get(),
         ]);
@@ -45,7 +63,19 @@ class ProductController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        Product::create($this->validated($request));
+        $product = Product::create($this->validated($request));
+
+        $baris = $this->barisImbasan($request->integer('baris_imbasan'));
+
+        // Produk yang baharu dicipta tidak akan dipadankan sendiri: padanan
+        // berlaku sekali sahaja semasa AI membaca invois. Tanpa langkah ini
+        // pengguna terpaksa memilih semula produk yang baru sahaja dia cipta.
+        if ($baris !== null) {
+            $baris->update(['product_id' => $product->id, 'kaedah_padanan' => 'manual']);
+
+            return redirect()->route('invoice-scans.show', $baris->invoice_scan_id)
+                ->with('status', __('wky.flash.produk_tambah_padan', ['nama' => $product->nama]));
+        }
 
         return redirect()->route('products.index')->with('status', __('wky.flash.produk_tambah'));
     }
@@ -64,6 +94,7 @@ class ProductController extends Controller
     {
         return view('products.form', [
             'product' => $product,
+            'barisImbasan' => null,
             'categories' => Category::orderBy('nama')->get(),
             'suppliers' => Supplier::orderBy('nama')->get(),
         ]);
@@ -81,6 +112,29 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route('products.index')->with('status', __('wky.flash.produk_padam'));
+    }
+
+    /**
+     * Baris imbasan yang sah untuk dipautkan dengan produk baharu.
+     *
+     * Skop global pada InvoiceScan menapis mengikut ruang kerja, jadi whereHas
+     * di sini menyebabkan baris milik syarikat lain langsung tidak dijumpai —
+     * id yang disuap terus ke dalam URL tidak mendedahkan mahupun mengubah
+     * apa-apa.
+     *
+     * Hanya imbasan draf diterima. Imbasan yang telah disahkan sudah menjana
+     * pergerakan stok, dan menukar padanannya selepas itu akan menjadikan
+     * rekod imbasan tidak lagi sepadan dengan stok yang telah direkodkan.
+     */
+    private function barisImbasan(?int $id): ?InvoiceScanItem
+    {
+        if (! $id) {
+            return null;
+        }
+
+        return InvoiceScanItem::whereKey($id)
+            ->whereHas('invoiceScan', fn ($q) => $q->where('status', 'draf'))
+            ->first();
     }
 
     private function validated(Request $request, ?Product $product = null): array

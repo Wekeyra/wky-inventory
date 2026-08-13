@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\InvoiceScan;
+use App\Models\InvoiceScanItem;
 use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\Supplier;
@@ -87,6 +88,101 @@ class InvoiceScanTest extends TestCase
         return $this->actingAs($pengguna)->post('/imbas-invois', [
             'invois' => UploadedFile::fake()->image('invois.jpg'),
         ]);
+    }
+
+    /**
+     * Baris tanpa padanan selalunya bermakna produk itu memang belum wujud,
+     * jadi borang produk boleh dimulakan terus daripada baris invois.
+     */
+    public function test_borang_produk_boleh_dimulakan_daripada_baris_tanpa_padanan(): void
+    {
+        $admin = $this->admin();
+
+        $this->palsukanBacaan(new ExtractedInvoice(null, null, null, [
+            new ExtractedLine('142601 010105', 'ABBA Pink Flat File', 20, 2.20),
+        ]));
+
+        $this->muatNaik($admin);
+        $baris = InvoiceScanItem::firstOrFail();
+        $this->assertNull($baris->product_id, 'Baris ini sepatutnya tiada padanan.');
+
+        $this->actingAs($admin)->get("/products/create?baris_imbasan={$baris->id}")
+            ->assertOk()
+            ->assertSee('value="142601 010105"', false)
+            ->assertSee('value="ABBA Pink Flat File"', false)
+            ->assertSee('value="2.20"', false)
+            ->assertSee('name="baris_imbasan" value="'.$baris->id.'"', false);
+    }
+
+    /**
+     * Padanan berlaku sekali sahaja semasa AI membaca invois, jadi produk yang
+     * baharu dicipta tidak akan dipadankan sendiri. Tanpa pemautan ini pengguna
+     * terpaksa memilih semula produk yang baru sahaja dia cipta.
+     */
+    public function test_produk_yang_dicipta_dari_baris_terus_dipautkan_kepada_baris_itu(): void
+    {
+        $admin = $this->admin();
+
+        $this->palsukanBacaan(new ExtractedInvoice(null, null, null, [
+            new ExtractedLine('142601 010105', 'ABBA Pink Flat File', 20, 2.20),
+        ]));
+
+        $this->muatNaik($admin);
+        $baris = InvoiceScanItem::firstOrFail();
+
+        $this->actingAs($admin)->post('/products', [
+            'sku' => '142601 010105',
+            'nama' => 'ABBA Pink Flat File',
+            'unit' => 'unit',
+            'harga_kos' => 2.20,
+            'harga_jual' => 3.50,
+            'stok_minimum' => 5,
+            'baris_imbasan' => $baris->id,
+        ])->assertRedirect("/imbas-invois/{$baris->invoice_scan_id}");
+
+        $produk = Product::where('sku', '142601 010105')->firstOrFail();
+
+        $baris->refresh();
+        $this->assertSame($produk->id, $baris->product_id);
+        $this->assertSame('manual', $baris->kaedah_padanan, 'Padanan daripada orang ditanda manual, bukan datang daripada AI.');
+    }
+
+    /**
+     * Id baris yang disuap terus ke dalam borang tidak boleh menyentuh imbasan
+     * syarikat lain. Produk tetap dicipta dalam ruang kerja pencipta, tetapi
+     * baris syarikat lain itu kekal tidak berubah.
+     */
+    public function test_baris_imbasan_syarikat_lain_tidak_boleh_dipautkan(): void
+    {
+        $admin = $this->admin();
+
+        $this->palsukanBacaan(new ExtractedInvoice(null, null, null, [
+            new ExtractedLine('X-1', 'Barang Syarikat A', 3, 1.00),
+        ]));
+
+        $this->muatNaik($admin);
+        $barisSyarikatA = InvoiceScanItem::firstOrFail();
+
+        $syarikatB = Workspace::create(['nama' => 'Syarikat B']);
+        $adminB = User::create([
+            'workspace_id' => $syarikatB->id,
+            'name' => 'Admin B',
+            'email' => 'admin@syarikat-b.test',
+            'peranan' => 'admin',
+            'password' => 'password123',
+        ]);
+
+        $this->actingAs($adminB)->post('/products', [
+            'sku' => 'CUBA-1',
+            'nama' => 'Cuba Curi',
+            'unit' => 'unit',
+            'harga_kos' => 1,
+            'harga_jual' => 2,
+            'stok_minimum' => 0,
+            'baris_imbasan' => $barisSyarikatA->id,
+        ])->assertRedirect('/products');
+
+        $this->assertNull($barisSyarikatA->fresh()->product_id, 'Baris syarikat lain mesti kekal tidak disentuh.');
     }
 
     public function test_baris_dipadankan_mengikut_sku(): void

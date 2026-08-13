@@ -379,6 +379,7 @@ return [
         'perlu_dipilih' => 'Perlu dipilih',
         'dilangkau' => 'Dilangkau',
         'pilih_produk' => '— Pilih produk —',
+        'cipta_produk' => 'Cipta produk dari baris ini',
         'lihat_invois' => 'Lihat invois asal',
         'simpan_pembetulan' => 'Simpan Pembetulan',
         'sahkan_rekod' => 'Sahkan & Rekod Stok Masuk',
@@ -453,6 +454,7 @@ return [
         'pembekal_digunakan' => 'Pembekal ini masih dikaitkan dengan produk dan tidak boleh dipadam.',
 
         'produk_tambah' => 'Produk berjaya ditambah.',
+        'produk_tambah_padan' => 'Produk :nama ditambah dan terus dipadankan dengan baris invois itu.',
         'produk_kemas_kini' => 'Produk berjaya dikemas kini.',
         'produk_padam' => 'Produk berjaya dipadam.',
 

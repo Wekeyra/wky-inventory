@@ -379,6 +379,7 @@ return [
         'perlu_dipilih' => 'Needs selection',
         'dilangkau' => 'Skipped',
         'pilih_produk' => '— Select a product —',
+        'cipta_produk' => 'Create product from this line',
         'lihat_invois' => 'View original invoice',
         'simpan_pembetulan' => 'Save Corrections',
         'sahkan_rekod' => 'Confirm & Record Stock In',
@@ -453,6 +454,7 @@ return [
         'pembekal_digunakan' => 'This supplier is still linked to products and cannot be deleted.',
 
         'produk_tambah' => 'Product added successfully.',
+        'produk_tambah_padan' => 'Product :nama added and matched to the invoice line straight away.',
         'produk_kemas_kini' => 'Product updated successfully.',
         'produk_padam' => 'Product deleted successfully.',
 

@@ -7,6 +7,16 @@
         @csrf
         @if ($product->exists) @method('PUT') @endif
 
+        {{--
+            Borang dihantar ke products.store, bukan ke URL borang ini, jadi
+            parameter ?baris_imbasan= tidak ikut sama. Ia dibawa sebagai medan
+            tersembunyi supaya controller tahu baris mana yang perlu dipautkan
+            dengan produk baharu itu.
+        --}}
+        @if ($barisImbasan)
+            <input type="hidden" name="baris_imbasan" value="{{ $barisImbasan->id }}">
+        @endif
+
         <div class="kad kad-badan lg:col-span-2">
             <div class="grid gap-4 sm:grid-cols-3">
                 <div>
