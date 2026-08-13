@@ -388,7 +388,6 @@ return [
         'tiada_imbasan' => 'No invoice scans yet. Click :butang to start.',
         'nota_pengesahan' => 'Confirming generates one :masuk stock movement for each matched line that is not skipped, referencing :rujukan. Unmatched lines are not touched.',
         'catatan_pergerakan' => 'Recorded from invoice scan :kod.',
-        'sahkan_confirm' => 'Confirm scan :kod? Stock for every matched line will be increased and this cannot be undone.',
         'sahkan_padam' => 'Delete scan :kod? The invoice photo is removed too and this cannot be undone.',
         'dibaca_oleh_pada' => ':nama on :tarikh',
 

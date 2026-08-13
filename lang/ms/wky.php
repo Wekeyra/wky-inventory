@@ -388,7 +388,6 @@ return [
         'tiada_imbasan' => 'Belum ada imbasan invois. Klik :butang untuk mula.',
         'nota_pengesahan' => 'Pengesahan menjana satu pergerakan stok jenis :masuk bagi setiap baris yang dipadankan dan tidak dilangkau, dengan rujukan :rujukan. Baris tanpa padanan tidak akan disentuh.',
         'catatan_pergerakan' => 'Direkod daripada imbasan invois :kod.',
-        'sahkan_confirm' => 'Sahkan imbasan :kod? Stok bagi setiap baris yang dipadankan akan ditambah dan tindakan ini tidak boleh dibatalkan.',
         'sahkan_padam' => 'Padam imbasan :kod? Gambar invois turut dibuang dan tindakan ini tidak boleh dibatalkan.',
         'dibaca_oleh_pada' => ':nama pada :tarikh',
 

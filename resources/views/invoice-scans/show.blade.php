@@ -239,8 +239,18 @@
 
     @if ($imbasan->isDraf())
         <div class="mt-4 flex flex-wrap gap-2">
-            <form method="POST" action="{{ route('invoice-scans.confirm', $imbasan) }}"
-                  onsubmit="return confirm('{{ __('wky.imbas.sahkan_confirm', ['kod' => $imbasan->kod]) }}')">
+            {{--
+                Tiada soalan pengesahan di sini dengan sengaja. Halaman ini
+                sendiri sudah menjadi skrin semakan: setiap baris, kuantiti dan
+                produknya terpampang di atas, dan butang ini bertulis apa yang
+                akan berlaku. Satu kotak dialog yang bertanya perkara yang sama
+                sekali lagi hanya menjadi kebiasaan yang ditekan tanpa dibaca.
+
+                Butang Padam di sebelahnya tetap bertanya, kerana tindakan itu
+                membuang kerja yang sudah ada dan tiada skrin yang menunjukkan
+                apa yang bakal hilang.
+            --}}
+            <form method="POST" action="{{ route('invoice-scans.confirm', $imbasan) }}">
                 @csrf
                 <button type="submit" class="btn-utama">
                     <x-ikon nama="tanda-semak" kelas="size-4" /> {{ __('wky.imbas.sahkan_rekod') }}

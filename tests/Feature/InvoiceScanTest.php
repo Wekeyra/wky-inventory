@@ -91,6 +91,29 @@ class InvoiceScanTest extends TestCase
     }
 
     /**
+     * Butang Sahkan tidak bertanya apa-apa: halaman itu sendiri sudah menjadi
+     * skrin semakan. Butang Padam pula tetap bertanya, kerana ia membuang kerja
+     * yang sudah ada tanpa sebarang skrin yang menunjukkan apa yang hilang.
+     */
+    public function test_butang_sahkan_tidak_bertanya_tetapi_butang_padam_masih_bertanya(): void
+    {
+        $admin = $this->admin();
+
+        $this->palsukanBacaan(new ExtractedInvoice(null, null, null, [
+            new ExtractedLine('A-1', 'Barang A', 5, 1.00),
+        ]));
+
+        $this->muatNaik($admin);
+        $imbasan = InvoiceScan::latest('id')->firstOrFail();
+
+        $halaman = $this->actingAs($admin)->get("/imbas-invois/{$imbasan->id}")->assertOk();
+
+        $halaman->assertDontSee('Confirm scan '.$imbasan->kod);
+        $halaman->assertDontSee('Sahkan imbasan '.$imbasan->kod);
+        $halaman->assertSee('Padam imbasan '.$imbasan->kod, false);
+    }
+
+    /**
      * Matlamat aliran ini: client hanya mengambil gambar dan menekan Confirm.
      * Produk yang belum wujud dicipta terus supaya imbasan sampai ke skrin
      * semakan dalam keadaan sedia direkod.
