@@ -261,24 +261,28 @@
     }
 
     /*
-     | Kotak inventori 3D pada latar halaman log masuk.
+     | Hiasan gudang 3D pada latar halaman auth: kotak, rak, kod bar, forklift.
      |
-     | Ukurannya dalam vmin dan bukan rem, supaya kotak itu mengecil bersama
-     | skrin dan tidak menolak borang keluar pandangan pada telefon.
+     | Semua ukuran dalam vmin dan bukan rem, supaya objek mengecil bersama
+     | skrin dan tidak bertindih dengan borang pada telefon.
      */
-    .kotak-3d {
-        @apply pointer-events-none fixed inset-0 flex items-center justify-center overflow-hidden;
+    .hiasan-3d {
+        @apply pointer-events-none fixed inset-0 overflow-hidden;
+    }
 
-        --kotak-l: clamp(16rem, 44vmin, 34rem);
-        --kotak-t: clamp(11rem, 30vmin, 23rem);
-        --kotak-d: clamp(10rem, 28vmin, 22rem);
-
-        /*
-         | Perspektif yang lebih pendek meletakkan kamera lebih dekat, jadi
-         | rusuk yang jauh mengecil lebih tajam dan kotak nampak betul-betul di
-         | hadapan pengguna dan bukan jauh di belakang halaman.
-         */
-        perspective: 1000px;
+    /*
+     | Setiap objek membawa perspektifnya sendiri. Satu perspektif dikongsi pada
+     | bekas induk akan mengukur semua objek dari titik yang sama, jadi objek di
+     | tepi skrin terherot teruk kerana dipandang dari sudut yang jauh daripada
+     | pusatnya sendiri.
+     |
+     | translate digunakan dan bukan transform, supaya sifat transform kekal
+     | bebas untuk lapisan condong di dalamnya.
+     */
+    .objek {
+        position: absolute;
+        translate: -50% -50%;
+        perspective: 900px;
     }
 
     /*
@@ -286,23 +290,73 @@
      | tetikus, jadi tiada animasi CSS pada elemen ini — transform ialah satu
      | sifat, dan dua penulis akan bergaduh memperebutkannya.
      |
-     | Nilai di bawah ialah keadaan rehat, iaitu apa yang dilihat sebelum
-     | tetikus digerakkan dan apa yang kekal pada peranti sentuh.
+     | Nilai di bawah ialah keadaan rehat: apa yang dilihat sebelum tetikus
+     | digerakkan, dan apa yang kekal pada peranti sentuh.
      */
-    .kotak-3d-pentas {
-        position: relative;
-        width: var(--kotak-l);
-        height: var(--kotak-t);
+    .objek-condong {
+        position: absolute;
+        inset: 0;
         transform-style: preserve-3d;
         transform: rotateX(-14deg);
     }
 
     /* Lapisan putaran perlahan, berasingan daripada condongan tetikus. */
-    .kotak-3d-putar {
+    .objek-putar {
         position: absolute;
         inset: 0;
         transform-style: preserve-3d;
-        animation: kotak-putar 60s linear infinite;
+        animation: kotak-putar var(--laju, 60s) linear infinite;
+    }
+
+    /*
+     | Kedudukan keempat-empat objek: berselerak ke penjuru supaya bahagian
+     | tengah kekal lapang untuk borang log masuk.
+     */
+    .objek-kotak {
+        left: 15%;
+        top: 34%;
+        width: var(--kotak-l);
+        height: var(--kotak-t);
+
+        --kotak-l: clamp(8rem, 24vmin, 19rem);
+        --kotak-t: clamp(5.5rem, 16vmin, 12.5rem);
+        --kotak-d: clamp(5rem, 15vmin, 11.5rem);
+        --laju: 64s;
+    }
+
+    .objek-rak {
+        left: 85%;
+        top: 30%;
+        width: var(--rak-l);
+        height: var(--rak-t);
+
+        --rak-l: clamp(7rem, 21vmin, 16rem);
+        --rak-t: clamp(7.5rem, 23vmin, 17rem);
+        --rak-d: clamp(3.5rem, 10vmin, 7.5rem);
+        --laju: 82s;
+    }
+
+    .objek-kodbar {
+        left: 23%;
+        top: 79%;
+        width: var(--kb-l);
+        height: var(--kb-t);
+
+        --kb-l: clamp(5.5rem, 15vmin, 11rem);
+        --kb-t: clamp(3.2rem, 9vmin, 6.5rem);
+        --laju: 46s;
+    }
+
+    .objek-forklift {
+        left: 79%;
+        top: 77%;
+        width: var(--fl-l);
+        height: var(--fl-t);
+
+        --fl-l: clamp(7.5rem, 21vmin, 16rem);
+        --fl-t: clamp(5.5rem, 15vmin, 11rem);
+        --fl-d: clamp(3rem, 8vmin, 6rem);
+        --laju: 72s;
     }
 
     /*
@@ -437,6 +491,189 @@
         left: 52%;
     }
 
+    /*
+     | Rak gudang: dua sisi tegak dan tiga tingkat mendatar.
+     |
+     | Tingkat diletakkan dengan translateZ selepas rotateX(-90deg), jadi nilai
+     | positif menurunkannya dan nilai negatif menaikkannya — sama seperti
+     | lantai kotak, cuma pada tiga aras.
+     */
+    .rak-sisi {
+        position: absolute;
+        top: 0;
+        height: var(--rak-t);
+        left: calc((var(--rak-l) - var(--rak-d)) / 2);
+        width: var(--rak-d);
+        border: 1px solid rgba(248, 113, 113, 0.16);
+        background: rgba(220, 38, 38, 0.04);
+    }
+
+    .rak-sisi-kiri {
+        transform: rotateY(-90deg) translateZ(calc(var(--rak-l) / 2));
+    }
+
+    .rak-sisi-kanan {
+        transform: rotateY(90deg) translateZ(calc(var(--rak-l) / 2));
+    }
+
+    .rak-tingkat {
+        position: absolute;
+        left: 0;
+        width: var(--rak-l);
+        height: var(--rak-d);
+        top: calc((var(--rak-t) - var(--rak-d)) / 2);
+        border: 1px solid rgba(248, 113, 113, 0.15);
+        background: rgba(220, 38, 38, 0.055);
+    }
+
+    .rak-tingkat-atas {
+        transform: rotateX(-90deg) translateZ(calc(var(--rak-t) / -2));
+    }
+
+    .rak-tingkat-tengah {
+        transform: rotateX(-90deg) translateZ(0);
+    }
+
+    .rak-tingkat-bawah {
+        transform: rotateX(-90deg) translateZ(calc(var(--rak-t) / 2));
+    }
+
+    /* Sekotak kecil berdiri di atas tingkat tengah. */
+    .rak-muatan {
+        position: absolute;
+        left: 24%;
+        width: 32%;
+        top: 28%;
+        height: 22%;
+        border: 1px solid rgba(248, 113, 113, 0.2);
+        background: rgba(239, 68, 68, 0.085);
+        transform: translateZ(calc(var(--rak-d) / 2));
+    }
+
+    /* Label kod bar: dua satah nipis dengan jalur pada muka hadapan. */
+    .kodbar-muka {
+        position: absolute;
+        inset: 0;
+        border: 1px solid rgba(248, 113, 113, 0.2);
+        background: rgba(220, 38, 38, 0.05);
+        transform: translateZ(0.3rem);
+    }
+
+    .kodbar-belakang {
+        background: rgba(220, 38, 38, 0.035);
+        transform: translateZ(-0.3rem);
+    }
+
+    .kodbar-jalur {
+        position: absolute;
+        inset: 15% 9% 32% 9%;
+
+        /* Lebar jalur yang tidak sekata; jalur sama lebar nampak seperti pagar. */
+        background: repeating-linear-gradient(
+            90deg,
+            rgba(248, 113, 113, 0.3) 0,
+            rgba(248, 113, 113, 0.3) 2.5%,
+            transparent 2.5%,
+            transparent 5%,
+            rgba(248, 113, 113, 0.3) 5%,
+            rgba(248, 113, 113, 0.3) 6%,
+            transparent 6%,
+            transparent 9%,
+            rgba(248, 113, 113, 0.3) 9%,
+            rgba(248, 113, 113, 0.3) 11.5%,
+            transparent 11.5%,
+            transparent 13%
+        );
+    }
+
+    .kodbar-nombor {
+        position: absolute;
+        right: 28%;
+        bottom: 15%;
+        left: 28%;
+        height: 9%;
+        background: rgba(248, 113, 113, 0.16);
+    }
+
+    /*
+     | Forklift dari sisi. Badannya dua satah pada jarak --fl-d antara satu sama
+     | lain, dan clip-path memberikannya bentuk kabin tinggi di belakang dengan
+     | hidung rendah di hadapan. Tiang dan garpu diletak pada Z yang lebih
+     | rapat, jadi ia kelihatan terselit di antara kedua-dua sisi badan.
+     */
+    .fl-badan {
+        position: absolute;
+        left: 38%;
+        width: 60%;
+        top: 26%;
+        height: 52%;
+        border: 1px solid rgba(248, 113, 113, 0.18);
+        background: rgba(220, 38, 38, 0.06);
+        clip-path: polygon(0 36%, 44% 36%, 54% 0, 100% 0, 100% 100%, 0 100%);
+    }
+
+    .fl-badan-kiri {
+        transform: translateZ(calc(var(--fl-d) / -2));
+    }
+
+    .fl-badan-kanan {
+        transform: translateZ(calc(var(--fl-d) / 2));
+    }
+
+    .fl-tiang {
+        position: absolute;
+        left: 31%;
+        width: 4%;
+        top: 5%;
+        height: 75%;
+        border: 1px solid rgba(248, 113, 113, 0.2);
+        background: rgba(239, 68, 68, 0.14);
+    }
+
+    .fl-tiang-kiri {
+        transform: translateZ(calc(var(--fl-d) / -2.8));
+    }
+
+    .fl-tiang-kanan {
+        transform: translateZ(calc(var(--fl-d) / 2.8));
+    }
+
+    .fl-garpu {
+        position: absolute;
+        left: 5%;
+        width: 27%;
+        top: 73%;
+        height: 4%;
+        background: rgba(239, 68, 68, 0.17);
+    }
+
+    .fl-garpu-kiri {
+        transform: translateZ(calc(var(--fl-d) / -3.2));
+    }
+
+    .fl-garpu-kanan {
+        transform: translateZ(calc(var(--fl-d) / 3.2));
+    }
+
+    .fl-roda {
+        position: absolute;
+        top: 66%;
+        width: 15%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        border: 1px solid rgba(248, 113, 113, 0.22);
+        background: rgba(220, 38, 38, 0.07);
+        transform: translateZ(calc(var(--fl-d) / 2));
+    }
+
+    .fl-roda-depan {
+        left: 41%;
+    }
+
+    .fl-roda-belakang {
+        left: 76%;
+    }
+
     @keyframes kotak-putar {
         from {
             transform: rotateY(0deg);
@@ -455,7 +692,7 @@
      | yang dicetuskan tetikus tidak dapat dihalang daripada sini.
      */
     @media (prefers-reduced-motion: reduce) {
-        .kotak-3d-putar {
+        .objek-putar {
             animation: none;
             transform: rotateY(-28deg);
         }

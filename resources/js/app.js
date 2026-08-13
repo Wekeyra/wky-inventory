@@ -134,23 +134,33 @@ function mulakanTunjukKataLaluan() {
 }
 
 /**
- * Kotak 3D pada halaman auth condong mengikut kedudukan tetikus.
+ * Objek gudang 3D pada halaman auth condong mengikut kedudukan tetikus.
+ *
+ * Setiap objek membawa data-dalam, iaitu faktor kedalamannya. Objek yang
+ * sepatutnya terasa lebih dekat bergerak lebih banyak daripada objek yang jauh
+ * — itu yang menjadikannya parallax dan bukan sekadar empat benda bergoyang
+ * serentak dengan sudut yang sama.
  *
  * Sudut yang dikira tidak digunakan terus. Nilai semasa dihanyutkan ke arah
  * sasaran sedikit demi sedikit pada setiap bingkai, kerana melompat terus ke
- * sudut tetikus menjadikan kotak itu tersentak-sentak mengikut setiap gerakan
- * kecil dan bukan bergerak seperti benda yang ada berat.
+ * sudut tetikus menjadikan objek tersentak-sentak mengikut setiap gerakan kecil
+ * dan bukan bergerak seperti benda yang ada berat.
  */
-function mulakanKotakParallax() {
-    const pentas = document.querySelector('.kotak-3d-pentas');
+function mulakanHiasanParallax() {
+    const objek = [...document.querySelectorAll('.objek-condong')];
 
-    if (! pentas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (objek.length === 0 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         return;
     }
 
-    const HAD = 15;      // Sudut condong maksimum, dalam darjah.
+    const HAD = 14;      // Sudut condong maksimum, dalam darjah.
     const CONDONG = -14; // Sudut rehat, sama seperti yang ditetapkan dalam CSS.
     const HANYUT = 0.07; // Pecahan jarak yang ditempuh setiap bingkai.
+
+    // Faktor kedalaman dibaca sekali di sini dan bukan pada setiap bingkai;
+    // membaca atribut DOM dalam gelung animasi ialah kerja yang berulang tanpa
+    // sebab, kerana nilainya tidak pernah berubah.
+    const dalam = objek.map((el) => parseFloat(el.dataset.dalam) || 1);
 
     let sasarX = 0;
     let sasarY = 0;
@@ -173,9 +183,12 @@ function mulakanKotakParallax() {
         semasaX += (sasarX - semasaX) * HANYUT;
         semasaY += (sasarY - semasaY) * HANYUT;
 
-        pentas.style.transform = `rotateX(${CONDONG + semasaX}deg) rotateY(${semasaY}deg)`;
+        objek.forEach((el, i) => {
+            el.style.transform =
+                `rotateX(${CONDONG + semasaX * dalam[i]}deg) rotateY(${semasaY * dalam[i]}deg)`;
+        });
 
-        // Gelung berhenti apabila kotak sudah cukup hampir dengan sasarannya,
+        // Gelung berhenti apabila objek sudah cukup hampir dengan sasarannya,
         // supaya tiada bingkai dikira selagi tetikus tidak bergerak.
         if (Math.abs(sasarX - semasaX) > 0.02 || Math.abs(sasarY - semasaY) > 0.02) {
             requestAnimationFrame(lukis);
@@ -192,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
     mulakanModal();
     mulakanAmaran();
     mulakanTunjukKataLaluan();
-    mulakanKotakParallax();
+    mulakanHiasanParallax();
 
     // Modal stok pantas dibuka semula selepas ralat pengesahan supaya input kekal kelihatan.
     const modalAuto = document.querySelector('[data-modal-auto]');

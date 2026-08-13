@@ -9,7 +9,7 @@
 {{-- overflow-x-hidden sahaja supaya halaman kekal boleh diskrol pada skrin pendek. --}}
 <body class="latar-log-masuk relative min-h-screen overflow-x-hidden">
     <x-latar-log-masuk />
-    <x-kotak-3d />
+    <x-hiasan-3d />
 
     <main class="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-10">
         {{--

@@ -71,22 +71,28 @@ class LandingTest extends TestCase
      * fixed, jadi ia kekal di tengah skrin semasa halaman daftar yang panjang
      * itu ditatal, bukan hanyut bersama kandungan.
      */
-    public function test_kotak_3d_pada_halaman_log_masuk_dan_daftar(): void
+    public function test_keempat_empat_objek_gudang_3d_pada_halaman_auth(): void
     {
         foreach (['/login', '/daftar'] as $halaman) {
             $balasan = $this->get($halaman)->assertOk();
 
+            foreach (['objek-kotak', 'objek-rak', 'objek-kodbar', 'objek-forklift'] as $objek) {
+                $balasan->assertSee($objek, false);
+            }
+
             // Lapisan condong dan lapisan putaran mesti berasingan: transform
             // ialah satu sifat, dan JavaScript menulis pada yang pertama
             // sementara animasi CSS menulis pada yang kedua.
-            $balasan->assertSee('kotak-3d-pentas', false);
-            $balasan->assertSee('kotak-3d-putar', false);
+            $balasan->assertSee('objek-condong', false);
+            $balasan->assertSee('objek-putar', false);
 
-            // Kotak terbuka: empat kepak, dan tiada muka atas.
+            // Kotak terbuka: ada kepak, tiada muka atas.
             $balasan->assertSee('kotak-kepak', false);
             $balasan->assertDontSee('kotak-atas', false);
 
-            $balasan->assertSee('palet-papan', false);
+            // Faktor kedalaman parallax; tanpanya keempat-empatnya bergoyang
+            // serentak dengan sudut sama dan kesan parallax hilang.
+            $balasan->assertSee('data-dalam', false);
         }
     }
 
