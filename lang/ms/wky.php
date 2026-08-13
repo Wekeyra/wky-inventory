@@ -6,6 +6,10 @@ return [
         'subtajuk' => 'Sistem Pengurusan Inventori',
     ],
 
+    'tema' => [
+        'tukar' => 'Tukar tema terang/gelap',
+    ],
+
     /*
      | Halaman pendaratan awam.
      |
@@ -178,6 +182,7 @@ return [
     ],
 
     'umum' => [
+        'langkau_ke_kandungan' => 'Langkau ke kandungan',
         'tiada' => 'Tiada',
         'kosong' => '—',
         'aktif' => 'Aktif',

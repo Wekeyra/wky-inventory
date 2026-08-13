@@ -51,41 +51,92 @@ function tutupSemuaMenu() {
 /**
  * Modal. data-modal-buka="<id>" membuka, data-modal-tutup menutup.
  * Fokus dialihkan ke medan pertama supaya borang boleh terus diisi dari papan kekunci.
+ *
+ * Dua perkara tambahan menjadikan ini selamat untuk papan kekunci:
+ * - elemenTerakhirFokus menyimpan butang yang membuka modal, dan fokus
+ *   dikembalikan ke situ apabila modal ditutup (Escape, klik latar atau
+ *   butang Batal) — tanpa itu fokus tercicir ke <body>.
+ * - perangkapFokus menahan Tab di dalam modal semasa ia terbuka, supaya
+ *   pengguna papan kekunci tidak boleh Tab ke kandungan di belakangnya
+ *   sementara modal masih menutupinya.
  */
+let elemenTerakhirFokus = null;
+
 function mulakanModal() {
     document.querySelectorAll('[data-modal-buka]').forEach((butang) => {
-        butang.addEventListener('click', () => bukaModal(butang.dataset.modalBuka));
+        butang.addEventListener('click', () => bukaModal(butang.dataset.modalBuka, butang));
     });
 
     document.querySelectorAll('[data-modal-tutup]').forEach((butang) => {
-        butang.addEventListener('click', () => butang.closest('[data-modal]')?.classList.add('hidden'));
+        butang.addEventListener('click', () => tutupModal(butang.closest('[data-modal]')));
     });
 
     document.querySelectorAll('[data-modal]').forEach((modal) => {
         // Klik pada latar gelap di luar kotak dialog menutup modal.
         modal.addEventListener('click', (peristiwa) => {
             if (peristiwa.target === modal) {
-                modal.classList.add('hidden');
+                tutupModal(modal);
+            }
+        });
+
+        modal.addEventListener('keydown', (peristiwa) => {
+            if (peristiwa.key === 'Tab') {
+                perangkapFokus(modal, peristiwa);
             }
         });
     });
 
     document.addEventListener('keydown', (peristiwa) => {
         if (peristiwa.key === 'Escape') {
-            document.querySelectorAll('[data-modal]:not(.hidden)').forEach((modal) => modal.classList.add('hidden'));
+            document.querySelectorAll('[data-modal]:not(.hidden)').forEach(tutupModal);
         }
     });
 }
 
-function bukaModal(id) {
+function bukaModal(id, pencetus = null) {
     const modal = document.getElementById(id);
 
     if (! modal) {
         return;
     }
 
+    elemenTerakhirFokus = pencetus ?? document.activeElement;
+
     modal.classList.remove('hidden');
     modal.querySelector('select, input, textarea')?.focus();
+}
+
+function tutupModal(modal) {
+    if (! modal || modal.classList.contains('hidden')) {
+        return;
+    }
+
+    modal.classList.add('hidden');
+
+    elemenTerakhirFokus?.focus?.();
+    elemenTerakhirFokus = null;
+}
+
+/** Senarai elemen boleh fokus di dalam modal, mengikut corak dialog ARIA. */
+function perangkapFokus(modal, peristiwa) {
+    const boleh = [...modal.querySelectorAll(
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )].filter((el) => el.offsetParent !== null);
+
+    if (boleh.length === 0) {
+        return;
+    }
+
+    const pertama = boleh[0];
+    const akhir = boleh[boleh.length - 1];
+
+    if (peristiwa.shiftKey && document.activeElement === pertama) {
+        peristiwa.preventDefault();
+        akhir.focus();
+    } else if (! peristiwa.shiftKey && document.activeElement === akhir) {
+        peristiwa.preventDefault();
+        pertama.focus();
+    }
 }
 
 /** Butang tutup pada mesej flash. */
@@ -279,7 +330,7 @@ function mulakanPengimbasBarcode() {
                 medan.dispatchEvent(new Event('input', { bubbles: true }));
                 medan.dispatchEvent(new Event('change', { bubbles: true }));
 
-                modal.classList.add('hidden');
+                tutupModal(modal);
 
                 if (butang.dataset.imbasHantar) {
                     medan.form?.submit();
@@ -371,6 +422,44 @@ function mulakanHiasanParallax() {
     }
 }
 
+/**
+ * Togol terang/gelap. Kelas "dark" pada <html> sudah ditetapkan lebih awal
+ * oleh skrip menyekat-fasad dalam <head> (lihat partials/skrip-tema.blade.php)
+ * supaya tiada kelipan tema salah semasa muatan halaman — fungsi ini hanya
+ * mengendalikan klik seterusnya dan menyegerakkan aria-pressed butang dengan
+ * keadaan semasa.
+ */
+function mulakanTogolTema() {
+    const butangTogol = document.querySelectorAll('[data-togol-tema]');
+
+    if (butangTogol.length === 0) {
+        return;
+    }
+
+    const segarkanButang = () => {
+        const gelap = document.documentElement.classList.contains('dark');
+        butangTogol.forEach((butang) => butang.setAttribute('aria-pressed', gelap ? 'true' : 'false'));
+    };
+
+    segarkanButang();
+
+    butangTogol.forEach((butang) => {
+        butang.addEventListener('click', () => {
+            const gelap = ! document.documentElement.classList.contains('dark');
+
+            document.documentElement.classList.toggle('dark', gelap);
+            segarkanButang();
+
+            try {
+                localStorage.setItem('wky-tema', gelap ? 'gelap' : 'terang');
+            } catch (ralat) {
+                // Mod persendirian atau storan disekat — tema masih bertukar
+                // untuk sesi ini, cuma tidak akan diingati pada lawatan seterusnya.
+            }
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     mulakanMenuJatuh();
     mulakanModal();
@@ -379,6 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
     mulakanSebabPergerakan();
     mulakanPengimbasBarcode();
     mulakanHiasanParallax();
+    mulakanTogolTema();
 
     // Modal stok pantas dibuka semula selepas ralat pengesahan supaya input kekal kelihatan.
     const modalAuto = document.querySelector('[data-modal-auto]');

@@ -37,7 +37,7 @@
 
                     <dt class="text-malap">{{ __('wky.produk.stok_semasa') }}</dt>
                     <dd>
-                        <span class="{{ $product->stok <= $product->stok_minimum ? 'lencana-merah' : 'lencana-hijau' }}">
+                        <span class="{{ $product->stok <= $product->stok_minimum ? 'lencana-bahaya' : 'lencana-hijau' }}">
                             {{ $product->stok }} {{ $product->unit }}
                         </span>
                     </dd>
@@ -72,7 +72,7 @@
         <div class="kad mb-4 lg:mb-0">
             <div class="kad-kepala">
                 <span class="flex items-center gap-2 font-semibold">
-                    <x-ikon nama="gudang" kelas="size-5 text-merah" />
+                    <x-ikon nama="gudang" kelas="size-5 text-aksen" />
                     {{ __('wky.lokasi.baki_tajuk') }}
                 </span>
                 @if ($product->bezaLokasi() !== 0)
@@ -131,7 +131,7 @@
             <div class="kad mb-4 lg:mb-0">
                 <div class="kad-kepala">
                     <span class="flex items-center gap-2 font-semibold">
-                        <x-ikon nama="lapisan" kelas="size-5 text-merah" />
+                        <x-ikon nama="lapisan" kelas="size-5 text-aksen" />
                         {{ __('wky.batch.tajuk') }}
                     </span>
                     @if ($product->bezaBatch() !== 0)
@@ -198,7 +198,7 @@
         <div class="kad">
             <div class="kad-kepala">
                 <span class="flex items-center gap-2 font-semibold">
-                    <x-ikon nama="jam" kelas="size-5 text-merah" />
+                    <x-ikon nama="jam" kelas="size-5 text-aksen" />
                     {{ __('wky.produk.sejarah_pergerakan') }}
                 </span>
             </div>

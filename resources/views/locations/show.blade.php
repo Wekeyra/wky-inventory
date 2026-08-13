@@ -5,7 +5,7 @@
     <div class="kad">
         <div class="kad-kepala">
             <span class="flex items-center gap-2 font-semibold">
-                <x-ikon nama="gudang" kelas="size-5 text-merah" />
+                <x-ikon nama="gudang" kelas="size-5 text-aksen" />
                 <code>{{ $location->kod }}</code>
                 {{ $location->nama }}
                 @if ($location->lalai)

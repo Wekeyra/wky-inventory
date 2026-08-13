@@ -22,13 +22,13 @@
          role="img" aria-label="{{ config('app.name') }}">
         <defs>
             <linearGradient id="wky-bingkai" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#fca5a5" />
-                <stop offset="55%" stop-color="#dc2626" />
-                <stop offset="100%" stop-color="#7f1d1d" />
+                <stop offset="0%" stop-color="rgb(var(--rgb-aksen-terang))" />
+                <stop offset="55%" stop-color="rgb(var(--rgb-aksen))" />
+                <stop offset="100%" stop-color="var(--color-aksen-gelap)" />
             </linearGradient>
             <linearGradient id="wky-teks" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#ffffff" />
-                <stop offset="100%" stop-color="#fca5a5" />
+                <stop offset="0%" stop-color="var(--color-teks)" />
+                <stop offset="100%" stop-color="rgb(var(--rgb-aksen-terang))" />
             </linearGradient>
         </defs>
 

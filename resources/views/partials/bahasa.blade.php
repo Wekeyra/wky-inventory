@@ -9,8 +9,8 @@
            title="{{ $bahasa['nama'] }}"
            class="px-3 py-2 text-xs font-medium transition-colors
                   {{ app()->getLocale() === $kod
-                      ? 'bg-merah text-white'
-                      : 'bg-transparent text-malap hover:bg-tinggi hover:text-white' }}"
+                      ? 'bg-aksen text-white'
+                      : 'bg-transparent text-malap hover:bg-tinggi hover:text-teks' }}"
            @if (app()->getLocale() === $kod) aria-current="true" @endif>{{ $bahasa['label'] }}</a>
     @endforeach
 </div>

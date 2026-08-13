@@ -1,14 +1,17 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('tajuk', __('wky.nav.dashboard')) &middot; {{ config('app.name') }}</title>
+    @include('partials.skrip-tema')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('kepala')
 </head>
 <body class="min-h-screen">
+<a href="#kandungan-utama" class="pautan-langkau">{{ __('wky.umum.langkau_ke_kandungan') }}</a>
+
 @php
     $menu = [
         ['dashboard', 'dashboard', 'dashboard', 'nav.dashboard'],
@@ -29,8 +32,8 @@
 @endphp
 
 <div class="flex min-h-screen">
-    <aside class="bar-sisi hidden w-64 shrink-0 border-r border-bingkai bg-[#121215] p-4 md:block">
-        <a href="{{ route('dashboard') }}" class="mb-6 flex items-center gap-2 text-white">
+    <aside class="bar-sisi hidden w-64 shrink-0 border-r border-bingkai bg-tinggi p-4 md:block">
+        <a href="{{ route('dashboard') }}" class="mb-6 flex items-center gap-2 text-teks">
             <x-logo-w kelas="size-7" />
             <span class="min-w-0 truncate text-lg font-semibold" title="{{ auth()->user()->workspace?->nama }}">
                 {{ auth()->user()->workspace?->nama ?: config('app.name') }}
@@ -49,12 +52,14 @@
         </nav>
     </aside>
 
-    <main class="min-w-0 flex-1 px-4 py-6 md:px-8">
+    <main id="kandungan-utama" class="min-w-0 flex-1 px-4 py-6 md:px-8">
         <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-bingkai pb-4">
-            <h1 class="text-2xl font-semibold text-white">@yield('tajuk', __('wky.nav.dashboard'))</h1>
+            <h1 class="text-2xl font-semibold text-teks">@yield('tajuk', __('wky.nav.dashboard'))</h1>
 
             <div class="flex items-center gap-2">
                 @include('partials.bahasa')
+
+                <x-togol-tema />
 
                 <div class="relative tanpa-cetak">
                     <button type="button" class="btn-wky" data-jatuh="menu-pengguna" aria-expanded="false" aria-haspopup="true">
@@ -69,7 +74,7 @@
                         </p>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="flex w-full cursor-pointer items-center gap-2 px-4 py-2.5 text-left text-sm text-merah-terang hover:bg-permukaan">
+                            <button type="submit" class="flex w-full cursor-pointer items-center gap-2 px-4 py-2.5 text-left text-sm text-bahaya-terang hover:bg-permukaan">
                                 <x-ikon nama="log-keluar" />
                                 {{ __('wky.nav.log_keluar') }}
                             </button>

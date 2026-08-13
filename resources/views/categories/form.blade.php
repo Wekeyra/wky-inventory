@@ -9,13 +9,13 @@
 
         <div class="kad-badan space-y-4">
             <div>
-                <label for="kod" class="mb-1 block font-medium">{{ __('wky.medan.kod') }} <span class="text-merah">*</span></label>
+                <label for="kod" class="mb-1 block font-medium">{{ __('wky.medan.kod') }} <span class="text-bahaya">*</span></label>
                 <input id="kod" name="kod" value="{{ old('kod', $category->kod) }}" required @error('kod') class="medan-ralat" @enderror>
                 @error('kod') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
             </div>
 
             <div>
-                <label for="nama" class="mb-1 block font-medium">{{ __('wky.medan.nama') }} <span class="text-merah">*</span></label>
+                <label for="nama" class="mb-1 block font-medium">{{ __('wky.medan.nama') }} <span class="text-bahaya">*</span></label>
                 <input id="nama" name="nama" value="{{ old('nama', $category->nama) }}" required @error('nama') class="medan-ralat" @enderror>
                 @error('nama') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
             </div>

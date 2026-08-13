@@ -775,6 +775,8 @@ dibungkus ke dalam `public/build`, jadi sistem berfungsi sepenuhnya tanpa sambun
 | `resources/views/components/medan-kata-laluan.blade.php` | Medan kata laluan berserta butang mata |
 | `resources/views/components/imbas-barcode.blade.php` | Butang dan modal pengimbas barcode; menyembunyikan dirinya apabila pelayar tiada `BarcodeDetector` |
 | `resources/views/components/tajuk-seksyen.blade.php` | Tajuk seksyen halaman pendaratan: garis aksen, tajuk, teks pengenalan |
+| `resources/views/components/togol-tema.blade.php` | Butang togol terang/gelap; ikon suria dan bulan kedua-duanya dalam DOM, CSS yang memilih mana kelihatan |
+| `resources/views/partials/skrip-tema.blade.php` | Skrip menyekat dalam `<head>` yang menetapkan tema sebelum halaman dicat |
 | `resources/views/partials/butang-google.blade.php` | Butang log masuk Google; menyembunyikan dirinya apabila OAuth belum dikonfigur |
 
 Nama jenama ditulis sebagai teks dan **bukan** dibaca daripada `config('app.name')`. Laravel Cloud
@@ -832,33 +834,105 @@ tiada perubahan kod diperlukan. Buang fail itu untuk kembali kepada lukisan SVG.
 
 Kepala bar sisi menggunakan fail **berasingan**, `logo-wky-w.png` — tanda *W* sahaja tanpa
 anak panah. Logo penuh tidak sesuai di situ: anak panahnya hitam dan hampir hilang di atas
-bar sisi yang gelap, dan pada 28px ia hanya menjadikan tanda itu bersepah. Tanpa fail itu,
-komponen jatuh semula kepada ikon kotak terbina, jadi bar sisi tidak pernah kosong.
+bar sisi dalam tema gelap, dan pada 28px ia hanya menjadikan tanda itu bersepah. Tanpa fail
+itu, komponen jatuh semula kepada ikon kotak terbina, jadi bar sisi tidak pernah kosong.
+
+### Tema terang dan gelap
+
+Sistem membawa **dua tema**, dengan terang sebagai lalai. Butang suria/bulan menukarnya, dan ia
+muncul pada keempat-empat susun atur: dashboard, log masuk, pendaftaran, dan halaman pendaratan.
+
+Tema dipilih mengikut turutan ini:
+
+1. Pilihan tersimpan pengguna (`localStorage`, kunci `wky-tema`)
+2. Keutamaan sistem pengendalian (`prefers-color-scheme`)
+3. Terang
+
+Pilihan disimpan dalam **`localStorage` dan bukan sesi pelayan**, kerana tema ialah keutamaan
+*peranti* dan bukan keutamaan *akaun*: orang yang sama mungkin mahu gelap pada telefon di gudang
+dan terang pada desktop di pejabat. Ini sengaja berbeza daripada pilihan **bahasa**, yang memang
+disimpan dalam sesi pelayan kerana PHP perlu mengetahuinya untuk memilih fail terjemahan sebelum
+halaman dijana.
+
+Tema dikenakan dengan kelas `dark` pada `<html>`.
+
+> ⚠️ Skrip dalam [`partials/skrip-tema.blade.php`](resources/views/partials/skrip-tema.blade.php)
+> **mesti kekal sebagai skrip menyekat di dalam `<head>`**, dan tidak boleh dipindahkan ke
+> `app.js`. `app.js` hanya berjalan selepas DOM sedia, jadi halaman akan dicat dengan tema terang
+> dahulu sebelum bertukar gelap — kelipan putih yang ketara pada setiap muatan halaman.
+
+Skrip itu dibungkus dalam `try`/`catch` kerana `localStorage` boleh melontar ralat dalam mod
+penyemakan persendirian sesetengah pelayar. Kalau ia gagal, tema terang kekal terpakai — hasil
+yang selamat, bukan halaman yang rosak.
+
+Ikon suria dan bulan **kedua-duanya sentiasa berada dalam DOM**, dan CSS yang menentukan mana
+satu kelihatan berdasarkan kelas `dark`. JavaScript tidak menyentuh ikon itu langsung. Kalau ia
+menukar ikon sendiri, ikon yang betul hanya akan muncul selepas `app.js` dimuatkan — sedangkan
+temanya sendiri sudah pun ditetapkan lebih awal oleh skrip dalam `<head>`.
+
+Lukisan SVG logo terbina membaca token warna tema, jadi ia bertukar bersama halaman tanpa
+memerlukan dua fail logo berasingan.
 
 ### Palet
 
-Sistem mempunyai **satu tema sahaja** — gelap pekat dengan aksen merah. Tiada suis terang/gelap,
-jadi setiap warna boleh dipilih untuk satu latar dan tidak perlu berfungsi pada dua-dua.
+Warna jenama ialah **tanah liat/terakota hangat** (`aksen`), dan merah sebenar disimpan
+berasingan sebagai `bahaya` khusus untuk amaran, ralat pengesahan, dan tindakan memadam.
 
-Palet keseluruhan dikawal oleh token `--color-*` di bahagian atas `app.css`. Tukar nilai di situ
-dan jalankan `npm run build` untuk menukar rupa seluruh aplikasi.
+Pengasingan itu sengaja. Ketika kedua-duanya merah yang sama, butang *Padam* dan butang *Simpan*
+hanya berbeza pada bentuk. Kini menukar warna jenama tidak boleh secara senyap melembutkan makna
+"bahaya", dan sebaliknya.
 
-Tiga perkara yang perlu diberi perhatian apabila menyunting:
+| Kumpulan token | Kegunaan |
+|---|---|
+| `--color-latar`, `--color-permukaan`, `--color-tinggi`, `--color-bingkai` | Permukaan dan sempadan |
+| `--color-aksen*` | Warna jenama: butang utama, pautan aktif, sorotan |
+| `--color-bahaya*` | Amaran, ralat, butang padam |
+| `--color-teks`, `--color-malap` | Teks utama dan teks sekunder |
+
+Token `@theme` di bahagian atas `app.css` ialah nilai **tema terang**; blok `.dark` selepasnya
+menulis semula token yang sama. Kerana `.dark` ditulis kemudian dalam fail, ia menang apabila
+`<html>` membawa kelas itu. Tukar nilai di situ dan jalankan `npm run build` untuk menukar rupa
+seluruh aplikasi.
+
+Empat perkara yang perlu diberi perhatian apabila menyunting:
 
 - `@apply` dalam Tailwind v4 hanya menerima **utiliti**, bukan kelas komponen tersuai. Kelas
   seperti `.btn-utama` ditulis penuh dan tidak saling `@apply` antara satu sama lain.
 - Nama kelas mesti muncul sebagai teks penuh supaya Tailwind dapat mengesannya. Sebab itu
   `StockCount::kelasStatus()` dan `StockMovement::kelasJenis()` memulangkan nama kelas lengkap
   (`lencana-kuning`) dan bukan potongan yang dicantum (`lencana-` . `$warna`).
+- Nilai RGB mentah (`--rgb-aksen`, `--rgb-bayang`, dan seterusnya) diletakkan dalam `:root` dan
+  **bukan** dalam `@theme`. Ia hanya bahan sokongan untuk `rgba()` dalam hiasan 3D dan kad kaca;
+  meletakkannya dalam `@theme` menyebabkan Tailwind cuba menjana utiliti warna daripada senarai
+  nombor yang bukan warna.
+- Warna yang berbeza antara dua tema tetapi tidak muat sebagai token — seperti kelegapan latar
+  kad kaca — ditulis sebagai peraturan `.dark .kelas` berasingan. Token sentiasa diutamakan;
+  peraturan `.dark` hanya untuk yang benar-benar tidak dapat diungkap sebagai satu nilai.
 - Peraturan `:-webkit-autofill` dalam `app.css` kelihatan pelik tetapi **jangan dipermudahkan**.
   Chrome mengecat medan yang diisi automatik dengan latar birunya sendiri dan menandanya
   `!important` dalam gaya ejen pengguna, jadi `background-color` biasa tidak dapat menindihnya —
   hanya `box-shadow: inset 0 0 0 100px` yang cukup tebal berjaya dicat di atasnya. `transition`
   yang panjangnya 100000s pula menahan warna asal Chrome daripada berkelip seketika sebelum
   bayang itu muncul, dan gelang fokus ditulis semula kerana ia hilang bersama `box-shadow`.
-  Medan pada `.kad-log-masuk` mendapat versinya sendiri kerana kad itu lebih hitam daripada
-  permukaan lalai; di situ cahaya merah disenaraikan **sebelum** isian legap, kerana bayang
-  pertama dicat paling atas.
+  Medan pada `.kad-log-masuk` mendapat versinya sendiri kerana kad itu bertona berbeza daripada
+  permukaan lalai; warnanya datang daripada `--login-input-bg-autofill`, iaitu versi **legap**
+  bagi `--login-input-bg`, kerana bayang inset perlu mengecat sepenuhnya dan bukan bertindih di
+  atas warna lut sinar.
+
+### Kebolehcapaian
+
+Empat perkara dikendalikan untuk pengguna papan kekunci dan pembaca skrin:
+
+- **Pautan langkau.** Setiap halaman sistem bermula dengan pautan *Langkau ke kandungan* yang
+  tersembunyi sehingga difokus. Tanpanya, pengguna papan kekunci perlu menekan Tab melalui
+  seluruh senarai nav sisi pada setiap halaman sebelum sampai ke kandungan.
+- **Perangkap fokus dalam modal.** Semasa modal terbuka, Tab berkitar di dalamnya dan tidak boleh
+  keluar ke kandungan di belakang — kandungan yang secara visual sudah tertutup oleh modal itu.
+- **Fokus dikembalikan.** Menutup modal (butang, Escape, atau klik latar) memulangkan fokus ke
+  butang yang membukanya. Tanpa itu fokus tercicir ke `<body>` dan pengguna terpaksa bermula
+  semula dari atas halaman.
+- **`aria-pressed` pada togol tema**, disegerakkan dengan keadaan sebenar `<html>` semasa halaman
+  dimuatkan dan selepas setiap klik.
 
 ## Nota teknikal
 
@@ -897,3 +971,8 @@ Tiga perkara yang perlu diberi perhatian apabila menyunting:
   data borang, jadi tindakan yang dipilih hilang tepat pada saat ia diperlukan.
 - Arahan yang membuang data (`ruang-kerja:kosongkan`) memaparkan kiraan setiap jenis rekod dan
   meminta pengesahan sebelum menyentuh apa-apa. `--force` hanya untuk skrip bukan interaktif.
+- Mod cetak memaksa hitam di atas putih tanpa mengira tema semasa, jadi mencetak Laporan Bulanan
+  dalam tema gelap tetap menghasilkan kertas putih dan bukan blok dakwat hitam.
+- Butang logam pada halaman log masuk sengaja kekal perak/putih pada kedua-dua tema. Ia satu-satunya
+  elemen yang tidak mengikut token warna, kerana kecerunan logamnya memang berkontras terhadap
+  latar terang mahupun gelap.

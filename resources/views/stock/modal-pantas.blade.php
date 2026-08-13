@@ -13,17 +13,17 @@
 
             <div class="kad-kepala">
                 <h2 id="tajuk-modal-pantas" class="flex items-center gap-2 font-semibold">
-                    <x-ikon nama="tambah-bulat" kelas="size-5 text-merah" />
+                    <x-ikon nama="tambah-bulat" kelas="size-5 text-aksen" />
                     {{ __('wky.dashboard.tambah_stok_pantas') }}
                 </h2>
-                <button type="button" class="cursor-pointer text-malap hover:text-white" data-modal-tutup aria-label="{{ __('wky.aksi.batal') }}">
+                <button type="button" class="cursor-pointer text-malap hover:text-teks" data-modal-tutup aria-label="{{ __('wky.aksi.batal') }}">
                     <x-ikon nama="silang" />
                 </button>
             </div>
 
             <div class="kad-badan space-y-4">
                 <div>
-                    <label for="pantas_product_id" class="mb-1 block font-medium">{{ __('wky.medan.produk') }} <span class="text-merah">*</span></label>
+                    <label for="pantas_product_id" class="mb-1 block font-medium">{{ __('wky.medan.produk') }} <span class="text-bahaya">*</span></label>
                     <select id="pantas_product_id" name="product_id" required>
                         <option value="">{{ __('wky.umum.pilih_produk') }}</option>
                         @foreach ($products as $produk)
@@ -35,7 +35,7 @@
                 </div>
 
                 <div>
-                    <label for="pantas_location_id" class="mb-1 block font-medium">{{ __('wky.medan.lokasi') }} <span class="text-merah">*</span></label>
+                    <label for="pantas_location_id" class="mb-1 block font-medium">{{ __('wky.medan.lokasi') }} <span class="text-bahaya">*</span></label>
                     <select id="pantas_location_id" name="location_id" required>
                         @foreach ($locations as $lokasi)
                             <option value="{{ $lokasi->id }}" @selected(old('location_id', $lokasiLalai) == $lokasi->id)>{{ $lokasi->nama }}</option>
@@ -45,7 +45,7 @@
 
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div>
-                        <label for="pantas_jenis" class="mb-1 block font-medium">{{ __('wky.medan.jenis') }} <span class="text-merah">*</span></label>
+                        <label for="pantas_jenis" class="mb-1 block font-medium">{{ __('wky.medan.jenis') }} <span class="text-bahaya">*</span></label>
                         <select id="pantas_jenis" name="jenis" required>
                             <option value="masuk" @selected(old('jenis', 'masuk') === 'masuk')>{{ __('wky.stok.masuk') }}</option>
                             <option value="keluar" @selected(old('jenis') === 'keluar')>{{ __('wky.stok.keluar') }}</option>
@@ -54,13 +54,13 @@
                     </div>
 
                     <div>
-                        <label for="pantas_kuantiti" class="mb-1 block font-medium">{{ __('wky.medan.kuantiti') }} <span class="text-merah">*</span></label>
+                        <label for="pantas_kuantiti" class="mb-1 block font-medium">{{ __('wky.medan.kuantiti') }} <span class="text-bahaya">*</span></label>
                         <input type="number" min="1" id="pantas_kuantiti" name="kuantiti" value="{{ old('kuantiti') }}" required>
                     </div>
                 </div>
 
                 <div>
-                    <label for="pantas_sebab" class="mb-1 block font-medium">{{ __('wky.medan.sebab') }} <span class="text-merah">*</span></label>
+                    <label for="pantas_sebab" class="mb-1 block font-medium">{{ __('wky.medan.sebab') }} <span class="text-bahaya">*</span></label>
                     <select id="pantas_sebab" name="sebab" data-sebab required>
                         @foreach ($sebabPilihan as $jenisSebab => $senarai)
                             @foreach ($senarai as $nilai => $label)

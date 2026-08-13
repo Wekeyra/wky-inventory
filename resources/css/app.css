@@ -4,32 +4,119 @@
 @source '../../storage/framework/views/*.php';
 
 /*
-| Palet WKY Inventory — gelap pekat dengan aksen merah.
-| Ditakrifkan sebagai token @theme supaya tersedia sebagai utiliti Tailwind
-| (bg-permukaan, text-merah, border-bingkai, dan seterusnya).
+| Palet WKY Inventory — terang & lembut secara lalai, dengan mod gelap sebagai
+| togol pilihan. Warna jenama ialah tanah liat/terakota hangat (aksen), dan
+| merah sebenar disimpan berasingan (bahaya) khusus untuk amaran/ralat —
+| supaya menukar warna jenama tidak turut melembutkan makna "bahaya".
+|
+| Token ditakrifkan sebagai @theme supaya tersedia sebagai utiliti Tailwind
+| (bg-permukaan, text-aksen, border-bingkai, dan seterusnya). Nilai di sini
+| ialah lalai (tema terang); blok .dark selepasnya menulis semula token yang
+| sama untuk togol mod gelap.
 */
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 
+    --color-latar: #faf7f3;
+    --color-permukaan: #ffffff;
+    --color-tinggi: #f3ece3;
+    --color-bingkai: #e4d9cb;
+    --color-bingkai-aksen: #e8c9ac;
+
+    --color-aksen: #9e572e;
+    --color-aksen-terang: #ab4f21;
+    --color-aksen-gelap: #6b4024;
+    --color-aksen-pekat: #7e4625;
+
+    --color-bahaya: #ae2d29;
+    --color-bahaya-terang: #be312d;
+
+    --color-teks: #2b211a;
+    --color-malap: #6e665e;
+}
+
+/*
+| Nilai mentah (bukan @theme) yang menyokong token warna di atas: bentuk RGB
+| untuk rgba() dalam hiasan 3D dan kaca log masuk, serta perhentian kecerunan
+| latar halaman auth. Diletakkan di luar @theme supaya Tailwind tidak cuba
+| menjana utiliti daripadanya — ini murni bahan sokongan CSS biasa.
+|
+| .dark selepas ini menulis semula kedua-dua blok (@theme dan set di bawah)
+| untuk togol mod gelap; kerana .dark ditulis kemudian dalam fail, ia menang
+| apabila <html> membawa kelas itu.
+*/
+:root {
+    --rgb-aksen: 158, 87, 46;
+    --rgb-aksen-terang: 171, 79, 33;
+    --rgb-bahaya: 174, 45, 41;
+    --rgb-bayang: 43, 33, 26;
+    --rgb-cair: 255, 255, 255;
+
+    --login-g1: #ffffff;
+    --login-g2: #fbf3e9;
+    --login-g3: #f3e4d2;
+    --login-input-bg: rgba(255, 255, 255, 0.6);
+    --login-input-bg-autofill: #fdfbf9;
+
+    /* Perhentian kecerunan siluet bandar dalam <x-latar-log-masuk>. Warna
+       tanah lembut supaya bentuk bangunan tidak menjadi blok gelap berat di
+       atas latar terang. */
+    --siluet-atas: #e3d5c3;
+    --siluet-bawah: #cdb79c;
+}
+
+/*
+| Mod gelap. Ditogol dengan kelas "dark" pada <html> (lihat togolTema dalam
+| app.js). Palet neutralnya sama seperti versi asal aplikasi ini; hanya aksen
+| jenama yang berubah daripada merah kepada terakota terang supaya kekal
+| jelas di atas latar gelap.
+*/
+.dark {
     --color-latar: #0d0d0f;
     --color-permukaan: #17171a;
     --color-tinggi: #1e1e22;
     --color-bingkai: #2a2a30;
-    --color-bingkai-merah: #3a1519;
+    --color-bingkai-aksen: #3a2419;
 
-    --color-merah: #dc2626;
-    --color-merah-terang: #ef4444;
-    --color-merah-gelap: #7f1d1d;
-    --color-merah-pekat: #991b1b;
+    --color-aksen: #c4491c;
+    --color-aksen-terang: #db8757;
+    --color-aksen-gelap: #522b14;
+    --color-aksen-pekat: #813f18;
+
+    --color-bahaya: #dc2626;
+    --color-bahaya-terang: #ef4444;
 
     --color-teks: #e5e7eb;
     --color-malap: #9096a1;
+
+    --rgb-aksen: 196, 73, 28;
+    --rgb-aksen-terang: 219, 135, 87;
+    --rgb-bahaya: 220, 38, 38;
+    --rgb-bayang: 0, 0, 0;
+    --rgb-cair: 148, 163, 184;
+
+    --login-g1: #14151a;
+    --login-g2: #0d0d0f;
+    --login-g3: #08080a;
+    --login-input-bg: rgba(0, 0, 0, 0.45);
+    --login-input-bg-autofill: #0b0b0d;
+
+    --siluet-atas: #1c1e26;
+    --siluet-bawah: #08080a;
 }
 
 @layer base {
     body {
-        @apply bg-latar font-sans text-teks antialiased;
+        @apply bg-latar font-sans text-teks antialiased transition-colors duration-200;
+    }
+
+    /* Pautan langkau: tersembunyi sehingga difokus, membawa pengguna papan
+       kekunci terus ke <main> dan melangkau senarai nav sisi yang panjang. */
+    .pautan-langkau {
+        @apply fixed top-2 left-2 z-50 -translate-y-16 rounded-md border border-aksen bg-permukaan
+               px-4 py-2 text-sm font-medium text-teks shadow-lg transition-transform
+               focus:translate-y-0;
     }
 
     /* Menyeragamkan penampilan medan borang tanpa perlu mengulang kelas pada setiap input. */
@@ -41,14 +128,14 @@
     input[type='date'],
     select,
     textarea {
-        @apply w-full rounded-md border border-bingkai bg-tinggi px-3 py-2 text-sm text-teks
+        @apply w-full rounded-md border border-bingkai bg-permukaan px-3 py-2 text-sm text-teks
                placeholder:text-malap/70
-               focus:border-merah focus:ring-2 focus:ring-merah/25 focus:outline-none;
+               focus:border-aksen focus:ring-2 focus:ring-aksen/25 focus:outline-none;
     }
 
     /*
      | Chrome mengecat medan yang diisi automatik dengan latar birunya sendiri,
-     | yang memecahkan borang gelap. Latar itu ditanda !important dalam gaya
+     | yang memecahkan borang. Latar itu ditanda !important dalam gaya
      | ejen pengguna, jadi background-color tidak boleh menindihnya — hanya
      | bayang inset yang cukup tebal berjaya dicat di atasnya.
      |
@@ -58,7 +145,7 @@
     input:-webkit-autofill,
     input:-webkit-autofill:hover,
     input:-webkit-autofill:active {
-        box-shadow: inset 0 0 0 100px var(--color-tinggi);
+        box-shadow: inset 0 0 0 100px var(--color-permukaan);
         -webkit-text-fill-color: var(--color-teks);
         caret-color: var(--color-teks);
         transition: background-color 100000s ease-in-out 0s;
@@ -67,12 +154,12 @@
     /* Gelang fokus hilang bersama box-shadow di atas, jadi ia ditulis semula. */
     input:-webkit-autofill:focus {
         box-shadow:
-            0 0 0 2px rgb(220 38 38 / 0.25),
-            inset 0 0 0 100px var(--color-tinggi);
+            0 0 0 2px rgba(var(--rgb-aksen), 0.25),
+            inset 0 0 0 100px var(--color-permukaan);
     }
 
     input[type='checkbox'] {
-        @apply size-4 rounded border-bingkai bg-tinggi text-merah focus:ring-2 focus:ring-merah/25;
+        @apply size-4 rounded border-bingkai bg-permukaan text-aksen focus:ring-2 focus:ring-aksen/25;
     }
 
     label {
@@ -80,7 +167,7 @@
     }
 
     code {
-        @apply font-mono text-[0.8125rem] text-merah-terang;
+        @apply font-mono text-[0.8125rem] text-aksen-terang;
     }
 
     a {
@@ -96,7 +183,7 @@
     /* ---------- Kad ---------- */
 
     .kad {
-        @apply rounded-xl border border-bingkai-merah bg-permukaan;
+        @apply rounded-xl border border-bingkai bg-permukaan;
     }
 
     .kad-kepala {
@@ -113,30 +200,43 @@
 
     /* ---------- Butang ---------- */
 
+    /*
+     | Empat gaya butang dengan hierarki yang jelas:
+     | - utama:  tindakan utama halaman (simpan, tambah). Blok pejal, paling menonjol.
+     | - wky:    tindakan kukuh kedua yang muncul bersebelahan utama (contoh:
+     |           "Simpan" di sebelah "Baca" pada imbasan invois). Bertona
+     |           sama tetapi berlapik supaya jelas bukan tindakan utama.
+     | - garis:  tindakan neutral (batal, lihat semua).
+     | - bahaya: tindakan merosakkan (padam).
+     |
+     | active:scale memberi maklum balas sentuhan ringkas apabila ditekan;
+     | transition disenaraikan secara eksplisit supaya warna DAN transform
+     | kedua-duanya beranimasi tanpa satu menindih sifat CSS yang satu lagi.
+     */
     .btn-utama,
     .btn-wky,
     .btn-garis,
     .btn-bahaya {
         @apply inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md border px-3 py-2
-               text-sm font-medium whitespace-nowrap transition-colors
-               focus-visible:ring-2 focus-visible:ring-merah/40 focus-visible:outline-none
-               disabled:pointer-events-none disabled:opacity-50;
+               text-sm font-medium whitespace-nowrap transition-[color,background-color,border-color,transform]
+               duration-150 focus-visible:ring-2 focus-visible:ring-aksen/40 focus-visible:outline-none
+               active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 disabled:active:scale-100;
     }
 
     .btn-utama {
-        @apply border-merah bg-merah text-white hover:bg-merah-pekat;
+        @apply border-aksen bg-aksen text-white hover:bg-aksen-pekat;
     }
 
     .btn-wky {
-        @apply border-merah bg-merah-gelap text-white hover:bg-merah;
+        @apply border-aksen/40 bg-aksen/10 text-aksen-terang hover:border-aksen hover:bg-aksen/20;
     }
 
     .btn-garis {
-        @apply border-bingkai bg-transparent text-malap hover:border-merah hover:bg-tinggi hover:text-white;
+        @apply border-bingkai bg-transparent text-malap hover:border-aksen hover:bg-tinggi hover:text-teks;
     }
 
     .btn-bahaya {
-        @apply border-merah/50 bg-transparent text-merah-terang hover:bg-merah hover:text-white;
+        @apply border-bahaya/50 bg-transparent text-bahaya hover:bg-bahaya hover:text-white;
     }
 
     .btn-kecil {
@@ -170,7 +270,7 @@
     }
 
     .jadual tbody tr:hover {
-        @apply bg-merah/5;
+        @apply bg-aksen/5;
     }
 
     .jadual tfoot td {
@@ -179,7 +279,8 @@
 
     /* ---------- Lencana ---------- */
 
-    .lencana-merah,
+    .lencana-aksen,
+    .lencana-bahaya,
     .lencana-hijau,
     .lencana-kuning,
     .lencana-kelabu,
@@ -187,8 +288,12 @@
         @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap;
     }
 
-    .lencana-merah {
-        @apply bg-merah text-white;
+    .lencana-aksen {
+        @apply bg-aksen text-white;
+    }
+
+    .lencana-bahaya {
+        @apply bg-bahaya text-white;
     }
 
     .lencana-hijau {
@@ -216,28 +321,36 @@
     }
 
     .amaran-jaya {
-        @apply border-emerald-600/40 bg-emerald-600/10 text-emerald-300;
+        @apply border-emerald-600/40 bg-emerald-600/10 text-emerald-700;
+    }
+
+    .dark .amaran-jaya {
+        @apply text-emerald-300;
     }
 
     .amaran-gagal {
-        @apply border-merah/40 bg-merah/10 text-merah-terang;
+        @apply border-bahaya/40 bg-bahaya/10 text-bahaya;
+    }
+
+    .dark .amaran-gagal {
+        @apply text-bahaya-terang;
     }
 
     .amaran-info {
-        @apply border-sky-500/30 bg-sky-500/10 text-sky-300;
+        @apply border-sky-500/30 bg-sky-500/10 text-sky-700;
+    }
+
+    .dark .amaran-info {
+        @apply text-sky-300;
     }
 
     /* ---------- Halaman log masuk ---------- */
 
     /*
-     | Latar berlapis: cahaya merah dari atas, cahaya sejuk yang halus dari
-     | bawah, di atas grafit neutral.
-     |
-     | Asasnya neutral dan bukan merah gelap kerana logo itu sendiri merah gelap
-     | dan hitam — di atas latar maroon ia bertindih warna dan hilang bentuk.
-     | Warna asas mengikut --color-latar yang digunakan seluruh aplikasi, jadi
-     | halaman log masuk kini sepadan dengan bahagian dalam sistem dan merah
-     | kekal sebagai aksen, bukan keseluruhan kanvas.
+     | Latar berlapis: cahaya aksen dari atas, cahaya lembut yang halus dari
+     | bawah, di atas kanvas neutral tema semasa. Perhentian kecerunan datang
+     | daripada --login-g1/2/3, yang ditulis semula oleh .dark — jadi blok ini
+     | sendiri tidak perlu tahu tema mana yang aktif.
      |
      | Latar dilekatkan pada viewport supaya halaman yang lebih panjang daripada
      | skrin — seperti halaman pendaftaran — kekal sama rupa semasa diskrol,
@@ -245,9 +358,9 @@
      */
     .latar-log-masuk {
         background:
-            radial-gradient(68rem 44rem at 50% -14%, rgba(220, 38, 38, 0.20), transparent 64%),
-            radial-gradient(46rem 30rem at 50% 112%, rgba(148, 163, 184, 0.06), transparent 72%),
-            linear-gradient(180deg, #14151a 0%, #0d0d0f 55%, #08080a 100%);
+            radial-gradient(68rem 44rem at 50% -14%, rgba(var(--rgb-aksen), 0.16), transparent 64%),
+            radial-gradient(46rem 30rem at 50% 112%, rgba(var(--rgb-cair), 0.10), transparent 72%),
+            linear-gradient(180deg, var(--login-g1) 0%, var(--login-g2) 55%, var(--login-g3) 100%);
         background-attachment: fixed;
     }
 
@@ -374,12 +487,15 @@
      | Kelegapan rendah dikenakan pada setiap muka dan bukan pada pentas, kerana
      | opacity pada elemen induk meratakan anaknya menjadi satu lapisan — muka
      | belakang akan hilang di sebalik muka hadapan dan kotak itu menjadi rata.
+     |
+     | Warna diambil daripada --rgb-aksen supaya hiasan bertukar tona mengikut
+     | tema tanpa mengulang laluan geometri di bawah.
      */
     .kotak-muka {
         position: absolute;
         inset: 0;
-        border: 1px solid rgba(248, 113, 113, 0.14);
-        background: rgba(220, 38, 38, 0.045);
+        border: 1px solid rgba(var(--rgb-aksen-terang), 0.16);
+        background: rgba(var(--rgb-aksen), 0.05);
     }
 
     .kotak-depan {
@@ -423,8 +539,8 @@
         height: calc(var(--kotak-d) / 2);
         transform-origin: center bottom;
         transform: rotateX(-38deg);
-        border: 1px solid rgba(248, 113, 113, 0.16);
-        background: rgba(220, 38, 38, 0.05);
+        border: 1px solid rgba(var(--rgb-aksen-terang), 0.18);
+        background: rgba(var(--rgb-aksen), 0.06);
     }
 
     /*
@@ -441,13 +557,13 @@
         width: 114%;
         height: calc(var(--kotak-d) * 1.14);
         top: calc((var(--kotak-t) - var(--kotak-d) * 1.14) / 2);
-        border: 1px solid rgba(248, 113, 113, 0.15);
+        border: 1px solid rgba(var(--rgb-aksen-terang), 0.17);
 
         /* Bilah papan; jurang antaranya menjadikannya palet, bukan sekadar plat. */
         background: repeating-linear-gradient(
             90deg,
-            rgba(220, 38, 38, 0.07) 0,
-            rgba(220, 38, 38, 0.07) 8%,
+            rgba(var(--rgb-aksen), 0.09) 0,
+            rgba(var(--rgb-aksen), 0.09) 8%,
             transparent 8%,
             transparent 11%
         );
@@ -461,7 +577,7 @@
         width: 104%;
         height: calc(var(--kotak-d) * 1.04);
         top: calc((var(--kotak-t) - var(--kotak-d) * 1.04) / 2);
-        background: rgba(220, 38, 38, 0.05);
+        background: rgba(var(--rgb-aksen), 0.06);
         transform: rotateX(-90deg) translateZ(calc(var(--kotak-t) / 2 + 1.5rem));
     }
 
@@ -472,7 +588,7 @@
         left: 22%;
         width: 17%;
         height: 21%;
-        background: rgba(239, 68, 68, 0.20);
+        background: rgba(var(--rgb-aksen-terang), 0.22);
     }
 
     /* Tanda "bahagian atas" pada muka sisi. */
@@ -482,7 +598,7 @@
         left: 30%;
         width: 12%;
         height: 34%;
-        background: rgba(239, 68, 68, 0.26);
+        background: rgba(var(--rgb-aksen-terang), 0.28);
         clip-path: polygon(50% 0, 100% 34%, 68% 34%, 68% 100%, 32% 100%, 32% 34%, 0 34%);
     }
 
@@ -504,8 +620,8 @@
         height: var(--rak-t);
         left: calc((var(--rak-l) - var(--rak-d)) / 2);
         width: var(--rak-d);
-        border: 1px solid rgba(248, 113, 113, 0.16);
-        background: rgba(220, 38, 38, 0.04);
+        border: 1px solid rgba(var(--rgb-aksen-terang), 0.18);
+        background: rgba(var(--rgb-aksen), 0.045);
     }
 
     .rak-sisi-kiri {
@@ -522,8 +638,8 @@
         width: var(--rak-l);
         height: var(--rak-d);
         top: calc((var(--rak-t) - var(--rak-d)) / 2);
-        border: 1px solid rgba(248, 113, 113, 0.15);
-        background: rgba(220, 38, 38, 0.055);
+        border: 1px solid rgba(var(--rgb-aksen-terang), 0.17);
+        background: rgba(var(--rgb-aksen), 0.06);
     }
 
     .rak-tingkat-atas {
@@ -545,8 +661,8 @@
         width: 32%;
         top: 28%;
         height: 22%;
-        border: 1px solid rgba(248, 113, 113, 0.2);
-        background: rgba(239, 68, 68, 0.085);
+        border: 1px solid rgba(var(--rgb-aksen-terang), 0.22);
+        background: rgba(var(--rgb-aksen-terang), 0.1);
         transform: translateZ(calc(var(--rak-d) / 2));
     }
 
@@ -554,13 +670,13 @@
     .kodbar-muka {
         position: absolute;
         inset: 0;
-        border: 1px solid rgba(248, 113, 113, 0.2);
-        background: rgba(220, 38, 38, 0.05);
+        border: 1px solid rgba(var(--rgb-aksen-terang), 0.22);
+        background: rgba(var(--rgb-aksen), 0.06);
         transform: translateZ(0.3rem);
     }
 
     .kodbar-belakang {
-        background: rgba(220, 38, 38, 0.035);
+        background: rgba(var(--rgb-aksen), 0.04);
         transform: translateZ(-0.3rem);
     }
 
@@ -571,16 +687,16 @@
         /* Lebar jalur yang tidak sekata; jalur sama lebar nampak seperti pagar. */
         background: repeating-linear-gradient(
             90deg,
-            rgba(248, 113, 113, 0.3) 0,
-            rgba(248, 113, 113, 0.3) 2.5%,
+            rgba(var(--rgb-aksen-terang), 0.34) 0,
+            rgba(var(--rgb-aksen-terang), 0.34) 2.5%,
             transparent 2.5%,
             transparent 5%,
-            rgba(248, 113, 113, 0.3) 5%,
-            rgba(248, 113, 113, 0.3) 6%,
+            rgba(var(--rgb-aksen-terang), 0.34) 5%,
+            rgba(var(--rgb-aksen-terang), 0.34) 6%,
             transparent 6%,
             transparent 9%,
-            rgba(248, 113, 113, 0.3) 9%,
-            rgba(248, 113, 113, 0.3) 11.5%,
+            rgba(var(--rgb-aksen-terang), 0.34) 9%,
+            rgba(var(--rgb-aksen-terang), 0.34) 11.5%,
             transparent 11.5%,
             transparent 13%
         );
@@ -592,7 +708,7 @@
         bottom: 15%;
         left: 28%;
         height: 9%;
-        background: rgba(248, 113, 113, 0.16);
+        background: rgba(var(--rgb-aksen-terang), 0.18);
     }
 
     /*
@@ -607,8 +723,8 @@
         width: 60%;
         top: 26%;
         height: 52%;
-        border: 1px solid rgba(248, 113, 113, 0.18);
-        background: rgba(220, 38, 38, 0.06);
+        border: 1px solid rgba(var(--rgb-aksen-terang), 0.2);
+        background: rgba(var(--rgb-aksen), 0.07);
         clip-path: polygon(0 36%, 44% 36%, 54% 0, 100% 0, 100% 100%, 0 100%);
     }
 
@@ -626,8 +742,8 @@
         width: 4%;
         top: 5%;
         height: 75%;
-        border: 1px solid rgba(248, 113, 113, 0.2);
-        background: rgba(239, 68, 68, 0.14);
+        border: 1px solid rgba(var(--rgb-aksen-terang), 0.22);
+        background: rgba(var(--rgb-aksen-terang), 0.16);
     }
 
     .fl-tiang-kiri {
@@ -644,7 +760,7 @@
         width: 27%;
         top: 73%;
         height: 4%;
-        background: rgba(239, 68, 68, 0.17);
+        background: rgba(var(--rgb-aksen-terang), 0.19);
     }
 
     .fl-garpu-kiri {
@@ -661,8 +777,8 @@
         width: 15%;
         aspect-ratio: 1;
         border-radius: 50%;
-        border: 1px solid rgba(248, 113, 113, 0.22);
-        background: rgba(220, 38, 38, 0.07);
+        border: 1px solid rgba(var(--rgb-aksen-terang), 0.24);
+        background: rgba(var(--rgb-aksen), 0.08);
         transform: translateZ(calc(var(--fl-d) / 2));
     }
 
@@ -699,14 +815,14 @@
     }
 
     /*
-     | Cahaya merah lembut memberi logo kedudukan pada halaman.
+     | Cahaya aksen lembut memberi logo kedudukan pada halaman.
      |
      | Tiada kilau putih di sini. Ia pernah ditambah untuk memberi anak panah
      | hitam tepi yang nyata, tetapi ia meninggalkan garis terang di sekeliling
      | bahagian merah yang menjadikan logo nampak seperti pelekat bergunting.
      */
     .jenama-log-masuk {
-        filter: drop-shadow(0 0 22px rgba(220, 38, 38, 0.5));
+        filter: drop-shadow(0 0 22px rgba(var(--rgb-aksen), 0.45));
     }
 
     /* ---------- Medan kata laluan dengan butang mata ---------- */
@@ -733,11 +849,12 @@
     /* ---------- Butang tindakan pantas (terapung) ---------- */
 
     .butang-pantas {
-        @apply grid size-14 cursor-pointer place-items-center rounded-full border border-merah
-               bg-merah text-white transition-transform hover:bg-merah-pekat
-               focus-visible:ring-2 focus-visible:ring-merah/50 focus-visible:outline-none;
+        @apply grid size-14 cursor-pointer place-items-center rounded-full border border-aksen
+               bg-aksen text-white transition-[background-color,transform] duration-150
+               hover:bg-aksen-pekat active:scale-90
+               focus-visible:ring-2 focus-visible:ring-aksen/50 focus-visible:outline-none;
 
-        box-shadow: 0 12px 28px -8px rgba(220, 38, 38, 0.55);
+        box-shadow: 0 12px 28px -8px rgba(var(--rgb-aksen), 0.5);
     }
 
     /* Tanda tambah berputar menjadi silang apabila menu terbuka. */
@@ -764,33 +881,42 @@
     }
 
     .pautan-pantas {
-        @apply flex items-center gap-3 rounded-full border border-bingkai bg-tinggi py-1.5 pr-1.5 pl-4
+        @apply flex items-center gap-3 rounded-full border border-bingkai bg-permukaan py-1.5 pr-1.5 pl-4
                text-sm font-medium whitespace-nowrap text-teks transition-colors
-               hover:border-merah hover:text-white;
+               hover:border-aksen hover:text-aksen-terang;
 
-        box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.9);
+        box-shadow: 0 10px 24px -12px rgba(var(--rgb-bayang), 0.35);
     }
 
     .ikon-pantas {
-        @apply grid size-9 shrink-0 place-items-center rounded-full bg-merah text-white;
+        @apply grid size-9 shrink-0 place-items-center rounded-full bg-aksen text-white;
     }
 
     .butang-mata {
         @apply absolute inset-y-0 right-0 grid w-11 cursor-pointer place-items-center rounded-r-md
-               text-malap transition-colors hover:text-white
-               focus-visible:ring-2 focus-visible:ring-merah/40 focus-visible:outline-none;
+               text-malap transition-colors hover:text-teks
+               focus-visible:ring-2 focus-visible:ring-aksen/40 focus-visible:outline-none;
     }
 
     /*
-     | Kad log masuk: kaca gelap dengan bingkai merah lembut. Lengkung bercahaya
+     | Kad log masuk: kaca dengan bingkai aksen lembut. Lengkung bercahaya
      | di bahagian atas dibuat dengan pseudo-elemen supaya tiada markup tambahan.
      */
     .kad-log-masuk {
-        @apply relative rounded-2xl border border-merah/25 p-6 backdrop-blur-md sm:p-8;
+        @apply relative rounded-2xl border p-6 backdrop-blur-md sm:p-8;
 
+        border-color: rgba(var(--rgb-aksen), 0.22);
+        background: linear-gradient(160deg, rgba(var(--rgb-cair), 0.7), var(--login-g1) 60%);
+        box-shadow:
+            0 0 0 1px rgba(var(--rgb-aksen), 0.08),
+            0 25px 60px -20px rgba(var(--rgb-bayang), 0.35),
+            inset 0 1px 0 rgba(var(--rgb-cair), 0.5);
+    }
+
+    .dark .kad-log-masuk {
         background: linear-gradient(160deg, rgba(26, 27, 33, 0.88), rgba(10, 10, 12, 0.93));
         box-shadow:
-            0 0 0 1px rgba(220, 38, 38, 0.08),
+            0 0 0 1px rgba(var(--rgb-aksen), 0.08),
             0 25px 60px -20px rgba(0, 0, 0, 0.9),
             inset 0 1px 0 rgba(255, 255, 255, 0.04);
     }
@@ -799,69 +925,72 @@
         @apply pointer-events-none absolute -top-px left-1/2 h-px w-4/5 -translate-x-1/2;
 
         content: '';
-        background: linear-gradient(90deg, transparent, rgba(248, 113, 113, 0.9), transparent);
+        background: linear-gradient(90deg, transparent, rgba(var(--rgb-aksen-terang), 0.85), transparent);
     }
 
     .kad-log-masuk::after {
         @apply pointer-events-none absolute -top-10 left-1/2 h-20 w-3/4 -translate-x-1/2 rounded-[50%] opacity-70 blur-2xl;
 
         content: '';
-        background: radial-gradient(ellipse at center, rgba(220, 38, 38, 0.55), transparent 70%);
+        background: radial-gradient(ellipse at center, rgba(var(--rgb-aksen), 0.35), transparent 70%);
     }
 
-    /* Medan borang pada halaman ini lebih gelap dan bercahaya berbanding lalai. */
+    /* Medan borang pada halaman ini bertona sedikit berbeza berbanding lalai,
+       dan warnanya datang daripada --login-input-bg supaya kedua-dua tema
+       mendapat kontras yang sesuai (cip cair terang pada kad terang, cip
+       gelap pada kad gelap). */
     .kad-log-masuk input[type='text'],
     .kad-log-masuk input[type='email'],
     .kad-log-masuk input[type='password'] {
-        @apply border-merah/30 bg-black/45 px-4 py-2.5;
+        @apply px-4 py-2.5;
 
-        box-shadow: inset 0 0 18px rgba(220, 38, 38, 0.12);
+        border-color: rgba(var(--rgb-aksen), 0.28);
+        background: var(--login-input-bg);
+        box-shadow: inset 0 0 18px rgba(var(--rgb-aksen), 0.08);
     }
 
     .kad-log-masuk input[type='text']:focus,
     .kad-log-masuk input[type='email']:focus,
     .kad-log-masuk input[type='password']:focus {
-        @apply border-merah-terang;
-
+        border-color: var(--color-aksen-terang);
         box-shadow:
-            inset 0 0 18px rgba(220, 38, 38, 0.18),
-            0 0 0 3px rgba(220, 38, 38, 0.22);
+            inset 0 0 18px rgba(var(--rgb-aksen), 0.14),
+            0 0 0 3px rgba(var(--rgb-aksen), 0.22);
     }
 
     /*
-     | Medan di sini lebih hitam daripada lalai, jadi isian automatik perlu
-     | warnanya sendiri; kalau tidak ia kembali kepada kelabu --color-tinggi
-     | dan menonjol daripada kad.
-     |
-     | Cahaya merah disenaraikan dahulu kerana bayang pertama dicat paling
-     | atas — terbalik, isian legap itu akan menutupinya.
+     | Isian automatik mesti diberi warnanya sendiri; kalau tidak ia kembali
+     | kepada kelabu lalai pelayar dan menonjol daripada kad. --login-input-bg-autofill
+     | ialah versi legap (bukan lutsinar) daripada --login-input-bg, kerana
+     | bayang inset autofill perlu mengecat sepenuhnya dan bukan bertindih.
      */
     .kad-log-masuk input:-webkit-autofill,
     .kad-log-masuk input:-webkit-autofill:hover,
     .kad-log-masuk input:-webkit-autofill:active {
         box-shadow:
-            inset 0 0 18px rgba(220, 38, 38, 0.12),
-            inset 0 0 0 100px #0b0b0d;
+            inset 0 0 18px rgba(var(--rgb-aksen), 0.08),
+            inset 0 0 0 100px var(--login-input-bg-autofill);
     }
 
     .kad-log-masuk input:-webkit-autofill:focus {
         box-shadow:
-            inset 0 0 18px rgba(220, 38, 38, 0.18),
-            0 0 0 3px rgba(220, 38, 38, 0.22),
-            inset 0 0 0 100px #0b0b0d;
+            inset 0 0 18px rgba(var(--rgb-aksen), 0.14),
+            0 0 0 3px rgba(var(--rgb-aksen), 0.22),
+            inset 0 0 0 100px var(--login-input-bg-autofill);
     }
 
-    /* Butang logam seperti dalam reka bentuk yang diminta. */
+    /* Butang logam seperti dalam reka bentuk yang diminta. Sengaja kekal
+       perak/putih tanpa mengira tema — ia kontras terhadap kedua-duanya. */
     .btn-logam {
-        @apply w-full cursor-pointer rounded-lg border border-white/25 py-3 text-base font-semibold tracking-wide
+        @apply w-full cursor-pointer rounded-lg border border-black/10 py-3 text-base font-semibold tracking-wide
                text-[#141416] transition-all
-               focus-visible:ring-2 focus-visible:ring-merah/50 focus-visible:outline-none;
+               focus-visible:ring-2 focus-visible:ring-aksen/50 focus-visible:outline-none;
 
         background: linear-gradient(180deg, #f3f4f6 0%, #c9cbd1 45%, #9ca0a8 55%, #d6d8dd 100%);
         box-shadow:
             0 1px 0 rgba(255, 255, 255, 0.6) inset,
             0 -1px 0 rgba(0, 0, 0, 0.25) inset,
-            0 10px 24px -10px rgba(0, 0, 0, 0.8);
+            0 10px 24px -10px rgba(var(--rgb-bayang), 0.4);
     }
 
     .btn-logam:hover {
@@ -872,12 +1001,14 @@
         @apply translate-y-px;
     }
 
-    /* Butang Google — kekal gelap seperti kad, dengan logo berwarna asal. */
+    /* Butang Google — kekal seragam dengan kad, dengan logo berwarna asal. */
     .btn-google {
-        @apply flex w-full cursor-pointer items-center justify-center gap-2.5 rounded-lg border border-white/20
-               bg-white/5 py-3 text-sm font-medium text-white transition-colors
-               hover:border-white/40 hover:bg-white/10
-               focus-visible:ring-2 focus-visible:ring-merah/50 focus-visible:outline-none;
+        @apply flex w-full cursor-pointer items-center justify-center gap-2.5 rounded-lg border
+               bg-permukaan/60 py-3 text-sm font-medium text-teks transition-colors
+               hover:border-aksen hover:bg-permukaan
+               focus-visible:ring-2 focus-visible:ring-aksen/50 focus-visible:outline-none;
+
+        border-color: rgba(var(--rgb-bayang), 0.16);
     }
 
     /* Garis pemisah dengan perkataan "atau" di tengah. */
@@ -887,36 +1018,43 @@
 
     .pembahagi-atau::before,
     .pembahagi-atau::after {
-        @apply h-px flex-1 bg-white/12;
+        @apply h-px flex-1;
 
         content: '';
+        background: rgba(var(--rgb-bayang), 0.14);
     }
 
     /* Pautan kecil di bawah kad log masuk dan pendaftaran. */
     .pautan-auth {
-        @apply font-medium text-merah-terang hover:text-white;
+        @apply font-medium text-aksen-terang hover:text-aksen;
     }
 
     /* Pautan kembali di bar atas halaman pendaftaran. */
     .pautan-kembali {
-        @apply inline-flex items-center gap-1.5 rounded-md border border-bingkai bg-black/30 px-3 py-2
+        @apply inline-flex items-center gap-1.5 rounded-md border border-bingkai bg-permukaan/60 px-3 py-2
                text-xs font-medium text-malap transition-colors
-               hover:border-merah hover:bg-tinggi hover:text-white;
+               hover:border-aksen hover:bg-tinggi hover:text-teks;
     }
 
     /* Kad ciri di bawah borang pendaftaran. */
     .kad-ciri {
-        @apply rounded-xl border border-merah/15 bg-black/35 p-5 backdrop-blur-sm transition-colors;
+        @apply rounded-xl border p-5 backdrop-blur-sm transition-colors;
 
-        box-shadow: 0 12px 30px -18px rgba(0, 0, 0, 0.9);
+        border-color: rgba(var(--rgb-aksen), 0.16);
+        background: rgba(var(--rgb-cair), 0.4);
+        box-shadow: 0 12px 30px -18px rgba(var(--rgb-bayang), 0.35);
+    }
+
+    .dark .kad-ciri {
+        background: rgba(0, 0, 0, 0.35);
     }
 
     .kad-ciri:hover {
-        @apply border-merah/45 bg-black/50;
+        border-color: rgba(var(--rgb-aksen), 0.45);
     }
 
     .ikon-ciri {
-        @apply mb-3 grid size-11 place-items-center rounded-lg border border-merah/25 bg-merah/10 text-merah-terang;
+        @apply mb-3 grid size-11 place-items-center rounded-lg border border-aksen/25 bg-aksen/10 text-aksen;
     }
 
     /* ---------- Halaman pendaratan ---------- */
@@ -926,11 +1064,13 @@
      | mesti mengatasi kandungan (z-10) dan latar hiasan.
      */
     .nav-landing {
-        @apply sticky top-0 z-30 border-b border-merah/15 bg-black/70 backdrop-blur-md;
+        @apply sticky top-0 z-30 border-b bg-latar/80 backdrop-blur-md;
+
+        border-color: rgba(var(--rgb-aksen), 0.15);
     }
 
     .pautan-nav {
-        @apply rounded-md px-3 py-2 text-sm font-medium text-malap transition-colors hover:bg-tinggi hover:text-white;
+        @apply rounded-md px-3 py-2 text-sm font-medium text-malap transition-colors hover:bg-tinggi hover:text-teks;
     }
 
     .seksyen-landing {
@@ -942,17 +1082,27 @@
      | Popular" di luar tepi atasnya.
      */
     .kad-harga {
-        @apply relative flex flex-col rounded-2xl border border-merah/15 bg-black/40 p-6 backdrop-blur-sm;
+        @apply relative flex flex-col rounded-2xl border p-6 backdrop-blur-sm;
 
-        box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.9);
+        border-color: rgba(var(--rgb-aksen), 0.15);
+        background: rgba(var(--rgb-cair), 0.5);
+        box-shadow: 0 18px 40px -24px rgba(var(--rgb-bayang), 0.3);
+    }
+
+    .dark .kad-harga {
+        background: rgba(0, 0, 0, 0.4);
     }
 
     .kad-harga-utama {
-        @apply border-merah/50 bg-black/60;
-
+        border-color: rgba(var(--rgb-aksen), 0.5);
+        background: rgba(var(--rgb-cair), 0.7);
         box-shadow:
-            0 0 0 1px rgba(220, 38, 38, 0.15),
-            0 24px 50px -24px rgba(0, 0, 0, 0.95);
+            0 0 0 1px rgba(var(--rgb-aksen), 0.15),
+            0 24px 50px -24px rgba(var(--rgb-bayang), 0.4);
+    }
+
+    .dark .kad-harga-utama {
+        background: rgba(0, 0, 0, 0.6);
     }
 
     /* Butang kad harga ditolak ke bawah supaya ketiga-tiganya sebaris walaupun
@@ -964,11 +1114,13 @@
     /* ---------- Navigasi sisi ---------- */
 
     .nav-pautan {
-        @apply flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-malap transition-colors hover:bg-tinggi hover:text-white;
+        @apply flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-malap transition-colors hover:bg-tinggi hover:text-teks;
     }
 
     .nav-pautan-aktif {
-        @apply bg-merah text-white shadow-[0_2px_10px_rgba(220,38,38,0.35)] hover:bg-merah hover:text-white;
+        @apply bg-aksen text-white hover:bg-aksen hover:text-white;
+
+        box-shadow: 0 2px 10px rgba(var(--rgb-aksen), 0.3);
     }
 
     /* ---------- Kamera invois ---------- */
@@ -989,10 +1141,32 @@
         @apply max-h-56 w-auto rounded-lg border border-bingkai object-contain;
     }
 
+    /* ---------- Togol tema ---------- */
+
+    .togol-tema {
+        @apply grid size-9 shrink-0 cursor-pointer place-items-center rounded-md border border-bingkai
+               bg-permukaan text-malap transition-colors hover:border-aksen hover:text-teks
+               focus-visible:ring-2 focus-visible:ring-aksen/40 focus-visible:outline-none;
+    }
+
+    /* Ikon matahari/bulan ditogol dengan atribut data-ikon; JavaScript sahaja
+       yang menukar kelas 'hidden' mengikut tema semasa. */
+    .togol-tema [data-ikon='bulan'] {
+        @apply hidden;
+    }
+
+    .dark .togol-tema [data-ikon='suria'] {
+        @apply hidden;
+    }
+
+    .dark .togol-tema [data-ikon='bulan'] {
+        @apply block;
+    }
+
     /* ---------- Lain-lain ---------- */
 
     .ikon-bulat {
-        @apply grid size-12 shrink-0 place-items-center rounded-full border border-bingkai-merah bg-merah/10 text-merah;
+        @apply grid size-12 shrink-0 place-items-center rounded-full border border-bingkai-aksen bg-aksen/10 text-aksen;
     }
 
     .label-stat {
@@ -1000,25 +1174,25 @@
     }
 
     .nilai-stat {
-        @apply text-2xl leading-tight font-semibold text-white;
+        @apply text-2xl leading-tight font-semibold text-teks;
     }
 
     .maklum-balas-ralat {
-        @apply mt-1 text-xs text-merah-terang;
+        @apply mt-1 text-xs text-bahaya;
     }
 
     .medan-ralat {
-        @apply border-merah;
+        @apply border-bahaya;
     }
 
     .pautan-jadual {
-        @apply font-medium text-teks hover:text-merah-terang;
+        @apply font-medium text-teks hover:text-aksen-terang;
     }
 }
 
 /*
 | Penomboran Tailwind terbina dalam Laravel menggunakan palet kelabu terang.
-| Blok ini menyesuaikannya dengan tema gelap tanpa perlu menerbitkan viewnya.
+| Blok ini menyesuaikannya dengan tema semasa tanpa perlu menerbitkan viewnya.
 */
 .penomboran a,
 .penomboran span[aria-disabled='true'] > span,
@@ -1030,12 +1204,12 @@
 
 .penomboran a:hover {
     background-color: var(--color-permukaan) !important;
-    color: #fff !important;
+    color: var(--color-teks) !important;
 }
 
 .penomboran span[aria-current='page'] > span {
-    border-color: var(--color-merah) !important;
-    background-color: var(--color-merah) !important;
+    border-color: var(--color-aksen) !important;
+    background-color: var(--color-aksen) !important;
     color: #fff !important;
 }
 
@@ -1044,7 +1218,7 @@
     color: var(--color-malap) !important;
 }
 
-/* Mod cetak untuk Laporan Bulanan — buang tema gelap supaya jimat dakwat. */
+/* Mod cetak untuk Laporan Bulanan — buang tema dan hiasan supaya jimat dakwat. */
 @media print {
     .tanpa-cetak,
     .bar-sisi {

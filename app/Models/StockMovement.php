@@ -89,7 +89,7 @@ class StockMovement extends Model
     {
         return match ($this->jenis) {
             'masuk' => 'lencana-hijau',
-            'keluar' => 'lencana-merah',
+            'keluar' => 'lencana-bahaya',
             'pindah' => 'lencana-biru',
             default => 'lencana-kuning',
         };

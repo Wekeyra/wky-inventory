@@ -16,7 +16,7 @@
             </div>
 
             <div>
-                <label for="product_id" class="mb-1 block font-medium">{{ __('wky.medan.produk') }} <span class="text-merah">*</span></label>
+                <label for="product_id" class="mb-1 block font-medium">{{ __('wky.medan.produk') }} <span class="text-bahaya">*</span></label>
                 <select id="product_id" name="product_id" required @error('product_id') class="medan-ralat" @enderror>
                     <option value="">{{ __('wky.umum.pilih_produk') }}</option>
                     @foreach ($products as $produk)
@@ -40,7 +40,7 @@
             </div>
 
             <div>
-                <label for="location_id" class="mb-1 block font-medium">{{ __('wky.medan.lokasi') }} <span class="text-merah">*</span></label>
+                <label for="location_id" class="mb-1 block font-medium">{{ __('wky.medan.lokasi') }} <span class="text-bahaya">*</span></label>
                 <select id="location_id" name="location_id" required @error('location_id') class="medan-ralat" @enderror>
                     @foreach ($locations as $lokasi)
                         <option value="{{ $lokasi->id }}" @selected(old('location_id', $lokasiTerpilih) == $lokasi->id)>{{ $lokasi->nama }}</option>
@@ -52,7 +52,7 @@
 
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
-                    <label for="jenis" class="mb-1 block font-medium">{{ __('wky.medan.jenis') }} <span class="text-merah">*</span></label>
+                    <label for="jenis" class="mb-1 block font-medium">{{ __('wky.medan.jenis') }} <span class="text-bahaya">*</span></label>
                     <select id="jenis" name="jenis" required @error('jenis') class="medan-ralat" @enderror>
                         <option value="masuk" @selected(old('jenis') === 'masuk')>{{ __('wky.stok.masuk_tambah') }}</option>
                         <option value="keluar" @selected(old('jenis') === 'keluar')>{{ __('wky.stok.keluar_tolak') }}</option>
@@ -62,14 +62,14 @@
                 </div>
 
                 <div>
-                    <label for="kuantiti" class="mb-1 block font-medium">{{ __('wky.medan.kuantiti') }} <span class="text-merah">*</span></label>
+                    <label for="kuantiti" class="mb-1 block font-medium">{{ __('wky.medan.kuantiti') }} <span class="text-bahaya">*</span></label>
                     <input type="number" min="1" id="kuantiti" name="kuantiti" value="{{ old('kuantiti') }}" required @error('kuantiti') class="medan-ralat" @enderror>
                     @error('kuantiti') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
                 </div>
             </div>
 
             <div>
-                <label for="sebab" class="mb-1 block font-medium">{{ __('wky.medan.sebab') }} <span class="text-merah">*</span></label>
+                <label for="sebab" class="mb-1 block font-medium">{{ __('wky.medan.sebab') }} <span class="text-bahaya">*</span></label>
                 <select id="sebab" name="sebab" data-sebab required @error('sebab') class="medan-ralat" @enderror>
                     @foreach ($sebabPilihan as $jenisSebab => $senarai)
                         @foreach ($senarai as $nilai => $label)
@@ -91,7 +91,7 @@
             <div class="hidden" data-batch-masuk>
               <div class="grid gap-4 sm:grid-cols-3">
                 <div>
-                    <label for="no_batch" class="mb-1 block font-medium">{{ __('wky.batch.no_batch') }} <span class="text-merah">*</span></label>
+                    <label for="no_batch" class="mb-1 block font-medium">{{ __('wky.batch.no_batch') }} <span class="text-bahaya">*</span></label>
                     <input id="no_batch" name="no_batch" value="{{ old('no_batch') }}" @error('no_batch') class="medan-ralat" @enderror>
                     @error('no_batch') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
                 </div>
@@ -109,7 +109,7 @@
             </div>
 
             <div class="hidden" data-batch-keluar>
-                <label for="product_batch_id" class="mb-1 block font-medium">{{ __('wky.batch.pilih') }} <span class="text-merah">*</span></label>
+                <label for="product_batch_id" class="mb-1 block font-medium">{{ __('wky.batch.pilih') }} <span class="text-bahaya">*</span></label>
                 <select id="product_batch_id" name="product_batch_id" @error('product_batch_id') class="medan-ralat" @enderror>
                     <option value="">{{ __('wky.batch.pilih_kosong') }}</option>
                     @foreach ($products as $produk)

@@ -24,13 +24,13 @@
         <div class="kad kad-badan lg:col-span-2">
             <div class="grid gap-4 sm:grid-cols-3">
                 <div>
-                    <label for="sku" class="mb-1 block font-medium">{{ __('wky.medan.sku') }} <span class="text-merah">*</span></label>
+                    <label for="sku" class="mb-1 block font-medium">{{ __('wky.medan.sku') }} <span class="text-bahaya">*</span></label>
                     <input id="sku" name="sku" value="{{ old('sku', $product->sku) }}" required @error('sku') class="medan-ralat" @enderror>
                     @error('sku') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="sm:col-span-2">
-                    <label for="nama" class="mb-1 block font-medium">{{ __('wky.medan.nama') }} <span class="text-merah">*</span></label>
+                    <label for="nama" class="mb-1 block font-medium">{{ __('wky.medan.nama') }} <span class="text-bahaya">*</span></label>
                     <input id="nama" name="nama" value="{{ old('nama', $product->nama) }}" required @error('nama') class="medan-ralat" @enderror>
                     @error('nama') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
                 </div>
@@ -69,7 +69,7 @@
 
                         <div class="min-w-56 flex-1">
                             <input type="file" id="gambar" name="gambar" accept="image/jpeg,image/png,image/gif,image/webp"
-                                   class="file:mr-3 file:cursor-pointer file:rounded file:border-0 file:bg-merah-gelap file:px-3 file:py-1.5 file:text-sm file:text-white hover:file:bg-merah"
+                                   class="file:mr-3 file:cursor-pointer file:rounded file:border-0 file:bg-aksen-gelap file:px-3 file:py-1.5 file:text-sm file:text-white hover:file:bg-aksen"
                                    @error('gambar') class="medan-ralat" @enderror>
                             <p class="mt-1 text-xs text-malap">{{ __('wky.produk.nota_gambar') }}</p>
                             @error('gambar') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
@@ -104,24 +104,24 @@
         <div class="kad flex flex-col">
             <div class="kad-badan grid flex-1 gap-4 sm:grid-cols-2">
                 <div>
-                    <label for="harga_kos" class="mb-1 block font-medium">{{ __('wky.medan.harga_kos') }} <span class="text-merah">*</span></label>
+                    <label for="harga_kos" class="mb-1 block font-medium">{{ __('wky.medan.harga_kos') }} <span class="text-bahaya">*</span></label>
                     <input type="number" step="0.01" min="0" id="harga_kos" name="harga_kos" value="{{ old('harga_kos', $product->harga_kos ?? '0.00') }}" required @error('harga_kos') class="medan-ralat" @enderror>
                     @error('harga_kos') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
-                    <label for="harga_jual" class="mb-1 block font-medium">{{ __('wky.medan.harga_jual') }} <span class="text-merah">*</span></label>
+                    <label for="harga_jual" class="mb-1 block font-medium">{{ __('wky.medan.harga_jual') }} <span class="text-bahaya">*</span></label>
                     <input type="number" step="0.01" min="0" id="harga_jual" name="harga_jual" value="{{ old('harga_jual', $product->harga_jual ?? '0.00') }}" required @error('harga_jual') class="medan-ralat" @enderror>
                     @error('harga_jual') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
-                    <label for="unit" class="mb-1 block font-medium">{{ __('wky.medan.unit') }} <span class="text-merah">*</span></label>
+                    <label for="unit" class="mb-1 block font-medium">{{ __('wky.medan.unit') }} <span class="text-bahaya">*</span></label>
                     <input id="unit" name="unit" value="{{ old('unit', $product->unit ?? 'unit') }}" required>
                 </div>
 
                 <div>
-                    <label for="stok_minimum" class="mb-1 block font-medium">{{ __('wky.medan.stok_minimum') }} <span class="text-merah">*</span></label>
+                    <label for="stok_minimum" class="mb-1 block font-medium">{{ __('wky.medan.stok_minimum') }} <span class="text-bahaya">*</span></label>
                     <input type="number" min="0" id="stok_minimum" name="stok_minimum" value="{{ old('stok_minimum', $product->stok_minimum ?? 0) }}" required>
                 </div>
 

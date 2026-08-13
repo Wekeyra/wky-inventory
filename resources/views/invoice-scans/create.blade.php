@@ -16,7 +16,7 @@
         <div class="kad-badan space-y-4">
             <div>
                 <label for="invois" class="mb-1 block font-medium">
-                    {{ __('wky.imbas.fail_invois') }} <span class="text-merah">*</span>
+                    {{ __('wky.imbas.fail_invois') }} <span class="text-bahaya">*</span>
                 </label>
 
                 <button type="button" class="btn-wky mb-3 w-full py-3 sm:w-auto sm:px-5" id="butangKamera">
@@ -28,7 +28,7 @@
 
                 <input type="file" id="invois" name="invois" required
                        accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-                       class="file:mr-3 file:cursor-pointer file:rounded file:border-0 file:bg-merah-gelap file:px-3 file:py-1.5 file:text-sm file:text-white hover:file:bg-merah"
+                       class="file:mr-3 file:cursor-pointer file:rounded file:border-0 file:bg-aksen-gelap file:px-3 file:py-1.5 file:text-sm file:text-white hover:file:bg-aksen"
                        @error('invois') class="medan-ralat" @enderror>
 
                 {{--
@@ -104,10 +104,10 @@
         <div class="kad w-full max-w-2xl shadow-2xl">
             <div class="kad-kepala">
                 <h2 id="tajuk-modal-kamera" class="flex items-center gap-2 font-semibold">
-                    <x-ikon nama="imbas" kelas="size-5 text-merah" />
+                    <x-ikon nama="imbas" kelas="size-5 text-aksen" />
                     {{ __('wky.imbas.kamera_tajuk') }}
                 </h2>
-                <button type="button" class="cursor-pointer text-malap hover:text-white" data-modal-tutup
+                <button type="button" class="cursor-pointer text-malap hover:text-teks" data-modal-tutup
                         aria-label="{{ __('wky.aksi.batal') }}">
                     <x-ikon nama="silang" />
                 </button>

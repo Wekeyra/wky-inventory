@@ -21,7 +21,7 @@
     </div>
 
     <div class="mb-4">
-        <h2 class="text-lg font-semibold text-white">{{ __('wky.laporan.tajuk_penuh', ['bulan' => $bulan->translatedFormat('F Y')]) }}</h2>
+        <h2 class="text-lg font-semibold text-teks">{{ __('wky.laporan.tajuk_penuh', ['bulan' => $bulan->translatedFormat('F Y')]) }}</h2>
         <p class="text-sm text-malap">
             {{ __('wky.laporan.dijana_pada', ['tarikh' => now()->format('d/m/Y H:i'), 'nama' => auth()->user()->name]) }}
         </p>
@@ -51,7 +51,7 @@
     <div class="kad">
         <div class="kad-kepala">
             <span class="flex items-center gap-2 font-semibold">
-                <x-ikon nama="senarai" kelas="size-5 text-merah" />
+                <x-ikon nama="senarai" kelas="size-5 text-aksen" />
                 {{ __('wky.laporan.pecahan_produk') }}
             </span>
         </div>
@@ -82,7 +82,7 @@
                         </td>
                         <td class="text-right">{{ number_format($item['masuk']) }}</td>
                         <td class="text-right">{{ number_format($item['keluar']) }}</td>
-                        <td class="text-right font-medium {{ $bersih < 0 ? 'text-merah-terang' : ($bersih > 0 ? 'text-emerald-400' : 'text-malap') }}">
+                        <td class="text-right font-medium {{ $bersih < 0 ? 'text-bahaya-terang' : ($bersih > 0 ? 'text-emerald-400' : 'text-malap') }}">
                             {{ $bersih > 0 ? '+' : '' }}{{ number_format($bersih) }}
                         </td>
                         <td class="text-right text-malap">{{ $item['bil_transaksi'] }}</td>

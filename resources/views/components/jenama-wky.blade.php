@@ -1,7 +1,7 @@
 @props(['kelas' => 'text-3xl sm:text-4xl'])
 
 {{--
-    Kata jenama "WKY INVENTORY" mengikut susunan logo: WKY merah, INVENTORY putih.
+    Kata jenama "WKY INVENTORY" mengikut susunan logo: WKY aksen, INVENTORY putih.
 
     Ditulis sebagai teks dan bukan sebahagian daripada fail logo supaya ia kekal
     tajam pada setiap saiz skrin dan boleh dibaca pembaca skrin.
@@ -12,5 +12,5 @@
     bertanda sempang pada halaman log masuk produksi.
 --}}
 <span {{ $attributes->merge(['class' => $kelas . ' font-bold tracking-[0.08em] whitespace-nowrap']) }}>
-    <span class="text-merah-terang">WKY</span><span class="text-white"> INVENTORY</span>
+    <span class="text-aksen-terang">WKY</span><span class="text-teks"> INVENTORY</span>
 </span>

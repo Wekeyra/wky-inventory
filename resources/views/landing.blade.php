@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark scroll-smooth">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name') }} &middot; {{ __('wky.app.subtajuk') }}</title>
     <meta name="description" content="{{ __('wky.landing.hero_teks') }}">
+    @include('partials.skrip-tema')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 {{-- overflow-x-hidden sahaja supaya halaman panjang ini kekal boleh diskrol. --}}
@@ -38,6 +39,7 @@
 
             <div class="ml-auto flex items-center gap-2 lg:ml-0">
                 @include('partials.bahasa')
+                <x-togol-tema />
 
                 <a href="{{ route('login') }}" class="btn-garis hidden sm:inline-flex">
                     {{ __('wky.aksi.log_masuk') }}
@@ -54,7 +56,7 @@
         </div>
 
         {{-- Menu mudah alih; guna pencetus data-jatuh yang sama seperti menu lain. --}}
-        <div id="menu-landing" class="hidden border-t border-merah/15 bg-black/80 backdrop-blur-md lg:hidden">
+        <div id="menu-landing" class="hidden border-t border-aksen/15 bg-latar/95 backdrop-blur-md lg:hidden">
             <nav class="mx-auto flex w-full max-w-6xl flex-col gap-1 px-4 py-3" aria-label="{{ __('wky.landing.nav_menu') }}">
                 @foreach ($pautan as $id => $label)
                     <a href="#{{ $id }}" class="pautan-nav">{{ $label }}</a>
@@ -79,7 +81,7 @@
                     {{ __('wky.app.subtajuk') }}
                 </p>
 
-                <h1 class="mt-3 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+                <h1 class="mt-3 text-4xl font-bold tracking-tight text-teks sm:text-5xl">
                     {{ __('wky.landing.hero_tajuk') }}
                 </h1>
 
@@ -98,19 +100,19 @@
 
                 {{-- Rantai aliran: imbas → stok → laporan. --}}
                 <div class="mt-10 inline-flex flex-wrap items-center justify-center gap-x-3 gap-y-2
-                            rounded-full border border-merah/20 bg-black/40 px-5 py-2.5 backdrop-blur-sm">
+                            rounded-full border border-aksen/20 bg-permukaan/50 px-5 py-2.5 backdrop-blur-sm">
                     <span class="inline-flex items-center gap-1.5 text-sm text-malap">
-                        <x-ikon nama="imbas" kelas="size-4 text-merah-terang" />
+                        <x-ikon nama="imbas" kelas="size-4 text-aksen-terang" />
                         {{ __('wky.landing.hero_rantai_imbas') }}
                     </span>
                     <x-ikon nama="anak-panah-kanan" kelas="size-3.5 text-malap/50" />
                     <span class="inline-flex items-center gap-1.5 text-sm text-malap">
-                        <x-ikon nama="kotak" kelas="size-4 text-merah-terang" />
+                        <x-ikon nama="kotak" kelas="size-4 text-aksen-terang" />
                         {{ __('wky.landing.hero_rantai_stok') }}
                     </span>
                     <x-ikon nama="anak-panah-kanan" kelas="size-3.5 text-malap/50" />
                     <span class="inline-flex items-center gap-1.5 text-sm text-malap">
-                        <x-ikon nama="dokumen-carta" kelas="size-4 text-merah-terang" />
+                        <x-ikon nama="dokumen-carta" kelas="size-4 text-aksen-terang" />
                         {{ __('wky.landing.hero_rantai_laporan') }}
                     </span>
                 </div>
@@ -139,7 +141,7 @@
                     @foreach ($ciri as [$ikon, $kunci])
                         <div class="kad-ciri">
                             <div class="ikon-ciri"><x-ikon :nama="$ikon" /></div>
-                            <h3 class="mb-1.5 font-semibold text-white">
+                            <h3 class="mb-1.5 font-semibold text-teks">
                                 {{ __("wky.auth.ciri_{$kunci}_tajuk") }}
                             </h3>
                             <p class="text-sm leading-relaxed text-malap">
@@ -168,17 +170,17 @@
                     @foreach ($pakej as $p)
                         <div class="{{ $p['utama'] ? 'kad-harga kad-harga-utama' : 'kad-harga' }}">
                             @if ($p['utama'])
-                                <span class="lencana-merah absolute -top-3 left-1/2 -translate-x-1/2">
+                                <span class="lencana-aksen absolute -top-3 left-1/2 -translate-x-1/2">
                                     {{ __('wky.landing.harga_popular') }}
                                 </span>
                             @endif
 
-                            <h3 class="text-sm font-semibold tracking-wider text-merah-terang uppercase">
+                            <h3 class="text-sm font-semibold tracking-wider text-aksen-terang uppercase">
                                 {{ __("wky.landing.harga_{$p['kunci']}_nama") }}
                             </h3>
 
                             <p class="mt-3 flex items-baseline gap-1">
-                                <span class="text-3xl font-bold text-white">
+                                <span class="text-3xl font-bold text-teks">
                                     {{ __("wky.landing.harga_{$p['kunci']}_harga") }}
                                 </span>
                                 @if ($p['sebulan'])
@@ -193,7 +195,7 @@
                             <ul class="mt-5 space-y-2.5 border-t border-bingkai pt-5">
                                 @for ($i = 1; $i <= 4; $i++)
                                     <li class="flex items-start gap-2 text-sm text-teks">
-                                        <x-ikon nama="tanda-semak" kelas="mt-0.5 size-4 shrink-0 text-merah-terang" />
+                                        <x-ikon nama="tanda-semak" kelas="mt-0.5 size-4 shrink-0 text-aksen-terang" />
                                         {{ __("wky.landing.harga_{$p['kunci']}_ciri_{$i}") }}
                                     </li>
                                 @endfor
@@ -217,10 +219,10 @@
                 <div class="mt-10 grid gap-4 lg:grid-cols-3">
                     @foreach ([1, 2, 3] as $langkah)
                         <div class="kad-ciri relative pt-6">
-                            <span class="absolute top-4 right-5 text-4xl font-bold text-merah/20 tabular-nums">
+                            <span class="absolute top-4 right-5 text-4xl font-bold text-aksen/20 tabular-nums">
                                 {{ $langkah }}
                             </span>
-                            <h3 class="mb-1.5 font-semibold text-white">
+                            <h3 class="mb-1.5 font-semibold text-teks">
                                 {{ __("wky.landing.inventori_langkah_{$langkah}_tajuk") }}
                             </h3>
                             <p class="text-sm leading-relaxed text-malap">
@@ -236,7 +238,7 @@
 
                 <div class="mt-4 flex flex-wrap justify-center gap-2">
                     @foreach (['produk', 'kategori', 'pembekal', 'imbas_invois', 'kiraan_stok', 'pergerakan_stok', 'laporan_bulanan'] as $modul)
-                        <span class="rounded-full border border-merah/20 bg-black/40 px-3.5 py-1.5 text-sm text-teks">
+                        <span class="rounded-full border border-aksen/20 bg-permukaan/50 px-3.5 py-1.5 text-sm text-teks">
                             {{ __("wky.nav.{$modul}") }}
                         </span>
                     @endforeach
@@ -258,12 +260,12 @@
 
                     <div class="space-y-3">
                         @foreach ([['tanda-semak', 1], ['kotak', 2], ['pengguna-ramai', 3]] as [$ikon, $n])
-                            <div class="flex items-start gap-3.5 rounded-xl border border-merah/15 bg-black/35 p-4">
+                            <div class="flex items-start gap-3.5 rounded-xl border border-aksen/15 bg-permukaan/40 p-4">
                                 <div class="ikon-ciri mb-0 size-10 shrink-0">
                                     <x-ikon :nama="$ikon" kelas="size-4" />
                                 </div>
                                 <div>
-                                    <h3 class="font-semibold text-white">
+                                    <h3 class="font-semibold text-teks">
                                         {{ __("wky.landing.tentang_nilai_{$n}_tajuk") }}
                                     </h3>
                                     <p class="mt-0.5 text-sm text-malap">
@@ -281,7 +283,7 @@
         <section class="seksyen-landing">
             <div class="mx-auto max-w-3xl px-4">
                 <div class="kad-log-masuk text-center">
-                    <h2 class="text-2xl font-bold text-white sm:text-3xl">
+                    <h2 class="text-2xl font-bold text-teks sm:text-3xl">
                         {{ __('wky.landing.cta_tajuk') }}
                     </h2>
                     <p class="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-malap sm:text-base">
@@ -295,7 +297,7 @@
         </section>
     </main>
 
-    <footer class="relative z-10 border-t border-merah/15 py-8">
+    <footer class="relative z-10 border-t border-aksen/15 py-8">
         <div class="mx-auto flex w-full max-w-6xl flex-col items-center gap-3 px-4 sm:flex-row sm:justify-between">
             <div class="flex items-center gap-2.5">
                 <x-logo-wky kelas="size-7" />

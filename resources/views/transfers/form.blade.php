@@ -8,7 +8,7 @@
         <div class="kad-badan space-y-4">
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
-                    <label for="location_asal_id" class="mb-1 block font-medium">{{ __('wky.pindah.dari') }} <span class="text-merah">*</span></label>
+                    <label for="location_asal_id" class="mb-1 block font-medium">{{ __('wky.pindah.dari') }} <span class="text-bahaya">*</span></label>
                     <select id="location_asal_id" name="location_asal_id" required @error('location_asal_id') class="medan-ralat" @enderror>
                         @foreach ($locations as $lokasi)
                             <option value="{{ $lokasi->id }}" @selected(old('location_asal_id', $asalTerpilih) == $lokasi->id)>{{ $lokasi->nama }}</option>
@@ -18,7 +18,7 @@
                 </div>
 
                 <div>
-                    <label for="location_tujuan_id" class="mb-1 block font-medium">{{ __('wky.pindah.ke') }} <span class="text-merah">*</span></label>
+                    <label for="location_tujuan_id" class="mb-1 block font-medium">{{ __('wky.pindah.ke') }} <span class="text-bahaya">*</span></label>
                     <select id="location_tujuan_id" name="location_tujuan_id" required @error('location_tujuan_id') class="medan-ralat" @enderror>
                         @foreach ($locations as $lokasi)
                             <option value="{{ $lokasi->id }}" @selected(old('location_tujuan_id') == $lokasi->id)>{{ $lokasi->nama }}</option>
@@ -30,7 +30,7 @@
 
             <div>
                 <div class="mb-1 flex items-center justify-between">
-                    <span class="font-medium">{{ __('wky.pindah.barang') }} <span class="text-merah">*</span></span>
+                    <span class="font-medium">{{ __('wky.pindah.barang') }} <span class="text-bahaya">*</span></span>
                     <button type="button" class="btn-garis btn-kecil" id="tambahBaris">
                         <x-ikon nama="tambah" kelas="size-4" /> {{ __('wky.pindah.tambah_baris') }}
                     </button>

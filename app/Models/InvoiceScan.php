@@ -90,7 +90,7 @@ class InvoiceScan extends Model
         return match ($this->status) {
             'draf' => 'lencana-kuning',
             'selesai' => 'lencana-hijau',
-            'gagal' => 'lencana-merah',
+            'gagal' => 'lencana-bahaya',
             default => 'lencana-kelabu',
         };
     }

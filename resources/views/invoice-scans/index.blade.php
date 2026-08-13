@@ -5,7 +5,7 @@
     <div class="kad">
         <div class="kad-kepala">
             <span class="flex items-center gap-2 font-semibold">
-                <x-ikon nama="imbas" kelas="size-5 text-merah" />
+                <x-ikon nama="imbas" kelas="size-5 text-aksen" />
                 {{ __('wky.imbas.tajuk_senarai') }}
             </span>
             <a href="{{ route('invoice-scans.create') }}" class="btn-utama btn-kecil">

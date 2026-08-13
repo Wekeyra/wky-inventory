@@ -5,7 +5,7 @@
     <div class="kad">
         <div class="kad-kepala">
             <span class="flex items-center gap-2 font-semibold">
-                <x-ikon nama="papan-klip" kelas="size-5 text-merah" />
+                <x-ikon nama="papan-klip" kelas="size-5 text-aksen" />
                 {{ __('wky.kiraan.tajuk_sesi') }}
             </span>
             <a href="{{ route('stock-counts.create') }}" class="btn-utama btn-kecil">

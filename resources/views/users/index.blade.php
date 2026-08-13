@@ -34,7 +34,7 @@
                             @endif
                         </td>
                         <td>
-                            <span class="{{ $pengguna->isAdmin() ? 'lencana-merah' : 'lencana-kelabu' }}">
+                            <span class="{{ $pengguna->isAdmin() ? 'lencana-aksen' : 'lencana-kelabu' }}">
                                 {{ __('wky.pengguna.' . $pengguna->peranan) }}
                             </span>
                         </td>

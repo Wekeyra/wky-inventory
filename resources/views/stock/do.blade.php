@@ -13,7 +13,7 @@
         <div class="flex flex-wrap items-start justify-between gap-4 border-b border-bingkai pb-4">
             <div>
                 {{-- Nama ruang kerja ialah nama syarikat yang mendaftar, jadi dokumen ini keluar atas namanya sendiri. --}}
-                <h2 class="text-lg font-semibold text-white">{{ auth()->user()->workspace?->nama }}</h2>
+                <h2 class="text-lg font-semibold text-teks">{{ auth()->user()->workspace?->nama }}</h2>
                 <p class="text-sm text-malap">{{ __('wky.do.tajuk') }}</p>
             </div>
 

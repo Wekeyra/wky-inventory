@@ -81,7 +81,7 @@ class ProductBatch extends Model
 
         return match (true) {
             $hari === null => 'lencana-kelabu',
-            $hari < 0 => 'lencana-merah',
+            $hari < 0 => 'lencana-bahaya',
             $hari <= self::HARI_AMARAN => 'lencana-kuning',
             default => 'lencana-hijau',
         };

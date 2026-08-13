@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ __('wky.aksi.log_masuk') }} &middot; {{ config('app.name') }}</title>
+    @include('partials.skrip-tema')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 {{-- overflow-x-hidden sahaja supaya halaman kekal boleh diskrol pada skrin pendek. --}}
@@ -23,7 +24,10 @@
                 {{ __('wky.auth.kembali_utama') }}
             </a>
 
-            @include('partials.bahasa')
+            <div class="flex items-center gap-2">
+                @include('partials.bahasa')
+                <x-togol-tema />
+            </div>
         </div>
 
         <div class="mb-8 text-center">

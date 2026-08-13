@@ -63,7 +63,7 @@
             </div>
             <div class="flex justify-between">
                 <span class="text-malap">{{ __('wky.kiraan.jumlah_kurang') }}</span>
-                <span class="font-semibold text-merah-terang" id="jumlahKurang">{{ number_format($kurang) }}</span>
+                <span class="font-semibold text-bahaya-terang" id="jumlahKurang">{{ number_format($kurang) }}</span>
             </div>
         </div>
     </div>
@@ -74,7 +74,7 @@
 
         <div class="kad-kepala">
             <span class="flex items-center gap-2 font-semibold">
-                <x-ikon nama="senarai" kelas="size-5 text-merah" />
+                <x-ikon nama="senarai" kelas="size-5 text-aksen" />
                 {{ __('wky.kiraan.senarai_produk') }}
             </span>
             @if ($sesi->isDraf())
@@ -118,7 +118,7 @@
                             @if ($beza === null)
                                 <span class="text-malap">{{ __('wky.umum.kosong') }}</span>
                             @else
-                                <span class="{{ $beza < 0 ? 'text-merah-terang' : ($beza > 0 ? 'text-emerald-400' : 'text-malap') }}">
+                                <span class="{{ $beza < 0 ? 'text-bahaya-terang' : ($beza > 0 ? 'text-emerald-400' : 'text-malap') }}">
                                     {{ $beza > 0 ? '+' : '' }}{{ number_format($beza) }}
                                 </span>
                             @endif
@@ -190,7 +190,7 @@
                             beza > 0 ? lebih += beza : kurang += beza;
                         }
 
-                        const warna = beza < 0 ? 'text-merah-terang' : (beza > 0 ? 'text-emerald-400' : 'text-malap');
+                        const warna = beza < 0 ? 'text-bahaya-terang' : (beza > 0 ? 'text-emerald-400' : 'text-malap');
                         sel.innerHTML = '<span class="' + warna + '">' + (beza > 0 ? '+' : '') + beza + '</span>';
                     });
 

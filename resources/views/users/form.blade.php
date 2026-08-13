@@ -21,19 +21,19 @@
             @endif
 
             <div>
-                <label for="name" class="mb-1 block font-medium">{{ __('wky.medan.nama') }} <span class="text-merah">*</span></label>
+                <label for="name" class="mb-1 block font-medium">{{ __('wky.medan.nama') }} <span class="text-bahaya">*</span></label>
                 <input id="name" name="name" value="{{ old('name', $user->name) }}" required @error('name') class="medan-ralat" @enderror>
                 @error('name') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
             </div>
 
             <div>
-                <label for="email" class="mb-1 block font-medium">{{ __('wky.medan.emel') }} <span class="text-merah">*</span></label>
+                <label for="email" class="mb-1 block font-medium">{{ __('wky.medan.emel') }} <span class="text-bahaya">*</span></label>
                 <input type="email" id="email" name="email" value="{{ old('email', $user->email) }}" required @error('email') class="medan-ralat" @enderror>
                 @error('email') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
             </div>
 
             <div>
-                <label for="peranan" class="mb-1 block font-medium">{{ __('wky.medan.peranan') }} <span class="text-merah">*</span></label>
+                <label for="peranan" class="mb-1 block font-medium">{{ __('wky.medan.peranan') }} <span class="text-bahaya">*</span></label>
                 <select id="peranan" name="peranan" required @disabled($sendiri)>
                     <option value="staf" @selected(old('peranan', $user->peranan) === 'staf')>{{ __('wky.pengguna.peranan_staf') }}</option>
                     <option value="admin" @selected(old('peranan', $user->peranan) === 'admin')>{{ __('wky.pengguna.peranan_admin') }}</option>
@@ -53,7 +53,7 @@
                     @elseif ($user->exists)
                         <span class="text-xs font-normal text-malap">{{ __('wky.pengguna.kata_laluan_kosong') }}</span>
                     @else
-                        <span class="text-merah">*</span>
+                        <span class="text-bahaya">*</span>
                     @endif
                 </label>
                 <x-medan-kata-laluan id="password" name="password" :wajib="! $user->exists"

@@ -43,7 +43,7 @@
             <div class="kad">
                 <div class="kad-kepala">
                     <span class="flex items-center gap-2 font-semibold">
-                        <x-ikon nama="amaran" kelas="size-5 text-merah" />
+                        <x-ikon nama="amaran" kelas="size-5 text-bahaya" />
                         {{ __('wky.dashboard.amaran_stok_rendah') }}
                     </span>
                     <a href="{{ route('products.index', ['stok_rendah' => 1]) }}" class="btn-garis btn-kecil">{{ __('wky.aksi.lihat_semua') }}</a>
@@ -62,10 +62,10 @@
                         @forelse ($stokRendah as $produk)
                             <tr>
                                 <td>
-                                    <a href="{{ route('products.show', $produk) }}" class="font-medium text-teks hover:text-merah-terang">{{ $produk->nama }}</a>
+                                    <a href="{{ route('products.show', $produk) }}" class="font-medium text-teks hover:text-aksen-terang">{{ $produk->nama }}</a>
                                     <p class="text-xs text-malap">{{ $produk->sku }}</p>
                                 </td>
-                                <td class="text-right"><span class="lencana-merah">{{ $produk->stok }}</span></td>
+                                <td class="text-right"><span class="lencana-bahaya">{{ $produk->stok }}</span></td>
                                 <td class="text-right text-malap">{{ $produk->stok_minimum }}</td>
                             </tr>
                         @empty
@@ -85,7 +85,7 @@
                 <div class="kad">
                     <div class="kad-kepala">
                         <span class="flex items-center gap-2 font-semibold">
-                            <x-ikon nama="kalendar" kelas="size-5 text-merah" />
+                            <x-ikon nama="kalendar" kelas="size-5 text-bahaya" />
                             {{ __('wky.batch.amaran_luput') }}
                         </span>
                     </div>
@@ -104,7 +104,7 @@
                             @foreach ($batchLuput as $batch)
                                 <tr>
                                     <td>
-                                        <a href="{{ route('products.show', $batch->product_id) }}" class="font-medium text-teks hover:text-merah-terang">{{ $batch->product?->nama }}</a>
+                                        <a href="{{ route('products.show', $batch->product_id) }}" class="font-medium text-teks hover:text-aksen-terang">{{ $batch->product?->nama }}</a>
                                         <p class="text-xs text-malap">{{ $batch->product?->sku }}</p>
                                     </td>
                                     <td><code>{{ $batch->no_batch }}</code></td>
@@ -124,7 +124,7 @@
             <div class="kad">
                 <div class="kad-kepala">
                     <span class="flex items-center gap-2 font-semibold">
-                        <x-ikon nama="papan-klip" kelas="size-5 text-merah" />
+                        <x-ikon nama="papan-klip" kelas="size-5 text-aksen" />
                         {{ __('wky.kiraan.tajuk') }}
                         @if ($kiraanDraf > 0)
                             <span class="lencana-kuning">{{ __('wky.dashboard.sesi_terbuka', ['bil' => $kiraanDraf]) }}</span>
@@ -169,7 +169,7 @@
             <div class="kad">
                 <div class="kad-kepala !block">
                     <p class="flex items-center gap-2 font-semibold">
-                        <x-ikon nama="carta-naik" kelas="size-5 text-merah" />
+                        <x-ikon nama="carta-naik" kelas="size-5 text-aksen" />
                         {{ __('wky.dashboard.ringkasan_bulanan') }}
                     </p>
                     <p class="text-xs text-malap">{{ __('wky.dashboard.ringkasan_subtajuk') }}</p>
@@ -182,7 +182,7 @@
             <div class="kad">
                 <div class="kad-kepala">
                     <span class="flex items-center gap-2 font-semibold">
-                        <x-ikon nama="jam" kelas="size-5 text-merah" />
+                        <x-ikon nama="jam" kelas="size-5 text-aksen" />
                         {{ __('wky.dashboard.pergerakan_terkini') }}
                     </span>
                     <a href="{{ route('stock.index') }}" class="btn-garis btn-kecil">{{ __('wky.aksi.lihat_semua') }}</a>

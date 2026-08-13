@@ -44,14 +44,14 @@
 
 <svg class="konstelasi" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice"
      fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <g stroke="#dc2626">
+    <g stroke="rgb(var(--rgb-aksen))">
         @foreach ($garis as [$a, $b, $legap])
             <line x1="{{ $a['x'] }}" y1="{{ $a['y'] }}" x2="{{ $b['x'] }}" y2="{{ $b['y'] }}"
                   stroke-width="0.6" opacity="{{ $legap }}" />
         @endforeach
     </g>
 
-    <g fill="#ef4444">
+    <g fill="rgb(var(--rgb-aksen-terang))">
         @foreach ($nod as $titik)
             <circle cx="{{ $titik['x'] }}" cy="{{ $titik['y'] }}" r="{{ $titik['r'] }}"
                     opacity="{{ $titik['r'] > 2 ? 0.75 : 0.45 }}" />
@@ -63,8 +63,8 @@
      xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <defs>
         <linearGradient id="bandar" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#1c1e26" />
-            <stop offset="100%" stop-color="#08080a" />
+            <stop offset="0%" stop-color="var(--siluet-atas)" />
+            <stop offset="100%" stop-color="var(--siluet-bawah)" />
         </linearGradient>
     </defs>
 

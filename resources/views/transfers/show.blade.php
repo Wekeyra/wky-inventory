@@ -5,7 +5,7 @@
     <div class="kad">
         <div class="kad-kepala">
             <span class="flex flex-wrap items-center gap-2 font-semibold">
-                <x-ikon nama="pindah" kelas="size-5 text-merah" />
+                <x-ikon nama="pindah" kelas="size-5 text-aksen" />
                 <code>{{ $pemindahan->kod }}</code>
                 <span class="{{ $pemindahan->kelasStatus() }}">{{ $pemindahan->labelStatus() }}</span>
             </span>

@@ -65,7 +65,7 @@
             </div>
             <div class="flex justify-between">
                 <span class="text-malap">{{ __('wky.imbas.perlu_dipilih') }}</span>
-                <span class="font-semibold text-merah-terang">{{ $tiadaPadanan->count() }}</span>
+                <span class="font-semibold text-bahaya-terang">{{ $tiadaPadanan->count() }}</span>
             </div>
             <div class="flex justify-between">
                 <span class="text-malap">{{ __('wky.imbas.dilangkau') }}</span>
@@ -162,7 +162,7 @@
                 </thead>
                 <tbody>
                 @foreach ($imbasan->items as $item)
-                    <tr class="{{ $item->sudahPadan() ? '' : 'bg-merah/5' }}">
+                    <tr class="{{ $item->sudahPadan() ? '' : 'bg-bahaya/5' }}">
                         <td>
                             <p class="font-medium">{{ $item->nama_invois }}</p>
                             <p class="text-xs text-malap">
@@ -192,7 +192,7 @@
                                 --}}
                                 @unless ($item->sudahPadan())
                                     <a href="{{ route('products.create', ['baris_imbasan' => $item->id]) }}"
-                                       class="mt-1.5 inline-flex items-center gap-1 text-xs text-malap hover:text-merah">
+                                       class="mt-1.5 inline-flex items-center gap-1 text-xs text-malap hover:text-aksen">
                                         <x-ikon nama="tambah" kelas="size-3.5" />
                                         {{ __('wky.imbas.cipta_produk') }}
                                     </a>

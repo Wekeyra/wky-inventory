@@ -73,7 +73,7 @@
                         <td>{{ $produk->supplier?->nama ?? __('wky.umum.kosong') }}</td>
                         <td class="text-right whitespace-nowrap">RM {{ number_format($produk->harga_jual, 2) }}</td>
                         <td class="text-right">
-                            <span class="{{ $produk->stok <= $produk->stok_minimum ? 'lencana-merah' : 'lencana-hijau' }}">
+                            <span class="{{ $produk->stok <= $produk->stok_minimum ? 'lencana-bahaya' : 'lencana-hijau' }}">
                                 {{ $produk->stok }} {{ $produk->unit }}
                             </span>
                         </td>

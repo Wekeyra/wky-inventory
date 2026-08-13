@@ -6,6 +6,10 @@ return [
         'subtajuk' => 'Inventory Management System',
     ],
 
+    'tema' => [
+        'tukar' => 'Switch light/dark theme',
+    ],
+
     /*
      | Public landing page.
      |
@@ -178,6 +182,7 @@ return [
     ],
 
     'umum' => [
+        'langkau_ke_kandungan' => 'Skip to content',
         'tiada' => 'None',
         'kosong' => '—',
         'aktif' => 'Active',

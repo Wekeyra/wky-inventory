@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ __('wky.auth.daftar') }} &middot; {{ config('app.name') }}</title>
+    @include('partials.skrip-tema')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 {{--
@@ -21,13 +22,16 @@
                 {{ __('wky.auth.kembali_log_masuk') }}
             </a>
 
-            @include('partials.bahasa')
+            <div class="flex items-center gap-2">
+                @include('partials.bahasa')
+                <x-togol-tema />
+            </div>
         </div>
 
         <div class="mb-8 text-center">
             <x-logo-wky kelas="jenama-log-masuk mx-auto size-28 sm:size-32" />
 
-            <h1 class="mt-4 text-2xl font-bold tracking-wide text-white sm:text-3xl">
+            <h1 class="mt-4 text-2xl font-bold tracking-wide text-teks sm:text-3xl">
                 {{ __('wky.auth.daftar_tajuk') }}
             </h1>
             <p class="mt-2">
@@ -100,7 +104,7 @@
 
         <section class="mt-16 w-full max-w-5xl">
             <div class="mb-8 text-center">
-                <h2 class="text-xl font-semibold text-white sm:text-2xl">{{ __('wky.auth.ciri_tajuk') }}</h2>
+                <h2 class="text-xl font-semibold text-teks sm:text-2xl">{{ __('wky.auth.ciri_tajuk') }}</h2>
                 <p class="mx-auto mt-2 max-w-xl text-sm text-malap">{{ __('wky.auth.ciri_subtajuk') }}</p>
             </div>
 
@@ -119,7 +123,7 @@
                 @foreach ($ciri as [$ikon, $kunci])
                     <div class="kad-ciri">
                         <div class="ikon-ciri"><x-ikon :nama="$ikon" /></div>
-                        <h3 class="mb-1.5 font-semibold text-white">{{ __('wky.auth.ciri_' . $kunci . '_tajuk') }}</h3>
+                        <h3 class="mb-1.5 font-semibold text-teks">{{ __('wky.auth.ciri_' . $kunci . '_tajuk') }}</h3>
                         <p class="text-sm leading-relaxed text-malap">{{ __('wky.auth.ciri_' . $kunci . '_teks') }}</p>
                     </div>
                 @endforeach

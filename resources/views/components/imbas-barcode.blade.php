@@ -26,10 +26,10 @@
     <div class="kad w-full max-w-lg shadow-2xl">
         <div class="kad-kepala">
             <h2 id="tajuk-{{ $modal }}" class="flex items-center gap-2 font-semibold">
-                <x-ikon nama="barcode" kelas="size-5 text-merah" />
+                <x-ikon nama="barcode" kelas="size-5 text-aksen" />
                 {{ __('wky.barcode.tajuk') }}
             </h2>
-            <button type="button" class="cursor-pointer text-malap hover:text-white" data-modal-tutup
+            <button type="button" class="cursor-pointer text-malap hover:text-teks" data-modal-tutup
                     aria-label="{{ __('wky.aksi.batal') }}">
                 <x-ikon nama="silang" />
             </button>

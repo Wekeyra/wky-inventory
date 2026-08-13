@@ -22,5 +22,5 @@
     <img src="{{ asset($tanda) }}" alt=""
          {{ $attributes->merge(['class' => $kelas . ' shrink-0 object-contain']) }}>
 @else
-    <x-ikon nama="kotak-jenama" :kelas="$kelas . ' shrink-0 text-merah'" />
+    <x-ikon nama="kotak-jenama" :kelas="$kelas . ' shrink-0 text-aksen'" />
 @endif

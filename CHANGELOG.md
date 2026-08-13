@@ -10,6 +10,16 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ### Ditambah
 
+- **Tema terang dan gelap.** Butang suria/bulan di bar atas menukar tema, dan ia muncul pada
+  dashboard, log masuk, pendaftaran serta halaman pendaratan. Pilihan diingati pada peranti
+  itu; lawatan pertama mengikut tetapan sistem pengendalian pengguna. Halaman ditetapkan
+  temanya sebelum dicat, jadi tiada kelipan putih semasa memuat.
+- **Pautan "Langkau ke kandungan"** pada setiap halaman sistem, tersembunyi sehingga difokus.
+  Pengguna papan kekunci tidak perlu lagi menekan Tab melalui seluruh nav sisi pada setiap
+  halaman.
+- **Perangkap fokus dalam modal.** Tab kini berkitar di dalam modal yang terbuka dan tidak
+  boleh terkeluar ke kandungan di belakangnya. Menutup modal memulangkan fokus ke butang yang
+  membukanya, bukan mencampakkannya ke atas halaman.
 - **Gudang dan cawangan.** Setiap ruang kerja bermula dengan satu Gudang Utama, dan gudang
   lain boleh ditambah. Baki setiap produk kini disimpan bagi setiap gudang, berserta catatan
   rak atau bin, sementara jumlah keseluruhan produk kekal seperti biasa. Halaman produk
@@ -56,6 +66,13 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ### Diubah
 
+- **Warna jenama bertukar daripada merah kepada tanah liat hangat**, dan merah sebenar kini
+  dikhaskan untuk amaran, ralat dan butang padam sahaja. Sebelum ini butang *Simpan* dan butang
+  *Padam* berkongsi warna yang sama dan hanya berbeza pada bentuknya.
+- **Tema lalai kini terang.** Pemasangan sedia ada yang mahu kekal gelap hanya perlu menekan
+  togol sekali; pilihan itu diingati selepas itu.
+- **Butang menunjukkan hierarki yang lebih jelas** antara tindakan utama, tindakan kedua,
+  tindakan neutral dan tindakan merosakkan, dan memberi maklum balas ringkas apabila ditekan.
 - **`ruang-kerja:kosongkan` turut membuang pemindahan stok** dan baki gudang, supaya ruang
   kerja yang dikosongkan tidak meninggalkan rekod pemindahan yang produknya sudah hilang.
   Gudang itu sendiri kekal.
@@ -81,6 +98,14 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ### Dokumentasi
 
+- Seksyen baharu untuk tema terang/gelap: turutan keutamaan yang memilih tema, sebab pilihan
+  disimpan dalam `localStorage` dan bukan sesi pelayan seperti pilihan bahasa, dan sebab skrip
+  temanya mesti kekal menyekat di dalam `<head>` dan tidak boleh dipindahkan ke `app.js`.
+- Seksyen Palet ditulis semula. Ia masih menyatakan sistem ini bertema gelap tunggal tanpa suis
+  terang/gelap — tepat bertentangan dengan apa yang kini wujud. Versi baharu menerangkan
+  pengasingan `aksen` daripada `bahaya`, dan sebab nilai RGB mentah diletakkan di luar `@theme`.
+- Seksyen baharu untuk kebolehcapaian: pautan langkau, perangkap fokus modal, fokus yang
+  dikembalikan selepas modal ditutup, dan `aria-pressed` pada togol tema.
 - `README.md` diselaraskan semula dengan kod: arahan `composer setup`, `composer dev`
   dan `composer test` yang sudah wujud tetapi tidak pernah didokumenkan, nota bahawa
   ujian berjalan pada SQLite dalam ingatan, tiga komponen antara muka yang tertinggal

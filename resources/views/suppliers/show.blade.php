@@ -40,7 +40,7 @@
         <div class="kad lg:col-span-2">
             <div class="kad-kepala">
                 <span class="flex items-center gap-2 font-semibold">
-                    <x-ikon nama="kotak" kelas="size-5 text-merah" />
+                    <x-ikon nama="kotak" kelas="size-5 text-aksen" />
                     {{ __('wky.pembekal.produk_daripada') }}
                 </span>
             </div>
