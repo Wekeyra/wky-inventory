@@ -38,11 +38,29 @@
                         <td>{{ $item->pembuka?->name ?? __('wky.umum.kosong') }}</td>
                         <td class="whitespace-nowrap text-malap">{{ $item->created_at->format('d/m/Y H:i') }}</td>
                         <td>
-                            <div class="flex justify-end">
-                                <a href="{{ route('invoice-scans.show', $item) }}" class="btn-garis btn-kecil">
+                            <div class="flex justify-end gap-1">
+                                <a href="{{ route('invoice-scans.show', $item) }}" class="btn-garis btn-kecil"
+                                   title="{{ $item->isDraf() ? __('wky.aksi.kemas_kini') : __('wky.aksi.lihat') }}">
                                     <x-ikon :nama="$item->isDraf() ? 'pensel' : 'mata'" kelas="size-4" />
                                     {{ $item->isDraf() ? __('wky.aksi.teruskan') : __('wky.aksi.lihat') }}
                                 </a>
+
+                                {{--
+                                    Butang padam hanya untuk draf. Imbasan yang telah
+                                    disahkan menjana pergerakan stok yang merujuk kodnya,
+                                    jadi memadamnya akan meninggalkan pergerakan yang
+                                    menunjuk kepada imbasan yang tiada. Controller turut
+                                    menahannya, jadi ini bukan satu-satunya sekatan.
+                                --}}
+                                @if ($item->isDraf())
+                                    <form method="POST" action="{{ route('invoice-scans.destroy', $item) }}"
+                                          onsubmit="return confirm('{{ __('wky.imbas.sahkan_padam', ['kod' => $item->kod]) }}')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="btn-bahaya btn-ikon" title="{{ __('wky.aksi.padam') }}">
+                                            <x-ikon nama="tong-sampah" kelas="size-4" />
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
                         </td>
                     </tr>

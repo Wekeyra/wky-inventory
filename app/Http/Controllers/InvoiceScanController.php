@@ -270,14 +270,31 @@ class InvoiceScanController extends Controller
             ->with('status', __('wky.flash.imbas_disahkan', ['kod' => $invoiceScan->kod, 'bil' => $direkod]));
     }
 
+    /**
+     * Memadam imbasan berserta gambarnya.
+     *
+     * Hanya draf boleh dipadam. Imbasan yang telah disahkan sudah menjana
+     * pergerakan stok yang merujuk kodnya, dan membuangnya akan meninggalkan
+     * pergerakan yang menunjuk kepada imbasan yang tidak lagi wujud —
+     * pastikanDraf() menahannya di sini, bukan hanya menyembunyikan butang.
+     */
     public function destroy(InvoiceScan $invoiceScan): RedirectResponse
     {
         $this->pastikanDraf($invoiceScan);
 
-        $invoiceScan->update(['status' => 'dibatalkan']);
+        // Kod dibaca dahulu kerana ia diperlukan untuk mesej selepas rekod hilang.
+        $kod = $invoiceScan->kod;
+
+        // Fail dibuang sebelum rekod kerana storan tidak boleh digulung semula:
+        // rekod tanpa fail masih boleh dipadam, tetapi fail tanpa rekod menjadi
+        // sampah yang tiada sesiapa boleh capai. Baris barangnya dibuang melalui
+        // cascade pada kunci asing invoice_scan_items.
+        Storage::disk('local')->delete($invoiceScan->laluan_fail);
+
+        $invoiceScan->delete();
 
         return redirect()->route('invoice-scans.index')
-            ->with('status', __('wky.flash.imbas_dibatalkan', ['kod' => $invoiceScan->kod]));
+            ->with('status', __('wky.flash.imbas_dipadam', ['kod' => $kod]));
     }
 
     private function kaedahPadanan(?int $asal, ?int $baharu, string $semasa): string

@@ -95,10 +95,10 @@
                 </form>
 
                 <form method="POST" action="{{ route('invoice-scans.destroy', $imbasan) }}"
-                      onsubmit="return confirm('{{ __('wky.imbas.batal_confirm', ['kod' => $imbasan->kod]) }}')">
+                      onsubmit="return confirm('{{ __('wky.imbas.sahkan_padam', ['kod' => $imbasan->kod]) }}')">
                     @csrf @method('DELETE')
                     <button type="submit" class="btn-bahaya">
-                        <x-ikon nama="silang-bulat" kelas="size-4" /> {{ __('wky.imbas.batalkan_imbasan') }}
+                        <x-ikon nama="tong-sampah" kelas="size-4" /> {{ __('wky.imbas.padam_imbasan') }}
                     </button>
                 </form>
             </div>
@@ -233,10 +233,10 @@
             </form>
 
             <form method="POST" action="{{ route('invoice-scans.destroy', $imbasan) }}"
-                  onsubmit="return confirm('{{ __('wky.imbas.batal_confirm', ['kod' => $imbasan->kod]) }}')">
+                  onsubmit="return confirm('{{ __('wky.imbas.sahkan_padam', ['kod' => $imbasan->kod]) }}')">
                 @csrf @method('DELETE')
                 <button type="submit" class="btn-bahaya">
-                    <x-ikon nama="silang-bulat" kelas="size-4" /> {{ __('wky.imbas.batalkan_imbasan') }}
+                    <x-ikon nama="tong-sampah" kelas="size-4" /> {{ __('wky.imbas.padam_imbasan') }}
                 </button>
             </form>
         </div>

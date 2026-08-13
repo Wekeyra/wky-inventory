@@ -286,7 +286,7 @@ class InvoiceScanTest extends TestCase
         $this->assertSame(4, $produk->fresh()->stok, 'Stok kekal seperti selepas pengesahan pertama.');
     }
 
-    public function test_membatalkan_imbasan_tidak_merekod_stok(): void
+    public function test_memadam_imbasan_membuang_rekod_gambar_dan_barisnya(): void
     {
         $produk = $this->produk('A', 'Produk A', stok: 10);
         $admin = $this->admin();
@@ -297,14 +297,86 @@ class InvoiceScanTest extends TestCase
 
         $this->muatNaik($admin);
         $imbasan = InvoiceScan::latest('id')->firstOrFail();
+        $laluanFail = $imbasan->laluan_fail;
+
+        Storage::disk('local')->assertExists($laluanFail);
+        $this->assertSame(1, $imbasan->items()->count());
 
         $this->actingAs($admin)
             ->delete("/imbas-invois/{$imbasan->id}")
             ->assertRedirect('/imbas-invois');
 
-        $this->assertSame('dibatalkan', $imbasan->fresh()->status);
-        $this->assertSame(10, $produk->fresh()->stok);
+        $this->assertDatabaseMissing('invoice_scans', ['id' => $imbasan->id]);
+
+        // Baris barang dibuang melalui cascade, bukan oleh controller.
+        $this->assertDatabaseMissing('invoice_scan_items', ['invoice_scan_id' => $imbasan->id]);
+
+        // Fail yang tertinggal tanpa rekod menjadi sampah yang tiada sesiapa
+        // boleh capai, jadi ia mesti hilang bersama rekodnya.
+        Storage::disk('local')->assertMissing($laluanFail);
+
+        $this->assertSame(10, $produk->fresh()->stok, 'Memadam imbasan tidak menyentuh stok.');
         $this->assertSame(0, StockMovement::count());
+    }
+
+    /**
+     * Imbasan yang telah disahkan menjana pergerakan stok yang merujuk kodnya.
+     * Memadamnya akan meninggalkan pergerakan yang menunjuk kepada imbasan yang
+     * tidak lagi wujud, jadi sekatan itu mesti berada pada controller dan bukan
+     * hanya pada butang yang disembunyikan.
+     */
+    public function test_imbasan_yang_disahkan_tidak_boleh_dipadam(): void
+    {
+        $this->produk('A', 'Produk A', stok: 10);
+        $admin = $this->admin();
+
+        $this->palsukanBacaan(new ExtractedInvoice(null, null, null, [
+            new ExtractedLine('A', 'Produk A', 5, null),
+        ]));
+
+        $this->muatNaik($admin);
+        $imbasan = InvoiceScan::latest('id')->firstOrFail();
+
+        $this->actingAs($admin)->post("/imbas-invois/{$imbasan->id}/sahkan");
+        $this->assertSame('selesai', $imbasan->fresh()->status);
+
+        $laluanFail = $imbasan->laluan_fail;
+
+        $this->actingAs($admin)
+            ->from("/imbas-invois/{$imbasan->id}")
+            ->delete("/imbas-invois/{$imbasan->id}")
+            ->assertSessionHasErrors('status');
+
+        $this->assertDatabaseHas('invoice_scans', ['id' => $imbasan->id]);
+        Storage::disk('local')->assertExists($laluanFail);
+    }
+
+    public function test_butang_padam_hanya_muncul_pada_imbasan_draf(): void
+    {
+        $this->produk('A', 'Produk A', stok: 10);
+        $admin = $this->admin();
+
+        $this->palsukanBacaan(new ExtractedInvoice(null, null, null, [
+            new ExtractedLine('A', 'Produk A', 5, null),
+        ]));
+
+        $this->muatNaik($admin);
+        $imbasan = InvoiceScan::latest('id')->firstOrFail();
+
+        // @method('DELETE') menghasilkan medan tersembunyi, bukan atribut method,
+        // jadi inilah tanda sebenar kewujudan borang padam pada halaman itu.
+        $medanPadam = '<input type="hidden" name="_method" value="DELETE">';
+
+        $this->actingAs($admin)->get('/imbas-invois')
+            ->assertOk()
+            ->assertSee($medanPadam, false);
+
+        $this->actingAs($admin)->post("/imbas-invois/{$imbasan->id}/sahkan");
+
+        // Selepas disahkan, lajur Tindakan tinggal butang lihat sahaja.
+        $this->actingAs($admin)->get('/imbas-invois')
+            ->assertOk()
+            ->assertDontSee($medanPadam, false);
     }
 
     /**
