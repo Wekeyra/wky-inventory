@@ -11,7 +11,17 @@
     <x-latar-log-masuk />
 
     <main class="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-10">
-        <div class="mb-6">
+        {{--
+            Susunan yang sama seperti halaman daftar: pautan kembali di kiri,
+            penukar bahasa di kanan. Lebarnya dihadkan kepada max-w-md supaya
+            kedua-duanya sebaris dengan tepi kad log masuk di bawahnya.
+        --}}
+        <div class="mb-6 flex w-full max-w-md flex-wrap items-center justify-between gap-3">
+            <a href="{{ route('landing') }}" class="pautan-kembali">
+                <x-ikon nama="anak-panah-kiri" kelas="size-4" />
+                {{ __('wky.auth.kembali_utama') }}
+            </a>
+
             @include('partials.bahasa')
         </div>
 

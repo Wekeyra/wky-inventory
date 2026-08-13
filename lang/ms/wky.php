@@ -195,6 +195,7 @@ return [
         'atau' => 'atau',
         'teruskan_google' => 'Teruskan dengan Google',
         'kembali_log_masuk' => 'Kembali ke Log Masuk',
+        'kembali_utama' => 'Kembali ke Utama',
         'nota_syarikat' => 'Inventori anda bermula kosong dan berasingan daripada syarikat lain. Anda menjadi admin dan boleh menambah staf kemudian.',
         'ciri_tajuk' => 'Apa yang anda dapat',
         'ciri_subtajuk' => 'Semua yang diperlukan untuk menguruskan inventori stor anda, dalam satu tempat.',

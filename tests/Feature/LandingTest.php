@@ -66,6 +66,23 @@ class LandingTest extends TestCase
         $this->get('/?bahasa=ms')->assertSee('Harga')->assertSee('Tentang Kami');
     }
 
+    /**
+     * Halaman log masuk ialah jalan buntu tanpa pautan ini: nav halaman
+     * pendaratan tiada di sini, jadi pelawat yang menekan "Log In" dan berubah
+     * fikiran hanya boleh kembali melalui butang back pelayar.
+     */
+    public function test_halaman_log_masuk_ada_pautan_kembali_ke_halaman_pendaratan(): void
+    {
+        $this->get('/login')
+            ->assertOk()
+            ->assertSee('href="'.route('landing').'"', false)
+            ->assertSee('Kembali ke Utama');
+
+        $this->get('/login?bahasa=en')
+            ->assertOk()
+            ->assertSee('Back to Home');
+    }
+
     /*
      | '/' ialah URL yang paling kerap ditanda buku, jadi pengguna yang sudah log
      | masuk tidak sepatutnya mendarat pada halaman pemasaran.
