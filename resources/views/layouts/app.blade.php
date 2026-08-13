@@ -29,7 +29,7 @@
 <div class="flex min-h-screen">
     <aside class="bar-sisi hidden w-64 shrink-0 border-r border-bingkai bg-[#121215] p-4 md:block">
         <a href="{{ route('dashboard') }}" class="mb-6 flex items-center gap-2 text-white">
-            <x-ikon nama="kotak-jenama" kelas="size-7 shrink-0 text-merah" />
+            <x-logo-w kelas="size-7" />
             <span class="min-w-0 truncate text-lg font-semibold" title="{{ auth()->user()->workspace?->nama }}">
                 {{ auth()->user()->workspace?->nama ?: config('app.name') }}
             </span>

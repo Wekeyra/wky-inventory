@@ -67,6 +67,18 @@ class LandingTest extends TestCase
     }
 
     /**
+     * Kepala bar sisi membawa tanda "W" sahaja, bukan logo penuh: anak panah
+     * hitam pada logo penuh hampir hilang di atas bar sisi yang gelap.
+     */
+    public function test_bar_sisi_membawa_tanda_w_dan_bukan_ikon_kotak(): void
+    {
+        $this->actingAs($this->pengguna())
+            ->get('/dashboard')
+            ->assertOk()
+            ->assertSee('images/logo-wky-w.png', false);
+    }
+
+    /**
      * Halaman log masuk ialah jalan buntu tanpa pautan ini: nav halaman
      * pendaratan tiada di sini, jadi pelawat yang menekan "Log In" dan berubah
      * fikiran hanya boleh kembali melalui butang back pelayar.
