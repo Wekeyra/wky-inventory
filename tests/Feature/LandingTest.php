@@ -67,14 +67,14 @@ class LandingTest extends TestCase
     }
 
     /**
-     * Kotak 3D hanya pada halaman log masuk. Halaman daftar lebih panjang dan
-     * kandungannya menatal melepasi latar, jadi hiasan berputar di belakangnya
-     * hanya menambah gangguan.
+     * Kotak 3D pada kedua-dua halaman auth supaya rupanya seragam. Kedudukannya
+     * fixed, jadi ia kekal di tengah skrin semasa halaman daftar yang panjang
+     * itu ditatal, bukan hanyut bersama kandungan.
      */
-    public function test_kotak_3d_pada_log_masuk_sahaja(): void
+    public function test_kotak_3d_pada_halaman_log_masuk_dan_daftar(): void
     {
         $this->get('/login')->assertOk()->assertSee('kotak-3d-pentas', false);
-        $this->get('/daftar')->assertOk()->assertDontSee('kotak-3d-pentas', false);
+        $this->get('/daftar')->assertOk()->assertSee('kotak-3d-pentas', false);
     }
 
     /**

@@ -12,6 +12,7 @@
 --}}
 <body class="latar-log-masuk relative min-h-screen overflow-x-hidden">
     <x-latar-log-masuk />
+    <x-kotak-3d />
 
     <main class="relative z-10 flex min-h-screen flex-col items-center px-4 py-8">
         <div class="mb-8 flex w-full max-w-5xl flex-wrap items-center justify-between gap-3">
