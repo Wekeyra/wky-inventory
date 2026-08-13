@@ -8,6 +8,41 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ## 2026-08-13
 
+### Ditambah
+
+- **Produk dicipta sendiri semasa imbasan.** Baris invois yang tiada padanan tidak lagi
+  ditinggalkan kosong — sistem menciptanya sebagai produk baharu dan terus memadankannya,
+  menggunakan kod pembekal sebagai SKU supaya invois berikutnya daripada pembekal yang
+  sama padan dengan sendirinya. Client hanya perlu mengambil gambar dan menekan
+  *Sahkan & Rekod Stok Masuk* sekali.
+- **Butang edit dan padam** pada senarai imbasan invois, mengikut corak ikon yang sama
+  seperti halaman Produk.
+- **Pautan "Cipta produk dari baris ini"** pada baris yang padanannya dikosongkan. Ia
+  membuka borang produk dengan SKU, nama dan harga kos daripada invois sudah terisi, dan
+  memautkan produk baharu itu kembali kepada baris berkenaan selepas disimpan.
+- **Pautan "Kembali ke Utama"** pada halaman log masuk. Sebelum ini halaman itu jalan
+  buntu bagi pelawat yang datang dari halaman pendaratan dan berubah fikiran.
+- **Hiasan gudang 3D** pada halaman log masuk dan pendaftaran: kotak terbuka di atas
+  palet, rak tiga tingkat, label kod bar, dan forklift. Semuanya berputar perlahan dan
+  condong mengikut gerakan tetikus, dan berhenti apabila `prefers-reduced-motion`
+  ditetapkan. Dibina daripada satah CSS, jadi tiada kos muat turun tambahan.
+- **Tanda jenama W** menggantikan ikon kotak generik pada kepala bar sisi.
+
+### Diubah
+
+- **Padam imbasan benar-benar memadam.** Sebelum ini butang itu hanya menukar status
+  kepada *Dibatalkan* dan barisnya kekal dalam senarai selama-lamanya. Kini rekod dan
+  gambar invoisnya dibuang terus. Hanya imbasan draf boleh dipadam — imbasan yang telah
+  disahkan sudah menjana pergerakan stok yang merujuk kodnya.
+- **Butang *Sahkan & Rekod Stok Masuk* tidak lagi bertanya.** Halaman imbasan itu sendiri
+  sudah menjadi skrin semakan. Butang Padam dan sesi Kiraan Stok tetap bertanya.
+
+### Dibetulkan
+
+- Nota pada halaman imbas yang berbunyi "Stock does **None** change now" dalam bahasa
+  Inggeris. Versi Melayunya turut salah — "Stok **Tiada** berubah sekarang" — cuma kurang
+  ketara.
+
 ### Dokumentasi
 
 - `README.md` diselaraskan semula dengan kod: arahan `composer setup`, `composer dev`
@@ -15,6 +50,9 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
   ujian berjalan pada SQLite dalam ingatan, tiga komponen antara muka yang tertinggal
   daripada jadual, seksyen baharu untuk butang mata kata laluan, dan seksyen palet
   yang menerangkan sebab peraturan `:-webkit-autofill` tidak boleh dipermudahkan.
+- Seksyen padanan produk ditulis semula kerana ia masih menerangkan sistem yang sudah
+  tidak wujud: baris tanpa padanan tidak lagi ditinggalkan kepada pengguna. Seksyen
+  baharu ditambah untuk pemadaman imbasan, ketiadaan dialog pengesahan, dan hiasan 3D.
 - `ANTHROPIC_TIMEOUT` dan `ANTHROPIC_SAIZ_MAKS_KB` dimasukkan ke dalam `.env.example`.
   Kedua-duanya sudah didokumenkan dalam README tetapi tiada dalam fail contoh.
 

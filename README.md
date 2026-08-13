@@ -15,7 +15,7 @@ bertemu antara satu sama lain.
 | **Produk** | CRUD produk dengan SKU, harga kos/jual, unit, paras stok minimum |
 | **Kategori** | Pengelasan produk. Tidak boleh dipadam selagi masih digunakan produk |
 | **Pembekal** | Maklumat pembekal dan senarai produk yang dibekalkan |
-| **Imbas Invois** | Ambil gambar terus dengan kamera atau muat naik foto/PDF — AI membaca baris barang, memadankannya dengan produk, dan merekod stok masuk selepas disahkan. Boleh juga disimpan dahulu dan dibaca kemudian |
+| **Imbas Invois** | Ambil gambar terus dengan kamera atau muat naik foto/PDF — AI membaca baris barang, memadankannya dengan produk (mencipta produk baharu bagi barang yang belum wujud), dan merekod stok masuk selepas disahkan. Boleh juga disimpan dahulu dan dibaca kemudian |
 | **Kiraan Stok** | Sesi kiraan fizikal (stock take): sistem simpan gambaran baki, staf masukkan kiraan sebenar, sistem tunjuk perbezaan dan laraskan stok selepas disahkan |
 | **Pergerakan Stok** | Rekod stok masuk, keluar, dan pelarasan — setiap satu menyimpan baki sebelum/selepas |
 | **Laporan Bulanan** | Pecahan masuk/keluar per produk mengikut bulan, perubahan bersih, dan susun atur mesra cetak |
@@ -67,6 +67,12 @@ lepas.
 
 Salinan seksyen **Ciri** dikongsi dengan halaman pendaftaran (`wky.auth.ciri_*`) dan bukan
 disalin, supaya kedua-dua halaman tidak menyimpang apabila teksnya disunting.
+
+Halaman log masuk membawa pautan **Kembali ke Utama** di kiri atas. Tanpanya halaman itu
+menjadi jalan buntu: nav halaman pendaratan tiada di situ, jadi pelawat yang menekan *Log In*
+dan berubah fikiran hanya boleh kembali melalui butang back pelayar. Halaman pendaftaran
+mengekalkan pautan kembalinya ke log masuk — dua pautan kembali bertindan di bahagian atas
+hanya menambah kekeliruan.
 
 > ⚠️ **Harga pada halaman itu ialah contoh, bukan harga sebenar.** Tukar kunci
 > `landing.harga_*` dalam `lang/ms/wky.php` **dan** `lang/en/wky.php` kepada tawaran sebenar
@@ -255,9 +261,10 @@ kod. Langkah itu turut mengesahkan binaan aset masih berjaya sebelum deploy.
   draf yang tidak mengubah stok, pelarasan selepas pengesahan, dan sekatan pada sesi yang selesai.
 - `tests/Feature/LocaleTest.php` — penukaran BM/EN, kekekalan pilihan merentas halaman,
   terjemahan mesej flash dan pengesahan, serta keselarian kunci antara dua fail bahasa.
-- `tests/Feature/InvoiceScanTest.php` — imbasan invois: padanan SKU dan nama, baris tanpa
-  padanan, pemilihan manual, baris dilangkau, pengesahan yang merekod stok masuk, dan
-  pengendalian ralat AI. Menggunakan pengekstrak palsu — tiada panggilan API sebenar.
+- `tests/Feature/InvoiceScanTest.php` — imbasan invois: padanan SKU dan nama, produk yang
+  dicipta sendiri untuk baris tanpa padanan, pemilihan manual, baris dilangkau, pengesahan
+  yang merekod stok masuk, pemadaman imbasan draf, dan pengendalian ralat AI. Menggunakan
+  pengekstrak palsu — tiada panggilan API sebenar.
 - `tests/Feature/WorkspaceIsolationTest.php` — membina dua syarikat lengkap dan memastikan
   tiada laluan membocorkan data antara keduanya: senarai, dashboard, capaian terus melalui
   URL, dan percubaan merekod stok untuk produk syarikat lain. Turut mengesahkan dua syarikat
@@ -271,7 +278,8 @@ kod. Langkah itu turut mengesahkan binaan aset masih berjaya sebelum deploy.
   termasuk `type="button"` supaya menekannya tidak menghantar borang.
 - `tests/Feature/LandingTest.php` — halaman pendaratan: setiap pautan nav mempunyai seksyennya,
   ketiga-tiga pakej harga dipaparkan, pilihan bahasa dihormati, dan pengguna yang sudah log
-  masuk dialihkan ke dashboard.
+  masuk dialihkan ke dashboard. Turut menyemak pautan kembali pada halaman log masuk, tanda
+  W pada bar sisi, dan keempat-empat objek hiasan 3D pada halaman auth.
 - `tests/Feature/PisahkanPenggunaTest.php` — arahan `pengguna:pisah`, termasuk penolakan
   apabila akaun itu satu-satunya pengguna dalam ruang kerjanya.
 - `tests/Feature/KosongkanRuangKerjaTest.php` — arahan `ruang-kerja:kosongkan`: semua rekod
@@ -313,6 +321,33 @@ perkhidmatan sibuk, invois tidak jelas, kunci tiada — gambar tidak hilang; imb
 *Belum Dibaca* dan boleh dicuba semula tanpa memuat naik semula.
 
 Imbasan yang belum dibaca tidak boleh disahkan, kerana tiada baris untuk direkod sebagai stok.
+
+### Memadam imbasan
+
+Butang tong sampah pada senarai imbasan, dan **Padam Imbasan** pada halaman butirannya,
+membuang rekod itu **berserta gambarnya** daripada storan. Ia bukan pembatalan — barisnya
+hilang terus daripada senarai.
+
+Hanya imbasan **draf** boleh dipadam. Imbasan yang telah disahkan sudah menjana pergerakan
+stok yang merujuk kodnya, dan membuangnya akan meninggalkan pergerakan yang menunjuk kepada
+imbasan yang tidak lagi wujud. Sekatan itu berada dalam controller dan bukan sekadar butang
+yang disembunyikan.
+
+Fail dibuang **sebelum** rekod, kerana storan tidak boleh digulung semula seperti transaksi
+pangkalan data. Rekod yang failnya sudah hilang masih boleh dipadam kemudian; fail tanpa
+rekod pula menjadi sampah yang tiada sesiapa boleh capai.
+
+### Mengapa butang Sahkan tidak bertanya
+
+Halaman butiran imbasan **sendiri** ialah skrin semakan: setiap baris, kuantiti dan produk
+yang dipadankan terpampang tepat di atas butang, dan butang itu bertulis apa yang akan
+berlaku. Satu kotak dialog yang bertanya perkara yang sama sekali lagi tidak menambah
+semakan — ia menjadi kebiasaan yang ditekan tanpa dibaca.
+
+Butang **Padam** di sebelahnya tetap bertanya. Bezanya jelas: mengesahkan merekod apa yang
+sudah dilihat, sedangkan memadam membuang kerja yang ada dan tiada apa di skrin yang
+menunjukkan apa yang bakal hilang. Sesi **Kiraan Stok** juga masih bertanya, kerana
+pelarasannya boleh **menurunkan** stok dan bukan sekadar menambah.
 
 ### Persediaan
 
@@ -360,6 +395,16 @@ jana (`AUTO-0001`) dan bergantung pada nama untuk padanan seterusnya.
 Setiap baris membawa label asal-usul padanannya: *Padan SKU*, *Padan nama*, *Produk baharu*
 (dicipta automatik), atau *Dipilih manual*. Ini membezakan baris yang belum pernah dilihat
 sesiapa daripada baris yang seseorang sahkan dengan matanya sendiri.
+
+Padanan yang salah boleh dikosongkan semula melalui senarai jatuh. Baris yang kosong itu
+kemudian memaparkan pautan **Cipta produk dari baris ini**, yang membuka borang produk dengan
+SKU, nama dan harga kos daripada invois sudah terisi, dan memautkan produk baharu itu kembali
+kepada baris berkenaan selepas disimpan.
+
+Nilai awal borang itu dibaca daripada baris imbasan dalam pangkalan data dan **bukan**
+daripada parameter URL, supaya apa yang terisi memang apa yang AI baca dan bukan apa yang
+disuap ke dalam pautan. Baris hanya boleh dipaut apabila imbasannya milik ruang kerja
+pengguna dan masih draf.
 
 ### Konfigurasi
 
@@ -412,8 +457,10 @@ dibungkus ke dalam `public/build`, jadi sistem berfungsi sepenuhnya tanpa sambun
 | `resources/js/app.js` | Menu jatuh, modal, tutup amaran, dan Chart.js — pengganti Bootstrap JS |
 | `resources/views/components/ikon.blade.php` | Ikon SVG terbaris (`<x-ikon nama="kotak" />`) |
 | `resources/views/components/logo-wky.blade.php` | Logo — guna fail sebenar jika ada, jika tidak lukis SVG |
+| `resources/views/components/logo-w.blade.php` | Tanda *W* sahaja, untuk kepala bar sisi |
 | `resources/views/components/jenama-wky.blade.php` | Kata jenama *WKY INVENTORY* mengikut warna logo |
 | `resources/views/components/latar-log-masuk.blade.php` | Latar konstelasi dan siluet bandar untuk halaman log masuk dan pendaftaran |
+| `resources/views/components/hiasan-3d.blade.php` | Empat objek gudang 3D pada latar halaman auth |
 | `resources/views/components/medan-kata-laluan.blade.php` | Medan kata laluan berserta butang mata |
 | `resources/views/components/tajuk-seksyen.blade.php` | Tajuk seksyen halaman pendaratan: garis aksen, tajuk, teks pengenalan |
 | `resources/views/partials/butang-google.blade.php` | Butang log masuk Google; menyembunyikan dirinya apabila OAuth belum dikonfigur |
@@ -433,11 +480,48 @@ kelima-lima medan.
 Label *Tunjuk*/*Sembunyi* dibawa sebagai atribut `data-*` pada butang, jadi JavaScript menukarnya
 tanpa perlu tahu bahasa halaman.
 
+### Hiasan 3D pada halaman auth
+
+Halaman log masuk dan pendaftaran membawa empat objek gudang — kotak terbuka di atas palet,
+rak tiga tingkat, label kod bar, dan forklift — yang berputar perlahan dan condong mengikut
+gerakan tetikus.
+
+Semuanya dibina daripada satah CSS, **bukan** model 3D sebenar. Memaparkan fail GLB memerlukan
+pustaka seperti three.js: beratus kilobait JavaScript pada halaman yang kerjanya hanya menerima
+dua medan teks.
+
+Empat perkara yang tidak jelas daripada membaca kodnya sepintas lalu:
+
+- **Setiap objek membawa perspektifnya sendiri.** Satu perspektif dikongsi pada bekas induk
+  akan mengukur semua objek dari titik yang sama, jadi objek di tepi skrin terherot teruk
+  kerana dipandang dari sudut yang jauh daripada pusatnya sendiri.
+- **Tiga lapisan bersarang pada setiap objek** — `.objek-condong` (tetikus, ditulis oleh
+  JavaScript), `.objek-putar` (animasi CSS), kemudian satah-satahnya. `transform` ialah satu
+  sifat: kalau JavaScript dan animasi CSS menulis pada elemen yang sama, satu akan memadam
+  satu lagi pada setiap bingkai.
+- **Kelegapan dikenakan pada setiap satah**, bukan pada bekasnya. `opacity` pada elemen induk
+  meratakan anaknya menjadi satu lapisan, jadi rusuk belakang akan hilang di sebalik rusuk
+  hadapan dan objek itu menjadi rata.
+- **Kedudukan diletak dengan sifat `translate`**, bukan `transform`, supaya `transform` kekal
+  bebas untuk lapisan condong.
+
+`data-dalam` pada setiap objek ialah faktor kedalaman parallax: objek yang sepatutnya terasa
+lebih dekat bergerak lebih banyak. Tanpa perbezaan itu keempat-empatnya bergoyang serentak
+pada sudut yang sama, dan itu bukan parallax.
+
+Putaran berhenti apabila pengguna menetapkan `prefers-reduced-motion`. Parallax pula dimatikan
+dalam JavaScript, kerana gerakan yang dicetuskan tetikus tidak dapat dihalang daripada CSS.
+
 ### Menukar logo
 
 Letakkan fail logo anda di `public/images/` sebagai `logo-wky.svg`, `.png`, `.webp`, atau
 `.jpg`. Komponen akan menggunakannya secara automatik dan melangkau lukisan SVG terbina —
 tiada perubahan kod diperlukan. Buang fail itu untuk kembali kepada lukisan SVG.
+
+Kepala bar sisi menggunakan fail **berasingan**, `logo-wky-w.png` — tanda *W* sahaja tanpa
+anak panah. Logo penuh tidak sesuai di situ: anak panahnya hitam dan hampir hilang di atas
+bar sisi yang gelap, dan pada 28px ia hanya menjadikan tanda itu bersepah. Tanpa fail itu,
+komponen jatuh semula kepada ikon kotak terbina, jadi bar sisi tidak pernah kosong.
 
 ### Palet
 
@@ -473,8 +557,12 @@ Tiga perkara yang perlu diberi perhatian apabila menyunting:
 - Halaman log masuk dan pendaftaran menggunakan `overflow-x-hidden` pada `<body>`, bukan
   `overflow-hidden`. `overflow-hidden` mematikan skrol menegak sepenuhnya, yang menjadikan
   kandungan di bawah kad — termasuk pautan kembali ke log masuk — tidak boleh dicapai.
-- Latar konstelasi menggunakan kedudukan `fixed` supaya halaman yang lebih panjang daripada
-  skrin kekal sama rupa semasa diskrol, bukan meregang mengikut tinggi dokumen.
+- Latar konstelasi dan hiasan 3D menggunakan kedudukan `fixed` supaya halaman yang lebih
+  panjang daripada skrin kekal sama rupa semasa diskrol, bukan meregang mengikut tinggi
+  dokumen.
+- Gelung animasi parallax berhenti sendiri apabila objek sudah cukup hampir dengan sasarannya,
+  jadi tiada bingkai dikira selagi tetikus tidak bergerak. Faktor kedalaman dibaca sekali
+  semasa permulaan dan bukan pada setiap bingkai.
 - Borang dengan lebih daripada satu butang hantar — seperti *Imbas* dan *Simpan Sahaja* —
   membawa pilihannya dalam medan tersembunyi dan bukan dalam nilai butang. Butang yang
   dilumpuhkan dalam pengendali `submit` boleh menyebabkan nama dan nilainya tercicir daripada
