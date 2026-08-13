@@ -85,6 +85,8 @@ class LandingTest extends TestCase
             // Kotak terbuka: empat kepak, dan tiada muka atas.
             $balasan->assertSee('kotak-kepak', false);
             $balasan->assertDontSee('kotak-atas', false);
+
+            $balasan->assertSee('palet-papan', false);
         }
     }
 

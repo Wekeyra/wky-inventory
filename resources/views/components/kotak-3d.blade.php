@@ -46,6 +46,10 @@
             </div>
 
             <div class="kotak-muka kotak-bawah"></div>
+
+            {{-- Palet di bawah kotak; dua papan bertindih memberi ketebalan. --}}
+            <div class="palet-papan"></div>
+            <div class="palet-papan palet-papan-bawah"></div>
         </div>
     </div>
 </div>

@@ -269,11 +269,16 @@
     .kotak-3d {
         @apply pointer-events-none fixed inset-0 flex items-center justify-center overflow-hidden;
 
-        --kotak-l: clamp(13rem, 34vmin, 26rem);
-        --kotak-t: clamp(9rem, 24vmin, 18rem);
-        --kotak-d: clamp(8rem, 22vmin, 17rem);
+        --kotak-l: clamp(16rem, 44vmin, 34rem);
+        --kotak-t: clamp(11rem, 30vmin, 23rem);
+        --kotak-d: clamp(10rem, 28vmin, 22rem);
 
-        perspective: 1400px;
+        /*
+         | Perspektif yang lebih pendek meletakkan kamera lebih dekat, jadi
+         | rusuk yang jauh mengecil lebih tajam dan kotak nampak betul-betul di
+         | hadapan pengguna dan bukan jauh di belakang halaman.
+         */
+        perspective: 1000px;
     }
 
     /*
@@ -366,6 +371,44 @@
         transform: rotateX(-38deg);
         border: 1px solid rgba(248, 113, 113, 0.16);
         background: rgba(220, 38, 38, 0.05);
+    }
+
+    /*
+     | Palet kayu di bawah kotak — simbol gudang yang paling segera dikenali,
+     | dan ia mengisi ruang di bawah kotak tanpa bersaing dengan borang.
+     |
+     | Dua papan bertindih memberi ketebalan. Papan bawah lebih kecil supaya
+     | tepinya kelihatan dari sudut condong, seperti blok penyokong palet
+     | sebenar yang terselit ke dalam.
+     */
+    .palet-papan {
+        position: absolute;
+        left: -7%;
+        width: 114%;
+        height: calc(var(--kotak-d) * 1.14);
+        top: calc((var(--kotak-t) - var(--kotak-d) * 1.14) / 2);
+        border: 1px solid rgba(248, 113, 113, 0.15);
+
+        /* Bilah papan; jurang antaranya menjadikannya palet, bukan sekadar plat. */
+        background: repeating-linear-gradient(
+            90deg,
+            rgba(220, 38, 38, 0.07) 0,
+            rgba(220, 38, 38, 0.07) 8%,
+            transparent 8%,
+            transparent 11%
+        );
+
+        /* rotateX(-90deg) meletakkan satah ini mendatar; translateZ menurunkannya. */
+        transform: rotateX(-90deg) translateZ(calc(var(--kotak-t) / 2 + 0.7rem));
+    }
+
+    .palet-papan-bawah {
+        left: -2%;
+        width: 104%;
+        height: calc(var(--kotak-d) * 1.04);
+        top: calc((var(--kotak-t) - var(--kotak-d) * 1.04) / 2);
+        background: rgba(220, 38, 38, 0.05);
+        transform: rotateX(-90deg) translateZ(calc(var(--kotak-t) / 2 + 1.5rem));
     }
 
     /* Pelekat kecil pada muka hadapan. */
