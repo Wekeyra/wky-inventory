@@ -8,6 +8,15 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ## 2026-08-14
 
+### Diperbaiki
+
+- **Ruang kamera invois jauh lebih besar pada telefon.** Modal kamera kini penuh skrin, dan
+  pratontonnya mengambil semua ruang tinggi yang tinggal dan bukan lagi kotak landskap 4:3.
+  Invois potret pada skrin potret: kotak lama membuang lebih separuh skrin dan memaksa pengguna
+  mengangkat telefon lebih jauh, yang menjadikan teks invois terlalu halus untuk dibaca AI.
+- **Carta Ringkasan Bulanan pada dashboard kini benar-benar dilukis.** Skripnya berjalan sebelum
+  Chart.js sempat dimuatkan, jadi kad itu kekal kosong pada setiap muatan.
+
 ### Ditambah
 
 - **Menu navigasi pada telefon.** Butang hamburger di sebelah tajuk halaman membuka laci yang

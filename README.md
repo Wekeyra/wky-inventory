@@ -871,6 +871,18 @@ sebelum membazir satu panggilan AI.
   muncul hanya apabila peranti mempunyai lebih daripada satu kamera.
 - Kamera dimatikan apabila modal ditutup melalui butang, kekunci Escape mahupun klik latar,
   supaya lampu kamera tidak kekal menyala.
+- **Modal kamera penuh skrin pada telefon.** Bingkai pratonton (`.rangka-kamera-invois`) membuang
+  nisbah 4:3 yang digunakan pengimbas barcode dan mengambil semua ruang tinggi yang tinggal.
+  Invois potret pada skrin potret: kotak landskap membuang lebih separuh skrin, dan pengguna
+  terpaksa mengangkat telefon lebih jauh untuk memuatkan invois ke dalamnya — yang menjadikan
+  teksnya terlalu halus untuk dibaca AI. Dari `sm` ke atas ia kembali menjadi kotak bertengah
+  dengan tinggi `min(70vh, 34rem)`.
+- `object-contain` dikekalkan dan **tidak** ditukar kepada `object-cover`. Bar hitam di tepi lebih
+  baik daripada tepi invois yang terpotong tanpa pengguna sedar.
+
+> ⚠️ Bekas flex modal itu membawa `min-h-0`. Tanpanya, anak flex enggan mengecil di bawah saiz
+> kandungannya, dan bingkai video akan menolak kaki kad — termasuk butang *Tangkap* — keluar
+> daripada skrin.
 - Pratonton dalam halaman memerlukan **HTTPS**. Pada halaman biasa seperti `http://…` di
   Laragon, butang itu jatuh kepada input `capture="environment"` — yang tetap membuka aplikasi
   kamera pada telefon. Ini sekatan keselamatan pelayar, bukan pepijat.

@@ -98,11 +98,18 @@
 
     <p class="mt-3 max-w-2xl text-sm text-malap">{{ __('wky.imbas.nota_simpan_sahaja') }}</p>
 
+    {{--
+        Penuh skrin pada telefon, kotak bertengah dari sm ke atas. Invois
+        potret pada skrin potret: setiap piksel tinggi yang diberi kepada
+        pratonton bermakna pengguna boleh mendekatkan telefon, dan teks invois
+        yang lebih besar dalam bingkai bermakna bacaan AI yang lebih tepat.
+    --}}
     <div id="modal-kamera" data-modal
-         class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 p-4 backdrop-blur-sm [&:not(.hidden)]:flex"
+         class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-0 sm:p-4 [&:not(.hidden)]:flex"
          role="dialog" aria-modal="true" aria-labelledby="tajuk-modal-kamera">
-        <div class="kad w-full max-w-2xl shadow-2xl">
-            <div class="kad-kepala">
+        <div class="kad flex h-full w-full max-w-2xl flex-col rounded-none border-0 shadow-2xl
+                    sm:h-auto sm:rounded-xl sm:border">
+            <div class="kad-kepala shrink-0">
                 <h2 id="tajuk-modal-kamera" class="flex items-center gap-2 font-semibold">
                     <x-ikon nama="imbas" kelas="size-5 text-aksen" />
                     {{ __('wky.imbas.kamera_tajuk') }}
@@ -113,20 +120,23 @@
                 </button>
             </div>
 
-            <div class="kad-badan space-y-3">
-                <div id="kameraRalat" class="amaran-gagal hidden" role="alert">
+            {{-- min-h-0 diperlukan pada bekas flex: tanpanya, anak flex enggan
+                 mengecil di bawah saiz kandungannya dan bingkai video akan
+                 menolak kaki kad keluar daripada skrin. --}}
+            <div class="kad-badan flex min-h-0 flex-1 flex-col gap-3">
+                <div id="kameraRalat" class="amaran-gagal hidden shrink-0" role="alert">
                     <x-ikon nama="amaran" kelas="size-5 shrink-0" />
                     <span id="kameraRalatTeks"></span>
                 </div>
 
-                <div class="rangka-kamera">
+                <div class="rangka-kamera rangka-kamera-invois">
                     <video id="kameraVideo" playsinline autoplay muted></video>
                 </div>
 
-                <p class="text-xs text-malap">{{ __('wky.imbas.kamera_petua') }}</p>
+                <p class="shrink-0 text-xs text-malap">{{ __('wky.imbas.kamera_petua') }}</p>
             </div>
 
-            <div class="kad-kaki">
+            <div class="kad-kaki shrink-0 rounded-none sm:rounded-b-xl">
                 <button type="button" class="btn-utama" id="butangTangkap">
                     <x-ikon nama="imbas" kelas="size-4" />
                     {{ __('wky.imbas.tangkap') }}

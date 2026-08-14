@@ -1245,7 +1245,8 @@
     /* ---------- Kamera invois ---------- */
 
     /* Bingkai pratonton kamera. Nisbah tetap supaya kotak tidak melompat
-       antara saat modal dibuka dan saat strim video mula masuk. */
+       antara saat modal dibuka dan saat strim video mula masuk. Nisbah
+       landskap ini sesuai untuk pengimbas barcode, yang memang lebar. */
     .rangka-kamera {
         @apply relative overflow-hidden rounded-lg border border-bingkai bg-black;
 
@@ -1254,6 +1255,33 @@
 
     .rangka-kamera video {
         @apply h-full w-full object-contain;
+    }
+
+    /*
+     | Bingkai kamera invois membuang nisbah tetap itu dan mengambil semua
+     | ruang tinggi yang tinggal.
+     |
+     | Invois potret pada skrin potret: kotak landskap 4:3 membuang lebih
+     | separuh skrin telefon, dan pengguna terpaksa mengangkat telefon lebih
+     | jauh untuk memuatkan invois ke dalam kotak kecil itu — yang menjadikan
+     | teksnya terlalu halus untuk AI baca.
+     |
+     | object-contain dikekalkan dan bukan ditukar kepada cover: bar hitam di
+     | tepi lebih baik daripada tepi invois yang terpotong tanpa disedari.
+     */
+    .rangka-kamera-invois {
+        aspect-ratio: auto;
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+
+    /* Dari sm ke atas modal kembali menjadi kotak bertengah, jadi bingkai
+       diberi tinggi tetap berbanding viewport. */
+    @media (width >= 40rem) {
+        .rangka-kamera-invois {
+            flex: 0 0 auto;
+            height: min(70vh, 34rem);
+        }
     }
 
     .pratonton-invois {
