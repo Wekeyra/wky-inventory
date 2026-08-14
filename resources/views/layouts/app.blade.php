@@ -35,13 +35,27 @@
 @endphp
 
 <div class="flex min-h-screen">
-    <aside class="bar-sisi hidden w-64 shrink-0 border-r border-bingkai bg-tinggi p-4 md:block">
-        <a href="{{ route('dashboard') }}" class="mb-6 flex items-center gap-2 text-teks">
-            <x-logo-w kelas="size-7" />
-            <span class="min-w-0 truncate text-lg font-semibold" title="{{ auth()->user()->workspace?->nama }}">
-                {{ auth()->user()->workspace?->nama ?: config('app.name') }}
-            </span>
-        </a>
+    {{-- Latar gelap laci. Hanya wujud pada telefon; ia sendiri butang tutup. --}}
+    <div class="laci-latar hidden tanpa-cetak" data-laci-latar></div>
+
+    <aside id="laci-nav" class="bar-sisi laci-nav tanpa-cetak" data-laci
+           aria-label="{{ __('wky.nav.menu_utama') }}">
+        <div class="mb-6 flex items-center gap-2">
+            <a href="{{ route('dashboard') }}" class="flex min-w-0 flex-1 items-center gap-2 text-teks">
+                <x-logo-w kelas="size-7" />
+                <span class="min-w-0 truncate text-lg font-semibold" title="{{ auth()->user()->workspace?->nama }}">
+                    {{ auth()->user()->workspace?->nama ?: config('app.name') }}
+                </span>
+            </a>
+
+            {{-- Butang tutup di dalam laci: pada telefon, latar gelap mudah
+                 terlepas sentuh, dan pengguna papan kekunci memerlukan sasaran
+                 yang boleh difokus di dalam perangkap fokus itu sendiri. --}}
+            <button type="button" class="butang-laci !border-transparent" data-laci-tutup
+                    aria-label="{{ __('wky.nav.tutup_menu') }}">
+                <x-ikon nama="silang" kelas="size-5" />
+            </button>
+        </div>
 
         <nav class="flex flex-col gap-1">
             @foreach ($menu as [$laluan, $corak, $ikon, $label])
@@ -57,7 +71,15 @@
 
     <main id="kandungan-utama" class="min-w-0 flex-1 px-4 py-6 md:px-8">
         <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-bingkai pb-4">
-            <h1 class="text-2xl font-semibold text-teks">@yield('tajuk', __('wky.nav.dashboard'))</h1>
+            <div class="flex min-w-0 items-center gap-3">
+                <button type="button" class="butang-laci tanpa-cetak" data-laci-buka
+                        aria-expanded="false" aria-controls="laci-nav"
+                        aria-label="{{ __('wky.nav.buka_menu') }}">
+                    <x-ikon nama="bar" kelas="size-5" />
+                </button>
+
+                <h1 class="truncate text-2xl font-semibold text-teks">@yield('tajuk', __('wky.nav.dashboard'))</h1>
+            </div>
 
             <div class="flex items-center gap-2">
                 @include('partials.bahasa')

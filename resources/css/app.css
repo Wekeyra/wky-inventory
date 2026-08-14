@@ -1199,6 +1199,39 @@
 
     /* ---------- Navigasi sisi ---------- */
 
+    /*
+     | Bar sisi ialah satu elemen yang berkelakuan dua cara, bukan dua salinan
+     | menu untuk desktop dan telefon. Dua salinan bermakna setiap pautan baharu
+     | mesti ditambah dua kali, dan satu daripadanya akan tertinggal.
+     |
+     | Pada telefon ia laci terapung yang menyelinap masuk dari kiri; dari md ke
+     | atas ia kembali menjadi lajur biasa dalam susun atur flex, tepat seperti
+     | sebelum ini. translate-x dipulihkan pada md supaya kelas .laci-buka —
+     | yang mungkin masih melekat selepas skrin diputar — tidak boleh
+     | mempengaruhi paparan desktop.
+     */
+    .laci-nav {
+        @apply fixed inset-y-0 left-0 z-40 w-64 shrink-0 -translate-x-full overflow-y-auto border-r
+               border-bingkai bg-tinggi p-4 transition-transform duration-200
+               md:static md:translate-x-0 md:overflow-visible md:transition-none;
+    }
+
+    .laci-nav.laci-buka {
+        @apply translate-x-0;
+    }
+
+    /* Latar gelap hanya wujud pada telefon; pada desktop laci sebahagian
+       daripada halaman dan tiada apa yang perlu ditutupi. */
+    .laci-latar {
+        @apply fixed inset-0 z-30 bg-black/50 backdrop-blur-sm md:hidden;
+    }
+
+    .butang-laci {
+        @apply grid size-9 shrink-0 cursor-pointer place-items-center rounded-md border border-bingkai
+               bg-permukaan text-malap transition-colors hover:border-aksen hover:text-teks
+               focus-visible:ring-2 focus-visible:ring-aksen/40 focus-visible:outline-none md:hidden;
+    }
+
     .nav-pautan {
         @apply flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-malap transition-colors hover:bg-tinggi hover:text-teks;
     }

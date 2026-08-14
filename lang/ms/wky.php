@@ -112,6 +112,9 @@ return [
         'analitik' => 'Analitik',
         'pengguna' => 'Pengguna',
         'bahasa' => 'Bahasa',
+        'menu_utama' => 'Menu utama',
+        'buka_menu' => 'Buka menu utama',
+        'tutup_menu' => 'Tutup menu utama',
         'log_keluar' => 'Log Keluar',
     ],
 

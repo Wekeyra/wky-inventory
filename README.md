@@ -833,6 +833,9 @@ kod. Langkah itu turut mengesahkan binaan aset masih berjaya sebelum deploy.
   yang boleh memohon tetapi tidak boleh meluluskan, keputusan yang direkod berserta pemutusnya,
   penerimaan penuh dan separa, penolakan penerimaan melebihi baki, pembatalan yang dihalang
   selepas ada barang diterima, dan status akhir yang tiada laluan keluar.
+- `tests/Feature/LaciNavTest.php` — laci navigasi telefon: kehadirannya pada setiap halaman
+  sistem, menu yang muncul sekali sahaja dan bukan sebagai salinan kedua, latar dan butang
+  tutupnya, kelas `bar-sisi` yang kekal untuk mod cetak, dan ketiadaannya pada halaman awam.
 - `tests/Feature/AnalitikPadananPoTest.php` — padanan invois dengan pesanan belian dan halaman
   Analitik: pesanan yang dimajukan oleh pengesahan imbasan, penerimaan separa melalui invois,
   lebihan yang masuk ke stok tanpa melebihi pesanan, pesanan draf yang tidak boleh dipautkan,
@@ -1048,6 +1051,34 @@ dan tambah satu baris dalam `config/bahasa.php`. Tiada perubahan pada view diper
 Kunci yang tiada dalam satu bahasa akan jatuh semula kepada `APP_FALLBACK_LOCALE` (English),
 jadi tiada teks yang hilang. Ujian `test_kedua_dua_fail_bahasa_mempunyai_kunci_yang_sama`
 memastikan kedua-dua fail `wky.php` sentiasa selari.
+
+## Navigasi pada telefon
+
+Bar sisi ialah **satu elemen** yang berkelakuan dua cara, bukan dua salinan menu untuk desktop dan
+telefon. Dua salinan bermakna setiap pautan baharu perlu ditambah dua kali, dan satu daripadanya
+akan tertinggal — kemudian menu telefon senyap-senyap ketinggalan sebulan di belakang.
+
+- **Dari `md` ke atas** — lajur biasa dalam susun atur flex, tepat seperti dahulu.
+- **Bawah `md`** — laci terapung yang menyelinap masuk dari kiri, dengan latar gelap di
+  belakangnya. Butang hamburger berada di sebelah kiri tajuk halaman.
+
+Sebelum ini bar sisi `hidden md:block`, jadi pengguna telefon **langsung tiada navigasi** — hanya
+butang tindakan pantas yang terapung.
+
+Empat perkara yang menjadikannya selamat untuk papan kekunci dan telefon:
+
+- **Perangkap fokus yang sama seperti modal.** Laci menutupi halaman, jadi Tab tidak sepatutnya
+  boleh mencapai kandungan di belakangnya. Fokus dikembalikan ke butang hamburger apabila ditutup.
+- **Butang tutup di dalam laci itu sendiri**, bukan hanya latar gelap. Latar mudah terlepas sentuh
+  pada telefon, dan pengguna papan kekunci memerlukan sasaran di dalam perangkap fokus.
+- **`body` dikunci daripada menatal** semasa laci terbuka; menatal latar sambil laci menutupinya
+  terasa seperti halaman itu rosak.
+- **Laci menutup sendiri apabila skrin melebar melepasi `md`** — memutar telefon, atau membuka
+  semula tetingkap desktop yang dikecilkan. Tanpa itu, `body` kekal terkunci dan latar gelap kekal
+  menutupi halaman walaupun bar sisi sudah kembali menjadi lajur biasa.
+
+> ⚠️ Kelas `bar-sisi` mesti kekal pada elemen itu. Mod cetak menyembunyikannya dengan nama itu,
+> dan laci yang tercetak di tepi setiap muka surat membazir dakwat.
 
 ## Antara muka
 

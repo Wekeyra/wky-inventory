@@ -10,6 +10,11 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ### Ditambah
 
+- **Menu navigasi pada telefon.** Butang hamburger di sebelah tajuk halaman membuka laci yang
+  menyelinap masuk dari kiri. Sebelum ini bar sisi tersembunyi sepenuhnya di bawah saiz tablet,
+  jadi pengguna telefon langsung tiada navigasi — hanya butang tindakan pantas yang terapung.
+  Laci menutup dengan Escape, sentuhan pada latar, butang tutupnya sendiri, dan apabila skrin
+  melebar semula ke saiz desktop.
 - **Halaman Analitik.** Cadangan pesanan semula yang mengira kadar penggunaan sebenar dan bukan
   paras minimum sahaja, produk paling menguntungkan (disusun mengikut untung dan bukan kuantiti),
   pusing ganti inventori, dan stok mati mengikut nilai yang tersekat. Tempoh boleh ditukar antara

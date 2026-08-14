@@ -460,8 +460,87 @@ function mulakanTogolTema() {
     });
 }
 
+/*
+ * Laci navigasi pada telefon.
+ *
+ * Bar sisi itu elemen yang sama seperti pada desktop; di sini ia hanya
+ * diselinapkan masuk dan keluar. Menyalin menu menjadi dua bermakna setiap
+ * pautan baharu perlu ditambah dua kali, dan satu daripadanya akan tertinggal.
+ *
+ * Perangkap fokus yang sama seperti modal digunakan: laci menutupi halaman,
+ * jadi pengguna papan kekunci tidak sepatutnya boleh Tab ke kandungan di
+ * belakangnya sementara ia masih terbuka.
+ */
+function mulakanLaciNav() {
+    const laci = document.querySelector('[data-laci]');
+    const latar = document.querySelector('[data-laci-latar]');
+    const pembuka = document.querySelector('[data-laci-buka]');
+
+    if (! laci || ! pembuka) {
+        return;
+    }
+
+    const buka = () => {
+        laci.classList.add('laci-buka');
+        latar?.classList.remove('hidden');
+        pembuka.setAttribute('aria-expanded', 'true');
+
+        // Halaman di belakang tidak boleh ditatal semasa laci menutupinya;
+        // pada telefon, menatal latar sambil laci terbuka terasa seperti
+        // halaman itu rosak.
+        document.body.classList.add('overflow-hidden');
+
+        laci.querySelector('a, button')?.focus();
+    };
+
+    const tutup = () => {
+        if (! laci.classList.contains('laci-buka')) {
+            return;
+        }
+
+        laci.classList.remove('laci-buka');
+        latar?.classList.add('hidden');
+        pembuka.setAttribute('aria-expanded', 'false');
+        document.body.classList.remove('overflow-hidden');
+
+        pembuka.focus();
+    };
+
+    pembuka.addEventListener('click', buka);
+    latar?.addEventListener('click', tutup);
+
+    laci.querySelectorAll('[data-laci-tutup]').forEach((butang) => {
+        butang.addEventListener('click', tutup);
+    });
+
+    laci.addEventListener('keydown', (peristiwa) => {
+        if (peristiwa.key === 'Tab' && laci.classList.contains('laci-buka')) {
+            perangkapFokus(laci, peristiwa);
+        }
+    });
+
+    document.addEventListener('keydown', (peristiwa) => {
+        if (peristiwa.key === 'Escape') {
+            tutup();
+        }
+    });
+
+    /*
+     * Skrin yang melebar melepasi md — memutar telefon, atau membuka semula
+     * tetingkap desktop yang dikecilkan — mesti menutup laci. Tanpa ini,
+     * body kekal terkunci daripada menatal dan latar gelap kekal dalam DOM
+     * walaupun bar sisi sudah kembali menjadi lajur biasa.
+     */
+    window.matchMedia('(min-width: 48rem)').addEventListener('change', (peristiwa) => {
+        if (peristiwa.matches) {
+            tutup();
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     mulakanMenuJatuh();
+    mulakanLaciNav();
     mulakanModal();
     mulakanAmaran();
     mulakanTunjukKataLaluan();
