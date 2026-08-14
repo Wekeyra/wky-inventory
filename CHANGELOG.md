@@ -10,6 +10,18 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ### Ditambah
 
+- **Modul Pesanan Belian.** Permohonan pembelian → kelulusan admin → penerimaan barang, dalam
+  satu rekod yang melalui keseluruhan aliran. Permohonan yang diluluskan *menjadi* PO dan bukan
+  disalin menjadi dokumen kedua.
+- **Kelulusan berperingkat yang pertama dalam sistem.** Staf boleh memohon tetapi tidak boleh
+  meluluskan; hanya admin boleh meluluskan atau menolak, dan keputusan itu direkod berserta siapa
+  dan bila. Permohonan yang ditolak boleh membawa sebabnya.
+- **Penerimaan separa.** Satu pesanan boleh diterima berkali-kali sehingga setiap baris penuh,
+  dan ia bertukar *Selesai* dengan sendirinya apabila itu berlaku. Menerima lebih daripada yang
+  dipesan ditolak; lebihan sebenar perlu direkod sebagai stok masuk biasa.
+- **Kos yang diluluskan pada PO dicap pada pergerakan stok** semasa barang diterima, jadi harga
+  yang diluluskan itulah yang masuk ke dalam kira-kira — bukan harga kos produk yang mungkin sudah
+  berubah antara kelulusan dan penghantaran.
 - **Kos seunit pada setiap pergerakan stok dan setiap lot batch.** Kos yang dibayar dibekukan
   pada rekod, jadi laporan bulan lepas tidak lagi berubah nilainya apabila harga pembekal naik
   bulan ini. Borang stok masuk meminta kos (kosong bermakna guna harga kos produk), dan imbasan

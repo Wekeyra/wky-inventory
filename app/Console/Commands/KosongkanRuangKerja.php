@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Category;
 use App\Models\InvoiceScan;
 use App\Models\Product;
+use App\Models\PurchaseOrder;
 use App\Models\StockCount;
 use App\Models\StockMovement;
 use App\Models\StockTransfer;
@@ -83,6 +84,7 @@ class KosongkanRuangKerja extends Command
             'Pergerakan stok' => $this->skop(StockMovement::class, $ruang)->count(),
             'Sesi kiraan stok' => $this->skop(StockCount::class, $ruang)->count(),
             'Pemindahan stok' => $this->skop(StockTransfer::class, $ruang)->count(),
+            'Pesanan belian' => $this->skop(PurchaseOrder::class, $ruang)->count(),
             'Imbasan invois' => $this->skop(InvoiceScan::class, $ruang)->count(),
         ];
     }
@@ -102,6 +104,10 @@ class KosongkanRuangKerja extends Command
             $this->skop(InvoiceScan::class, $ruang)->delete();
             $this->skop(StockCount::class, $ruang)->delete();
             $this->skop(StockTransfer::class, $ruang)->delete();
+            // Pesanan belian dibuang sebelum produk: barisnya merujuk kepada
+            // produk, dan pesanan yang produknya sudah hilang ialah dokumen
+            // yang tidak boleh dibaca sesiapa.
+            $this->skop(PurchaseOrder::class, $ruang)->delete();
             $this->skop(StockMovement::class, $ruang)->delete();
             $this->skop(Product::class, $ruang)->delete();
             $this->skop(Category::class, $ruang)->delete();

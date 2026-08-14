@@ -10,6 +10,7 @@ use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ProductBatchController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StockCountController;
@@ -80,6 +81,25 @@ Route::middleware('auth')->group(function () {
         Route::get('{transfer}', 'show')->name('show');
         Route::post('{transfer}/terima', 'receive')->name('receive');
         Route::delete('{transfer}', 'destroy')->name('destroy');
+    });
+
+    /*
+     | Purchase Order. Memohon dan menerima terbuka kepada semua pengguna;
+     | hanya keputusan lulus/tolak dijaga middleware admin, supaya staf boleh
+     | memohon tetapi tidak boleh meluluskan permohonannya sendiri.
+     */
+    Route::controller(PurchaseOrderController::class)->prefix('pesanan-belian')->name('purchase-orders.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('{purchaseOrder}', 'show')->name('show');
+        Route::get('{purchaseOrder}/edit', 'edit')->name('edit');
+        Route::put('{purchaseOrder}', 'update')->name('update');
+        Route::post('{purchaseOrder}/hantar', 'submit')->name('submit');
+        Route::post('{purchaseOrder}/keputusan', 'decide')->name('decide')->middleware('admin');
+        Route::post('{purchaseOrder}/terima', 'receive')->name('receive');
+        Route::post('{purchaseOrder}/batal', 'cancel')->name('cancel');
+        Route::delete('{purchaseOrder}', 'destroy')->name('destroy');
     });
 
     Route::get('stock', [StockMovementController::class, 'index'])->name('stock.index');

@@ -17,6 +17,7 @@ bertemu antara satu sama lain.
 | **Pembekal** | Maklumat pembekal dan senarai produk yang dibekalkan. Sama seperti kategori, tidak boleh dipadam selagi masih ada produk yang memautnya |
 | **Gudang** | Gudang dan cawangan, dengan baki setiap produk pada setiap gudang serta catatan rak/bin |
 | **Pindah Stok** | Pemindahan antara gudang dalam dua peringkat — hantar dan terima — dengan stok dalam perjalanan di antaranya |
+| **Pesanan Belian** | Permohonan pembelian → kelulusan admin → penerimaan barang, penuh atau separa. Kos yang diluluskan dicap pada pergerakan stok semasa barang diterima |
 | **Imbas Invois** | Ambil gambar terus dengan kamera atau muat naik foto/PDF — AI membaca baris barang, memadankannya dengan produk (mencipta produk baharu bagi barang yang belum wujud), dan merekod stok masuk selepas disahkan. Boleh juga disimpan dahulu dan dibaca kemudian |
 | **Kiraan Stok** | Sesi kiraan fizikal (stock take): sistem simpan gambaran baki, staf masukkan kiraan sebenar, sistem tunjuk perbezaan dan laraskan stok selepas disahkan |
 | **Pergerakan Stok** | Rekod stok masuk, keluar, dan pelarasan — setiap satu menyimpan baki sebelum/selepas, sebab, dan lot yang terlibat. Stok keluar menjana Delivery Order yang boleh dicetak. Boleh ditapis mengikut produk, jenis, dan sebab |
@@ -31,8 +32,9 @@ siapa, bila, dan sebab.
 
 Supaya jelas apa yang sistem ini belum lakukan, dan tidak disangka hilang:
 
-- **Purchase Order.** Tiada permohonan pembelian, kelulusan, penerimaan separa, mahupun
-  padanan PO dengan invois pembekal.
+- **Padanan PO dengan invois pembekal.** Permohonan, kelulusan dan penerimaan separa **sudah
+  ada** (lihat [Purchase Order](#purchase-order)), tetapi imbasan invois masih tidak dipadankan
+  dengan PO yang terbuka — kedua-duanya merekod stok masuk secara berasingan.
 - **Kewangan.** Tiada jualan/POS, kos barang dijual (COGS), untung kasar, mahupun kaedah
   kos berlapis seperti FIFO. Setiap pergerakan stok **sudah** membawa kos seunitnya
   (lihat [Kos pada setiap pergerakan](#kos-pada-setiap-pergerakan)), jadi asas untuk COGS
@@ -255,6 +257,75 @@ DO dijana daripada rekod pergerakan dan tidak disimpan sebagai dokumen berasinga
 yang dicetak sentiasa sepadan dengan apa yang benar-benar keluar daripada stok. Satu DO membawa
 satu baris kerana ia terikat pada satu pergerakan; menggabungkan beberapa produk ke dalam satu
 dokumen memerlukan lapisan pesanan penghantarannya sendiri.
+
+## Purchase Order
+
+Satu rekod melalui keseluruhan aliran perolehan:
+
+```
+draf ──hantar──> menunggu ──lulus──> diluluskan ──terima penuh──> selesai
+  │                  │                    │
+  └──batal──>        └──tolak──>          └──batal──> dibatalkan
+                       ditolak
+```
+
+Permohonan yang diluluskan **menjadi** PO; ia bukan dokumen kedua yang disalin daripada
+permohonan. Menyalinnya bermakna ada dua tempat kebenaran tentang barang yang sama, dan yang
+kedua akan terpesong daripada yang pertama sebaik sahaja seseorang menyunting salah satunya.
+
+Peralihan yang dibenarkan ditulis sebagai satu peta, `PurchaseOrder::PERALIHAN`, dan bukan
+disebar sebagai `if` di dalam pengawal. Status akhir — *ditolak*, *selesai*, *dibatalkan* —
+sengaja tiada laluan keluar: rekod yang boleh berubah selepas diluluskan bukan lagi kelulusan.
+
+### Siapa boleh buat apa
+
+| Tindakan | Siapa |
+|---|---|
+| Mencipta dan menghantar permohonan | Semua pengguna |
+| **Meluluskan / menolak** | **Admin sahaja** (laluan dijaga middleware `admin`) |
+| Merekod penerimaan | Semua pengguna |
+
+Staf boleh memohon tetapi tidak boleh meluluskan permohonannya sendiri.
+
+> ⚠️ Seorang **admin masih boleh meluluskan permohonannya sendiri**. Ruang kerja yang hanya
+> mempunyai seorang admin akan tersekat sepenuhnya kalau ini dihalang, dan itu lebih memudaratkan
+> daripada kawalan yang diberikan. Sebagai gantinya, `diputuskan_oleh` dan `diputuskan_pada`
+> sentiasa direkod, jadi jejaknya kelihatan walaupun kawalannya tidak dipaksa.
+
+### Draf dikunci selepas dihantar
+
+Hanya draf boleh disunting atau dipadam. Selepas dihantar, isi PO ialah apa yang orang lain baca
+dan luluskan — menyuntingnya di belakang mereka menjadikan kelulusan itu tidak bermakna. PO yang
+**ditolak** pun kekal, kerana "kami pernah memohon dan ia ditolak" ialah maklumat.
+
+Menyunting draf **menulis semula** semua barisnya. Draf belum menyentuh stok, jadi tiada sejarah
+yang hilang — dan memadankan baris lama dengan baris baharu satu demi satu hanya menambah cara
+untuk tersalah.
+
+### Penerimaan separa
+
+`kuantiti_diterima` disimpan pada setiap baris, dan penerimaan boleh dibuat berkali-kali sehingga
+setiap baris penuh. Status *Diterima Separa* **tidak disimpan** — ia dikira daripada angka baris
+itu sendiri (`PurchaseOrder::diterimaSepara()`), kerana status yang disimpan berasingan daripada
+angka yang membentuknya akan terpesong pada saat satu penerimaan gagal separuh jalan.
+
+Menerima **lebih** daripada yang dipesan ditolak. Itu percanggahan dengan dokumen yang diluluskan,
+bukan kelonggaran yang memudahkan; lebihan sebenar direkod sebagai stok masuk biasa di luar PO.
+
+PO yang sudah menerima sebahagian barang **tidak boleh dibatalkan** — stok itu sudah masuk ke
+gudang, dan membatalkan dokumennya meninggalkan pergerakan stok yang merujuk kepada sesuatu yang
+sepatutnya tidak pernah berlaku.
+
+### Sambungan ke kos
+
+Kos yang diluluskan pada setiap baris ialah kos yang dicap pada pergerakan stok semasa barang
+diterima. Harga yang **diluluskan** itulah yang masuk ke dalam kira-kira — bukan `harga_kos`
+produk, yang mungkin sudah berubah antara kelulusan dan penghantaran. Lihat
+[Kos pada setiap pergerakan](#kos-pada-setiap-pergerakan).
+
+Penerimaan menggunakan `BakiLokasi` dan `LotPenerimaan` yang sama seperti aliran stok yang lain,
+jadi tiada satu aliran pun terlepas semakan bakinya sendiri. Produk yang dijejak batchnya menerima
+lot bernamakan kod PO, sama seperti imbasan invois menamakan lotnya mengikut rujukan invois.
 
 ## Kos pada setiap pergerakan
 
@@ -641,6 +712,15 @@ kod. Langkah itu turut mengesahkan binaan aset masih berjaya sebelum deploy.
   perjalanan, baki tujuan ditambah semasa terima, pembatalan yang memulangkan stok, penolakan
   penghantaran melebihi baki gudang, produk berulang yang digabungkan, dan pengecualian
   pemindahan daripada kiraan masuk/keluar laporan bulanan.
+- `tests/Feature/PurchaseOrderTest.php` — pesanan belian: draf dikunci selepas dihantar, staf
+  yang boleh memohon tetapi tidak boleh meluluskan, keputusan yang direkod berserta pemutusnya,
+  penerimaan penuh dan separa, penolakan penerimaan melebihi baki, pembatalan yang dihalang
+  selepas ada barang diterima, dan status akhir yang tiada laluan keluar.
+- `tests/Feature/KosPergerakanTest.php` — kos seunit: kos yang dibekukan dan tidak berubah
+  apabila harga kos produk dinaikkan kemudian, kos kosong yang jatuh kepada harga kos produk,
+  produk tanpa harga kos yang meninggalkan kos sebagai tidak direkod, sifar yang ditaip sendiri,
+  stok keluar yang menolak kos yang dihantar, kos lot yang dipuratakan secara berwajaran, dan
+  nilai stok yang dikira daripada kos lot.
 
 ## Imbas Invois (AI)
 

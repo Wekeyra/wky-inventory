@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\InvoiceScan;
 use App\Models\Location;
 use App\Models\Product;
-use App\Models\ProductBatch;
 use App\Models\StockMovement;
 use App\Models\Supplier;
 use App\Services\Stok\BakiLokasi;
+use App\Services\Stok\LotPenerimaan;
 use App\Services\Invoice\ExtractedInvoice;
 use App\Services\Invoice\ExtractedLine;
 use App\Services\Invoice\InvoiceExtractionException;
@@ -282,7 +282,7 @@ class InvoiceScanController extends Controller
 
                 StockMovement::create([
                     'product_id' => $product->id,
-                    'product_batch_id' => $this->batchPenerimaan($product, $invoiceScan, $item->kuantiti, $kos)?->id,
+                    'product_batch_id' => LotPenerimaan::serap($product, $invoiceScan->rujukanStok(), $item->kuantiti, $kos)?->id,
                     'location_id' => $lokasi?->id,
                     'user_id' => $request->user()?->id,
                     'jenis' => 'masuk',
@@ -348,27 +348,8 @@ class InvoiceScanController extends Controller
      * Tarikh luputnya dibiarkan kosong kerana ia memang tidak diketahui di
      * sini; ia diisi pada halaman produk selepas kotak sebenar diperiksa.
      */
-    private function batchPenerimaan(Product $product, InvoiceScan $imbasan, int $kuantiti, ?float $kos = null): ?ProductBatch
-    {
-        if (! $product->jejak_batch) {
-            return null;
-        }
-
-        $batch = ProductBatch::lockForUpdate()->firstOrNew([
-            'product_id' => $product->id,
-            'no_batch' => $imbasan->rujukanStok(),
-        ]);
-
-        // Kos diserap sebelum kuantiti dinaikkan: purata berwajaran memerlukan
-        // baki lama lot itu, yang hilang selepas kenaikan.
-        $sedia = (int) ($batch->kuantiti ?? 0);
-        $batch->serapKos($sedia, $kuantiti, $kos);
-
-        $batch->kuantiti = $sedia + $kuantiti;
-        $batch->save();
-
-        return $batch;
-    }
+    // Logik lot penerimaan berpindah ke Services\Stok\LotPenerimaan, kerana
+    // penerimaan Purchase Order menghadapi masalah yang sama persis.
 
     /**
      * Mencipta produk daripada satu baris invois yang tiada padanan.

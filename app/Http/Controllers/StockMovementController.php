@@ -301,7 +301,7 @@ class StockMovementController extends Controller
             $sedia = (int) ($batch->kuantiti ?? 0);
             $batch->serapKos($sedia, (int) $data['kuantiti'], $this->kosSeunit($product, null, $data));
 
-            $batch->kuantiti = $sedia + $data['kuantiti'];
+            $batch->kuantiti = $sedia + (int) $data['kuantiti'];
             $batch->save();
 
             return $batch;
