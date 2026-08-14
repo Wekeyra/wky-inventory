@@ -7,6 +7,43 @@ Setiap syarikat yang mendaftar mendapat **ruang kerjanya sendiri** dengan invent
 berasingan sepenuhnya, jadi satu pemasangan boleh menampung banyak syarikat tanpa data
 bertemu antara satu sama lain.
 
+## Isi kandungan
+
+- [Kesiapan operasi](#kesiapan-operasi)
+- [Ciri lanjutan](#ciri-lanjutan)
+- [Modul](#modul)
+- [Gudang dan lokasi](#gudang-dan-lokasi)
+- [Pemindahan stok](#pemindahan-stok)
+- [Barcode dan pengimbas](#barcode-dan-pengimbas)
+- [Gambar produk](#gambar-produk)
+- [Batch dan tarikh luput](#batch-dan-tarikh-luput)
+- [Sebab pergerakan dan Delivery Order](#sebab-pergerakan-dan-delivery-order)
+- [Purchase Order](#purchase-order)
+- [Analitik](#analitik)
+- [Padanan invois dengan pesanan belian](#padanan-invois-dengan-pesanan-belian)
+- [Jualan dan COGS](#jualan-dan-cogs)
+- [Kos pada setiap pergerakan](#kos-pada-setiap-pergerakan)
+- [Butang tindakan pantas](#butang-tindakan-pantas)
+- [Padam produk: arkib, bukan padam](#padam-produk-arkib-bukan-padam)
+- [Tambah produk dari borang stok](#tambah-produk-dari-borang-stok)
+- [Tambah kategori dari penapis Produk](#tambah-kategori-dari-penapis-produk)
+- [Halaman pendaratan](#halaman-pendaratan)
+- [Ruang kerja](#ruang-kerja)
+- [Akaun dan log masuk](#akaun-dan-log-masuk)
+- [Keperluan](#keperluan)
+- [Pemasangan](#pemasangan)
+- [Akaun pertama](#akaun-pertama)
+- [Deploy](#deploy)
+- [Ujian](#ujian)
+- [Imbas Invois (AI)](#imbas-invois-ai)
+- [Dwibahasa (BM / EN)](#dwibahasa-bm--en)
+- [Navigasi pada telefon](#navigasi-pada-telefon)
+- [Butang kembali](#butang-kembali)
+- [Grid yang membawa jadual](#grid-yang-membawa-jadual)
+- [Kad statistik](#kad-statistik)
+- [Antara muka](#antara-muka)
+- [Nota teknikal](#nota-teknikal)
+
 ## Kesiapan operasi
 
 Ujian automatik meliputi logik sistem, tetapi **empat perkara ini tidak boleh disahkan oleh ujian**
@@ -32,7 +69,7 @@ Kalau fail hilang, tetapkan `MUAT_NAIK_DISK=s3` dan isi `AWS_*`. **Tiada kod per
 semua pemanggil membaca nama cakera itu daripada satu tempat
 ([`Services/Storan/Muatnaik.php`](app/Services/Storan/Muatnaik.php)).
 
-### 2. Emel — gagal paling senyap yang mungkin
+### 2. Emel yang gagal secara senyap
 
 `MAIL_MAILER=log` ialah lalai Laravel, dan ia bermakna emel **tidak dihantar ke mana-mana**. Ia
 ditulis ke `storage/logs/laravel.log`. Borang *Lupa Kata Laluan* tetap berkata "pautan sudah
@@ -802,6 +839,9 @@ baharu yang kosong dan pendaftar menjadi **admin** ruang kerja itu, jadi dia bol
 stafnya sendiri melalui halaman Pengguna. Peranan ditetapkan dalam controller dan bukan
 daripada borang, supaya pendaftaran sendiri tidak boleh menghasilkan admin sistem.
 
+Ruang kerja baharu bermula dengan **lapan fungsi teras sahaja**; modul lanjutan dibuka kemudian
+dalam Tetapan. Lihat [Ciri lanjutan](#ciri-lanjutan).
+
 ### Pengurusan pengguna
 
 Halaman Pengguna dibuka kepada **admin** sahaja, melalui middleware `admin`
@@ -818,6 +858,32 @@ Dua sekatan menghalang admin daripada mengunci dirinya sendiri di luar sistem:
 Model `User` tidak berskop ruang kerja secara automatik (lihat [Ruang kerja](#ruang-kerja)), jadi
 `UserController` menyemak pemilikan sendiri dan memulangkan **404** bagi akaun milik syarikat
 lain — layanan yang sama seperti model berskop.
+
+### Lupa kata laluan
+
+Pautan **Lupa kata laluan?** pada halaman log masuk menghantar emel pautan set semula. Tanpanya,
+staf yang lupa kata laluannya bergantung sepenuhnya pada admin — dan admin yang lupa kata
+laluannya sendiri terkunci di luar tanpa jalan langsung.
+
+Empat keputusan yang tidak jelas daripada membaca kodnya sepintas lalu:
+
+- **Jawapannya sama** sama ada emel itu wujud atau tidak. Membezakannya menjadikan borang awam ini
+  alat untuk mengesahkan siapa mempunyai akaun dalam sistem.
+- **Token *ingat saya* dikitar semula** selepas kata laluan ditetapkan. Kata laluan yang di-reset
+  selalunya bermakna yang lama sudah tidak dipercayai, jadi sesi pada peranti lain diputuskan.
+- **Notifikasi terbina Laravel diganti** dengan versi dwibahasa
+  ([`AturSemulaKataLaluan`](app/Notifications/AturSemulaKataLaluan.php)). Emel yang tiba dalam
+  bahasa berlainan daripada skrin yang baru sahaja diminta pengguna kelihatan seperti emel palsu —
+  tepat pada saat pengguna paling berhati-hati tentang pautan yang diterimanya.
+- **Tempoh sah dibaca daripada konfigurasi broker**, bukan ditulis tetap dalam teks emel, supaya
+  emel tidak mendakwa 60 minit sedangkan konfigurasi sudah ditukar.
+
+Nama laluannya mengikut konvensyen Laravel (`password.request`, `password.email`,
+`password.reset`, `password.update`) kerana broker kata laluan terbina merujuk nama-nama itu.
+
+> ⚠️ Aliran ini **tidak berfungsi** selagi `MAIL_MAILER=log` — emel ditulis ke fail log sambil
+> borang tetap berkata pautan sudah dihantar. Lihat
+> [Kesiapan operasi](#2-emel-yang-gagal-secara-senyap).
 
 ### Log masuk Google
 
@@ -911,9 +977,13 @@ php artisan ruang-kerja:kosongkan "Nama Syarikat"
 
 Arahan memaparkan bilangan setiap jenis rekod yang akan dibuang dan meminta pengesahan dahulu.
 Akaun pengguna, gudang, dan ruang kerja itu sendiri tidak disentuh — hanya produk, kategori,
-pembekal, pergerakan stok, pemindahan, sesi kiraan dan imbasan invois. Baki gudang dan lot
-dibuang bersama produknya. Fail invois yang tersimpan turut dibuang. Gunakan `--force` untuk
-melangkau soalan pengesahan dalam skrip.
+pembekal, pergerakan stok, pemindahan, pesanan belian, jualan, sesi kiraan dan imbasan invois.
+Baki gudang dan lot dibuang bersama produknya. Fail invois yang tersimpan turut dibuang. Gunakan
+`--force` untuk melangkau soalan pengesahan dalam skrip.
+
+Arahan ini **memintas** perlindungan arkib produk dengan sengaja: ia untuk mengosongkan ruang
+kerja sepenuhnya, dan tiada gunanya meninggalkan produk terarkib dalam ruang kerja yang sudah
+tiada apa-apa sejarah untuk dilindungi.
 
 Gudang dikekalkan kerana ia struktur ruang kerja dan bukan data inventori, sama seperti akaun
 penggunanya — dan setiap ruang kerja mesti sentiasa ada satu gudang lalai untuk menerima stok.
@@ -937,6 +1007,18 @@ Tanpanya setiap halaman gagal dengan *Vite manifest not found*.
 Aplikasi menyediakan `/up` untuk pemeriksaan kesihatan hos. Ia menyentuh aplikasi tetapi bukan
 pangkalan data, jadi ia menjawab *sihat* walaupun migrasi belum dijalankan — jangan bergantung
 padanya untuk mengesahkan deploy yang lengkap.
+
+### Semakan selepas deploy pertama
+
+Dua arahan menjawab soalan yang tidak boleh dijawab daripada kod, kerana ia sifat hos:
+
+```bash
+php artisan wky:semak-storan          # fail muat naik masih ada selepas deploy?
+php artisan wky:semak-emel anda@syarikat.com   # emel benar-benar dihantar?
+```
+
+Kedua-duanya keluar dengan kod bukan sifar apabila gagal, jadi ia boleh dijadikan langkah dalam
+skrip deploy. Lihat [Kesiapan operasi](#kesiapan-operasi) untuk maksud setiap kegagalan.
 
 ## Ujian
 
@@ -1013,6 +1095,9 @@ kod. Langkah itu turut mengesahkan binaan aset masih berjaya sebelum deploy.
   yang boleh memohon tetapi tidak boleh meluluskan, keputusan yang direkod berserta pemutusnya,
   penerimaan penuh dan separa, penolakan penerimaan melebihi baki, pembatalan yang dihalang
   selepas ada barang diterima, dan status akhir yang tiada laluan keluar.
+- `tests/Feature/TambahKategoriDariProdukTest.php` — butang tambah kategori: pulang ke halaman
+  Produk selepas simpan dan selepas batal, medan tersembunyi yang bertahan melalui kegagalan
+  pengesahan, dan nilai `kembali` yang tidak dikenali yang jatuh semula ke senarai kategori.
 - `tests/Feature/ArkibProdukTest.php` — arkib produk: jejak audit yang **kekal** selepas permintaan
   padam, produk diarkib yang hilang daripada borang stok, produk tanpa sejarah yang masih dipadam
   terus, staf yang tidak boleh memadam mahupun ditawarkan butangnya, dan pengaktifan semula.
@@ -1354,7 +1439,7 @@ dibungkus ke dalam `public/build`, jadi sistem berfungsi sepenuhnya tanpa sambun
 | Fail | Peranan |
 |---|---|
 | `resources/css/app.css` | Token warna `@theme` dan kelas komponen (`.kad`, `.btn-utama`, `.jadual`, `.lencana-*`) |
-| `resources/js/app.js` | Menu jatuh, modal, tutup amaran, dan Chart.js — pengganti Bootstrap JS |
+| `resources/js/app.js` | Menu jatuh, laci navigasi telefon, modal, togol tema, pengimbas barcode, dan Chart.js — pengganti Bootstrap JS |
 | `resources/views/components/ikon.blade.php` | Ikon SVG terbaris (`<x-ikon nama="kotak" />`) |
 | `resources/views/components/logo-wky.blade.php` | Logo — guna fail sebenar jika ada, jika tidak lukis SVG |
 | `resources/views/components/logo-w.blade.php` | Tanda *W* sahaja, untuk kepala bar sisi |
