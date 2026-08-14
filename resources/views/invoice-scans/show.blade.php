@@ -294,6 +294,28 @@
                 'rujukan' => '<code>' . e($imbasan->rujukanStok()) . '</code>',
             ]) !!}
         </p>
+    @else
+        {{--
+            Selepas disahkan, seluruh baris tindakan di atas hilang bersama
+            isDraf() — dan pengguna ditinggalkan pada halaman tanpa satu pun
+            langkah seterusnya. Kerja itu sudah selesai; yang tinggal ialah
+            memberitahunya ke mana perlu pergi.
+        --}}
+        <div class="mt-4 flex flex-wrap gap-2">
+            <a href="{{ route('invoice-scans.create') }}" class="btn-utama">
+                <x-ikon nama="imbas" kelas="size-4" /> {{ __('wky.imbas.imbas_lagi') }}
+            </a>
+
+            {{-- Tanpa parameter tapisan: senarai pergerakan disusun terbaharu
+                 dahulu, jadi apa yang baru sahaja direkod berada di puncaknya.
+                 Menghantar ?rujukan= akan menjanjikan tapisan yang halaman itu
+                 tidak sokong, dan pengguna akan menyangka ia rosak. --}}
+            <a href="{{ route('stock.index') }}" class="btn-wky">
+                <x-ikon nama="anak-panah-dua-arah" kelas="size-4" /> {{ __('wky.imbas.lihat_pergerakan') }}
+            </a>
+
+            <a href="{{ route('dashboard') }}" class="btn-garis">{{ __('wky.nav.dashboard') }}</a>
+        </div>
     @endif
 
     @endif

@@ -52,6 +52,23 @@
                             </button>
                         </div>
                     </div>
+
+                    {{--
+                        Butang Teruskan muncul di sini, bersebelahan gambar yang
+                        baru diambil, dan bukan hanya di kaki borang.
+
+                        Pada telefon, kaki borang berada jauh di bawah lipatan:
+                        selepas menangkap gambar pengguna ditinggalkan dengan
+                        satu gambar kecil dan tiada apa yang memberitahunya
+                        langkah seterusnya. Ia melakukan tindakan yang sama
+                        seperti butang di kaki — pertindihan yang disengajakan,
+                        kerana satu daripadanya sentiasa tidak kelihatan.
+                    --}}
+                    <button type="submit" class="btn-utama mt-3 w-full py-3 sm:w-auto sm:px-6"
+                            id="butangTeruskan" data-tindakan="baca" @disabled(! $adaKunci)>
+                        {{ __('wky.imbas.teruskan') }}
+                        <x-ikon nama="anak-panah-kanan" kelas="size-4" />
+                    </button>
                 </div>
             </div>
 

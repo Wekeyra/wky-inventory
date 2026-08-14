@@ -1226,10 +1226,19 @@
         @apply fixed inset-0 z-30 bg-black/50 backdrop-blur-sm md:hidden;
     }
 
-    .butang-laci {
+    /*
+     | Butang ikon kecil pada bar atas: kembali, togol tema, dan hamburger laci
+     | berkongsi rupa yang sama supaya bar itu kelihatan sebagai satu kumpulan.
+     |
+     | Keterlihatan TIDAK dibina ke dalam kelas ini. Butang laci hanya wujud di
+     | bawah md dan menambah `md:hidden` sendiri dalam markup; butang kembali
+     | wujud pada semua saiz. Menanam md:hidden di sini bermakna setiap
+     | pengguna baharu kelas ini terpaksa membatalkannya dengan `!`.
+     */
+    .butang-atas {
         @apply grid size-9 shrink-0 cursor-pointer place-items-center rounded-md border border-bingkai
                bg-permukaan text-malap transition-colors hover:border-aksen hover:text-teks
-               focus-visible:ring-2 focus-visible:ring-aksen/40 focus-visible:outline-none md:hidden;
+               focus-visible:ring-2 focus-visible:ring-aksen/40 focus-visible:outline-none;
     }
 
     .nav-pautan {

@@ -58,7 +58,7 @@
             {{-- Butang tutup di dalam laci: pada telefon, latar gelap mudah
                  terlepas sentuh, dan pengguna papan kekunci memerlukan sasaran
                  yang boleh difokus di dalam perangkap fokus itu sendiri. --}}
-            <button type="button" class="butang-laci !border-transparent" data-laci-tutup
+            <button type="button" class="butang-atas border-transparent md:hidden" data-laci-tutup
                     aria-label="{{ __('wky.nav.tutup_menu') }}">
                 <x-ikon nama="silang" kelas="size-5" />
             </button>
@@ -79,7 +79,7 @@
     <main id="kandungan-utama" class="min-w-0 flex-1 px-4 py-6 md:px-8">
         <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-bingkai pb-4">
             <div class="flex min-w-0 items-center gap-3">
-                <button type="button" class="butang-laci tanpa-cetak" data-laci-buka
+                <button type="button" class="butang-atas tanpa-cetak md:hidden" data-laci-buka
                         aria-expanded="false" aria-controls="laci-nav"
                         aria-label="{{ __('wky.nav.buka_menu') }}">
                     <x-ikon nama="bar" kelas="size-5" />
@@ -89,6 +89,37 @@
             </div>
 
             <div class="flex items-center gap-2">
+                {{--
+                    Butang kembali kontekstual. Destinasinya dikira daripada nama
+                    laluan semasa dan bukan daripada sejarah pelayar: url()->previous()
+                    boleh menunjuk ke tapak lain, ke halaman yang baru sahaja
+                    dipadam, atau ke borang yang baru sahaja dihantar — dan
+                    "kembali" yang membawa pengguna ke tempat yang salah lebih
+                    memudaratkan daripada tiada butang langsung.
+
+                    Halaman senarai dan dashboard tiada butang ini: ia memang
+                    puncak setiap cabangnya, dan tiada tempat untuk pulang.
+                --}}
+                @php
+                    $laluanSemasa = request()->route()?->getName();
+                    $indukLaluan = null;
+
+                    if ($laluanSemasa && ! str_ends_with($laluanSemasa, '.index') && $laluanSemasa !== 'dashboard') {
+                        $calon = preg_replace('/\.[^.]+$/', '.index', $laluanSemasa);
+
+                        if ($calon !== $laluanSemasa && \Illuminate\Support\Facades\Route::has($calon)) {
+                            $indukLaluan = route($calon);
+                        }
+                    }
+                @endphp
+
+                @if ($indukLaluan)
+                    <a href="{{ $indukLaluan }}" class="butang-atas tanpa-cetak"
+                       title="{{ __('wky.aksi.kembali') }}" aria-label="{{ __('wky.aksi.kembali') }}">
+                        <x-ikon nama="anak-panah-kiri" kelas="size-5" />
+                    </a>
+                @endif
+
                 @include('partials.bahasa')
 
                 <x-togol-tema />

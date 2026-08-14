@@ -979,6 +979,9 @@ kod. Langkah itu turut mengesahkan binaan aset masih berjaya sebelum deploy.
   yang boleh memohon tetapi tidak boleh meluluskan, keputusan yang direkod berserta pemutusnya,
   penerimaan penuh dan separa, penolakan penerimaan melebihi baki, pembatalan yang dihalang
   selepas ada barang diterima, dan status akhir yang tiada laluan keluar.
+- `tests/Feature/ButangKembaliTest.php` — butang kembali: destinasi yang dikira daripada nama
+  laluan, ketiadaannya pada halaman senarai dan dashboard, dan ketiadaannya pada halaman yang
+  tiada senarai induk.
 - `tests/Feature/LupaKataLaluanTest.php` — set semula kata laluan: pautan yang dihantar, notifikasi
   terbina Laravel yang tidak digunakan, jawapan yang sama bagi emel wujud dan tidak wujud, token
   palsu yang ditolak, dan token *ingat saya* yang dikitar semula selepas kata laluan ditukar.
@@ -1248,6 +1251,24 @@ Empat perkara yang menjadikannya selamat untuk papan kekunci dan telefon:
 
 > ⚠️ Kelas `bar-sisi` mesti kekal pada elemen itu. Mod cetak menyembunyikannya dengan nama itu,
 > dan laci yang tercetak di tepi setiap muka surat membazir dakwat.
+
+## Butang kembali
+
+Bar atas membawa butang kembali kontekstual di sebelah kanan. Destinasinya **dikira daripada nama
+laluan semasa**, bukan daripada sejarah pelayar: `products.edit` → `products.index`,
+`stock.create` → `stock.index`, dan seterusnya.
+
+`url()->previous()` sengaja tidak digunakan. Ia boleh menunjuk ke tapak lain, ke halaman yang baru
+sahaja dipadam, atau ke borang yang baru sahaja dihantar — dan butang "kembali" yang membawa
+pengguna ke tempat yang salah lebih memudaratkan daripada tiada butang langsung.
+
+Butang itu **tidak muncul** pada halaman yang namanya berakhir dengan `.index`, pada dashboard,
+atau apabila laluan induknya tidak wujud (Laporan Bulanan, Analitik, Ciri Lanjutan). Halaman itu
+puncak cabangnya sendiri; tiada tempat untuk pulang.
+
+> ⚠️ `.butang-atas` membawa rupa sahaja, **bukan keterlihatan**. Butang laci menambah `md:hidden`
+> sendiri dalam markup. Menanam `md:hidden` ke dalam kelas itu bermakna setiap pengguna baharunya
+> terpaksa membatalkannya dengan `!`.
 
 ## Kad statistik
 

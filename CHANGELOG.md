@@ -10,6 +10,12 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ### Diperbaiki
 
+- **Aliran imbas invois tidak lagi terputus selepas disahkan.** Sebaik sahaja stok direkod,
+  seluruh baris tindakan halaman itu hilang dan pengguna ditinggalkan tanpa satu pun langkah
+  seterusnya. Kini ada *Imbas Invois Lain*, *Lihat Pergerakan Stok*, dan *Dashboard*.
+- **Butang Teruskan muncul bersebelahan gambar yang baru diambil.** Pada telefon, butang di kaki
+  borang berada jauh di bawah lipatan — selepas menangkap gambar pengguna ditinggalkan dengan satu
+  gambar kecil dan tiada apa yang memberitahunya langkah seterusnya.
 - **Kad statistik dua lajur pada telefon**, bukan satu kad selebar skrin setiap satu. Sebelum ini
   empat kad memakan hampir keseluruhan skrin pertama, dan kandungan sebenar halaman — amaran stok
   rendah, pergerakan terkini — ditolak jauh ke bawah lipatan. Terpakai pada Dashboard, Laporan
@@ -23,6 +29,10 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ### Ditambah
 
+- **Butang kembali pada bar atas setiap halaman dalam.** Destinasinya dikira daripada laluan
+  semasa dan bukan daripada sejarah pelayar, jadi ia tidak boleh membawa pengguna ke tapak lain
+  atau ke halaman yang baru sahaja dipadam. Halaman senarai dan dashboard tiada butang ini —
+  ia puncak cabangnya sendiri.
 - **Lupa Kata Laluan.** Pautan pada halaman log masuk menghantar emel set semula. Sebelum ini staf
   yang lupa kata laluannya bergantung sepenuhnya pada admin, dan admin yang lupa kata laluannya
   sendiri terkunci di luar tanpa jalan langsung. Emelnya dwibahasa mengikut bahasa sistem.
