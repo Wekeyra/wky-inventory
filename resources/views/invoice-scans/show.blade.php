@@ -144,6 +144,26 @@
                 <label for="catatan" class="mb-1 block font-medium">{{ __('wky.medan.catatan') }}</label>
                 <input id="catatan" name="catatan" value="{{ old('catatan', $imbasan->catatan) }}" @disabled(! $imbasan->isDraf())>
             </div>
+
+            {{--
+                Memautkan invois kepada pesanan belian yang dibayarnya. Tanpa
+                pautan ini, pesanan kekal "diluluskan" selama-lamanya walaupun
+                barangnya sudah lama tiba melalui imbasan.
+            --}}
+            <div class="sm:col-span-3">
+                <label for="purchase_order_id" class="mb-1 block font-medium">{{ __('wky.imbas.pesanan') }}</label>
+                <select id="purchase_order_id" name="purchase_order_id" @disabled(! $imbasan->isDraf())>
+                    <option value="">— {{ __('wky.umum.tiada') }} —</option>
+                    @foreach ($pesanan as $po)
+                        <option value="{{ $po->id }}" @selected(old('purchase_order_id', $imbasan->purchase_order_id) == $po->id)>
+                            {{ $po->kod }}
+                            @if ($po->supplier) — {{ $po->supplier->nama }} @endif
+                            ({{ $po->labelStatus() }})
+                        </option>
+                    @endforeach
+                </select>
+                <p class="mt-1 text-xs text-malap">{{ __('wky.imbas.nota_pesanan') }}</p>
+            </div>
         </div>
 
         <div class="overflow-x-auto border-t border-bingkai">

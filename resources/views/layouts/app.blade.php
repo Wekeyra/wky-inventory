@@ -26,6 +26,7 @@
         ['transfers.index', 'transfers.*', 'pindah', 'nav.pindah_stok'],
         ['stock.index', 'stock.*', 'anak-panah-dua-arah', 'nav.pergerakan_stok'],
         ['reports.monthly', 'reports.*', 'dokumen-carta', 'nav.laporan_bulanan'],
+        ['analytics.index', 'analytics.*', 'carta-naik', 'nav.analitik'],
     ];
 
     if (auth()->user()->isAdmin()) {

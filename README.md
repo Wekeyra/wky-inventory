@@ -19,6 +19,7 @@ bertemu antara satu sama lain.
 | **Pindah Stok** | Pemindahan antara gudang dalam dua peringkat — hantar dan terima — dengan stok dalam perjalanan di antaranya |
 | **Pesanan Belian** | Permohonan pembelian → kelulusan admin → penerimaan barang, penuh atau separa. Kos yang diluluskan dicap pada pergerakan stok semasa barang diterima |
 | **Jualan** | Rekod jualan yang menolak stok dan membekukan harga jual serta kos barang, menghasilkan COGS dan untung kasar setiap jualan dan setiap bulan |
+| **Analitik** | Cadangan pesanan semula mengikut kadar penggunaan sebenar, produk paling menguntungkan, pusing ganti inventori, dan stok mati. Cadangan yang ditanda boleh terus menjadi permohonan pembelian |
 | **Imbas Invois** | Ambil gambar terus dengan kamera atau muat naik foto/PDF — AI membaca baris barang, memadankannya dengan produk (mencipta produk baharu bagi barang yang belum wujud), dan merekod stok masuk selepas disahkan. Boleh juga disimpan dahulu dan dibaca kemudian |
 | **Kiraan Stok** | Sesi kiraan fizikal (stock take): sistem simpan gambaran baki, staf masukkan kiraan sebenar, sistem tunjuk perbezaan dan laraskan stok selepas disahkan |
 | **Pergerakan Stok** | Rekod stok masuk, keluar, dan pelarasan — setiap satu menyimpan baki sebelum/selepas, sebab, dan lot yang terlibat. Stok keluar menjana Delivery Order yang boleh dicetak. Boleh ditapis mengikut produk, jenis, dan sebab |
@@ -33,17 +34,15 @@ siapa, bila, dan sebab.
 
 Supaya jelas apa yang sistem ini belum lakukan, dan tidak disangka hilang:
 
-- **Padanan PO dengan invois pembekal.** Permohonan, kelulusan dan penerimaan separa **sudah
-  ada** (lihat [Purchase Order](#purchase-order)), tetapi imbasan invois masih tidak dipadankan
-  dengan PO yang terbuka — kedua-duanya merekod stok masuk secara berasingan.
 - **Kewangan penuh.** Jualan, COGS dan untung kasar **sudah ada** (lihat
   [Jualan dan COGS](#jualan-dan-cogs)), tetapi tiada kaedah kos berlapis seperti FIFO, tiada
   pembayaran atau akaun belum terima, tiada cukai, dan tiada peranti POS. Kos keluar diambil
   daripada lot yang dipilih, atau daripada harga kos produk apabila tiada lot.
-- **Kawalan kelulusan berperingkat.** Peranan admin/staf sahaja; tiada had kuasa kelulusan
-  mahupun maker-checker.
-- **Analitik lanjutan.** Tiada produk paling laris, inventory turnover, DIO, dead stock,
-  mahupun ramalan permintaan.
+- **Kelulusan berbilang peringkat.** Satu peringkat kelulusan **sudah ada** pada Pesanan Belian
+  — staf memohon, admin memutuskan. Tiada had kuasa mengikut nilai, tiada rantaian dua peringkat,
+  dan seorang admin masih boleh meluluskan permohonannya sendiri.
+- **Ramalan permintaan.** Cadangan reorder mengira kadar penggunaan lepas
+  (lihat [Analitik](#analitik)), tetapi tidak meramal bermusim mahupun masa menunggu pembekal.
 - **Batch mengikut gudang.** Baki lot dikira untuk seluruh ruang kerja, bukan setiap gudang.
   Pemindahan memindahkan kuantiti tanpa menyebut lot mana yang bergerak.
 
@@ -327,6 +326,73 @@ produk, yang mungkin sudah berubah antara kelulusan dan penghantaran. Lihat
 Penerimaan menggunakan `BakiLokasi` dan `LotPenerimaan` yang sama seperti aliran stok yang lain,
 jadi tiada satu aliran pun terlepas semakan bakinya sendiri. Produk yang dijejak batchnya menerima
 lot bernamakan kod PO, sama seperti imbasan invois menamakan lotnya mengikut rujukan invois.
+
+## Analitik
+
+Empat jadual di `/analitik`, semuanya dikira daripada pergerakan stok sebenar dan bukan daripada
+nombor ringkasan yang disimpan. Ringkasan yang disimpan akan terpesong, dan angka analitik yang
+senyap-senyap salah lebih memudaratkan daripada tiada analitik langsung — ia kelihatan sama
+meyakinkan.
+
+### Cadangan pesanan semula
+
+Produk yang bakinya sudah mencecah paras minimum. Kuantiti cadangan ialah:
+
+```
+penggunaan sebulan (daripada kadar sebenar dalam tempoh)  +  jurang ke paras minimum
+```
+
+Kadar penggunaan diambil kira kerana **paras minimum sahaja tidak cukup**: dua produk dengan paras
+minimum yang sama tetapi kelajuan berbeza tidak sepatutnya dipesan sama banyak. Produk yang tidak
+bergerak langsung dicadangkan hanya sebanyak jurang itu — membeli lebih banyak barang yang tidak
+bergerak ialah cara paling cepat menukar wang tunai menjadi stok mati.
+
+Cadangan yang **ditanda** dihantar terus ke borang permohonan pembelian sebagai
+`?produk[ID]=KUANTITI`, jadi gelung *reorder → pesan* tertutup tanpa menaip semula senarai yang
+baru sahaja dibaca. ID disaring terhadap ruang kerja pengguna, kerana ia datang daripada URL.
+
+### Produk paling menguntungkan
+
+Disusun mengikut **untung kasar**, bukan kuantiti. Kuantiti sahaja menaikkan barang murah yang
+bergerak pantas ke atas senarai walaupun ia hampir tidak menyumbang apa-apa. Kedua-dua angka
+dipaparkan supaya perbezaan itu kelihatan.
+
+### Pusing ganti inventori
+
+`kos barang keluar ÷ nilai stok`, berserta anggaran hari stok yang tinggal.
+
+> ⚠️ Penyebutnya ialah **nilai stok hari ini**, bukan purata inventori sepanjang tempoh. Purata
+> sebenar memerlukan gambaran nilai stok setiap hari, yang tidak disimpan — dan menganggarkannya
+> daripada baki hari ini akan menghasilkan nombor yang kelihatan tepat tanpa menjadi tepat.
+> Pergerakan tanpa kos menyumbang sifar, jadi pusing ganti nampak lebih perlahan daripada yang
+> sebenar; halaman itu menandakannya apabila berlaku.
+
+### Stok mati
+
+Produk yang masih ada baki tetapi tidak bergerak keluar sejak 90 hari, disusun mengikut nilai yang
+tersekat. Produk yang **tidak pernah** bergerak turut disenaraikan: barang yang dibeli dan tidak
+pernah dijual ialah kes stok mati yang paling jelas, dan ia tiada pergerakan untuk ditapis mengikut
+tarikh.
+
+## Padanan invois dengan pesanan belian
+
+Halaman imbasan invois membawa pemilih **pesanan belian yang dibayar invois ini**. Hanya pesanan
+berstatus *diluluskan* boleh dipautkan — draf belum dipersetujui sesiapa, dan pesanan yang selesai
+sudah tiada baki untuk dipenuhi.
+
+Apabila imbasan yang dipautkan disahkan, `kuantiti_diterima` pesanan itu dimajukan dan pesanan
+menutup dirinya sendiri apabila setiap baris penuh. Tanpa pautan ini, pesanan kekal *diluluskan*
+selama-lamanya walaupun invoisnya sudah dibayar dan barangnya sudah di rak.
+
+> ⚠️ Invois yang membawa **lebih** daripada baki pesanan tetap memasukkan keseluruhannya ke dalam
+> stok — barang itu memang sampai. Yang dihadkan hanyalah berapa banyak daripadanya dikira
+> terhadap pesanan. Menolak keseluruhan pengesahan kerana pesanan tidak sepadan bermakna stok
+> sebenar tidak boleh direkod, dan itu lebih memudaratkan daripada satu pesanan yang tidak
+> seimbang.
+
+Kos pergerakan datang daripada **invois**, bukan daripada harga yang diluluskan pada PO. Invois
+ialah apa yang benar-benar dibayar; perbezaan antara kedua-duanya kelihatan dengan membandingkan
+halaman pesanan dengan halaman imbasan.
 
 ## Jualan dan COGS
 
@@ -767,6 +833,11 @@ kod. Langkah itu turut mengesahkan binaan aset masih berjaya sebelum deploy.
   yang boleh memohon tetapi tidak boleh meluluskan, keputusan yang direkod berserta pemutusnya,
   penerimaan penuh dan separa, penolakan penerimaan melebihi baki, pembatalan yang dihalang
   selepas ada barang diterima, dan status akhir yang tiada laluan keluar.
+- `tests/Feature/AnalitikPadananPoTest.php` — padanan invois dengan pesanan belian dan halaman
+  Analitik: pesanan yang dimajukan oleh pengesahan imbasan, penerimaan separa melalui invois,
+  lebihan yang masuk ke stok tanpa melebihi pesanan, pesanan draf yang tidak boleh dipautkan,
+  cadangan reorder yang mengambil kira kadar penggunaan, borang pesanan yang menerima cadangan
+  itu, stok mati, dan susunan produk mengikut untung.
 - `tests/Feature/JualanCogsTest.php` — jualan dan COGS: stok yang ditolak, untung kasar yang
   dikira daripada dua harga yang dibekukan, harga produk yang berubah tanpa menyentuh jualan lama,
   produk tanpa harga kos yang menandakan jualan sebagai tidak lengkap, kos yang diambil daripada

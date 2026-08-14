@@ -56,13 +56,48 @@ class PurchaseOrderController extends Controller
             ->all();
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
         return view('purchase-orders.form', [
             'pesanan' => new PurchaseOrder(),
             'suppliers' => Supplier::orderBy('nama')->get(),
             'products' => Product::where('aktif', true)->orderBy('nama')->get(),
+            'awal' => $this->barisAwal($request),
         ]);
+    }
+
+    /**
+     * Baris permulaan daripada cadangan reorder halaman Analitik.
+     *
+     * Bentuknya `?produk[ID]=KUANTITI`. Produk disaring terhadap ruang kerja
+     * pengguna, kerana ID datang daripada URL dan boleh menunjuk ke mana-mana.
+     *
+     * @return array<int, array{product_id: int, kuantiti: int, kos_seunit: string}>
+     */
+    private function barisAwal(Request $request): array
+    {
+        $diminta = $request->input('produk');
+
+        if (! is_array($diminta) || $diminta === []) {
+            return [];
+        }
+
+        $sah = Product::whereIn('id', array_keys($diminta))->pluck('id')->all();
+
+        $baris = [];
+
+        foreach ($sah as $id) {
+            $kuantiti = (int) ($diminta[$id] ?? 0);
+
+            if ($kuantiti > 0) {
+                // Kos dibiarkan kosong: pengawal akan mengambil harga kos
+                // produk semasa menyimpan, dan pengguna boleh menaipnya semula
+                // kalau pembekal memberi harga lain.
+                $baris[] = ['product_id' => $id, 'kuantiti' => $kuantiti, 'kos_seunit' => ''];
+            }
+        }
+
+        return $baris;
     }
 
     public function store(Request $request): RedirectResponse
@@ -114,6 +149,7 @@ class PurchaseOrderController extends Controller
             'pesanan' => $purchaseOrder,
             'suppliers' => Supplier::orderBy('nama')->get(),
             'products' => Product::where('aktif', true)->orderBy('nama')->get(),
+            'awal' => [],
         ]);
     }
 

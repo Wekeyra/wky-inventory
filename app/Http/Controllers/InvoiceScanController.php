@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\InvoiceScan;
 use App\Models\Location;
 use App\Models\Product;
+use App\Models\PurchaseOrder;
 use App\Models\StockMovement;
 use App\Models\Supplier;
 use App\Services\Stok\BakiLokasi;
@@ -164,12 +165,21 @@ class InvoiceScanController extends Controller
 
     public function show(InvoiceScan $invoiceScan): View
     {
-        $invoiceScan->load(['items.product', 'pembuka', 'pengesah', 'supplier']);
+        $invoiceScan->load(['items.product', 'pembuka', 'pengesah', 'supplier', 'purchaseOrder']);
 
         return view('invoice-scans.show', [
             'imbasan' => $invoiceScan,
             'products' => Product::where('aktif', true)->orderBy('nama')->get(),
             'suppliers' => Supplier::orderBy('nama')->get(),
+            // Hanya pesanan yang diluluskan masih menunggu barang. Pesanan yang
+            // sudah dipautkan kekal dalam senarai walaupun statusnya berubah,
+            // supaya paparan tidak kehilangan pilihannya sendiri.
+            'pesanan' => PurchaseOrder::query()
+                ->where(fn ($q) => $q->where('status', 'diluluskan')
+                    ->orWhere('id', $invoiceScan->purchase_order_id))
+                ->with('supplier')
+                ->latest()
+                ->get(),
         ]);
     }
 
@@ -194,6 +204,12 @@ class InvoiceScanController extends Controller
             'no_invois' => ['nullable', 'string', 'max:100'],
             'supplier_id' => ['nullable', Rule::exists('suppliers', 'id')
                 ->where('workspace_id', $request->user()->workspace_id)],
+            // Hanya pesanan yang diluluskan boleh dipautkan. Pesanan draf belum
+            // dipersetujui sesiapa, dan pesanan yang selesai sudah tiada baki
+            // untuk dipenuhi oleh invois ini.
+            'purchase_order_id' => ['nullable', Rule::exists('purchase_orders', 'id')
+                ->where('workspace_id', $request->user()->workspace_id)
+                ->where('status', 'diluluskan')],
             'catatan' => ['nullable', 'string'],
             'baris' => ['array'],
             'baris.*.product_id' => ['nullable', Rule::exists('products', 'id')
@@ -206,6 +222,7 @@ class InvoiceScanController extends Controller
             $invoiceScan->update([
                 'no_invois' => $data['no_invois'] ?? null,
                 'supplier_id' => $data['supplier_id'] ?? null,
+                'purchase_order_id' => $data['purchase_order_id'] ?? null,
                 'catatan' => $data['catatan'] ?? null,
             ]);
 
@@ -298,6 +315,8 @@ class InvoiceScanController extends Controller
                 $direkod++;
             }
 
+            $this->majukanPesanan($invoiceScan, $bolehDiproses);
+
             $invoiceScan->update([
                 'status' => 'selesai',
                 'disahkan_oleh' => $request->user()?->id,
@@ -305,8 +324,16 @@ class InvoiceScanController extends Controller
             ]);
         });
 
-        return redirect()->route('invoice-scans.show', $invoiceScan)
-            ->with('status', __('wky.flash.imbas_disahkan', ['kod' => $invoiceScan->kod, 'bil' => $direkod]));
+        $pesanan = $invoiceScan->fresh()->purchaseOrder;
+
+        return redirect()->route('invoice-scans.show', $invoiceScan)->with('status', $pesanan === null
+            ? __('wky.flash.imbas_disahkan', ['kod' => $invoiceScan->kod, 'bil' => $direkod])
+            : __('wky.flash.imbas_disahkan_po', [
+                'kod' => $invoiceScan->kod,
+                'bil' => $direkod,
+                'po' => $pesanan->kod,
+                'status' => $pesanan->labelStatus(),
+            ]));
     }
 
     /**
@@ -350,6 +377,54 @@ class InvoiceScanController extends Controller
      */
     // Logik lot penerimaan berpindah ke Services\Stok\LotPenerimaan, kerana
     // penerimaan Purchase Order menghadapi masalah yang sama persis.
+
+    /**
+     * Memajukan kuantiti diterima pada pesanan belian yang dipautkan.
+     *
+     * Stok sudah pun direkod oleh pemanggil; ini hanya memberitahu pesanan
+     * bahawa barangnya sudah sampai. Tanpa langkah ini, pesanan kekal
+     * "diluluskan" selama-lamanya walaupun invoisnya sudah dibayar dan
+     * barangnya sudah di rak.
+     *
+     * Invois boleh membawa lebih daripada baki pesanan — pembekal menghantar
+     * lebih, atau invois yang sama menutup dua pesanan. Lebihan itu **tetap
+     * masuk ke stok**, kerana barang itu memang sampai; yang dihadkan hanyalah
+     * berapa banyak daripadanya dikira terhadap pesanan ini. Menolak
+     * keseluruhan pengesahan kerana pesanan tidak sepadan bermakna stok sebenar
+     * tidak boleh direkod, dan itu lebih memudaratkan daripada satu pesanan
+     * yang tidak seimbang.
+     *
+     * @param  \Illuminate\Support\Collection<int, \App\Models\InvoiceScanItem>  $baris
+     */
+    private function majukanPesanan(InvoiceScan $imbasan, $baris): void
+    {
+        $pesanan = $imbasan->purchaseOrder;
+
+        if ($pesanan === null || ! $pesanan->bolehTerima()) {
+            return;
+        }
+
+        $pesanan->load('items');
+
+        // Kuantiti invois dijumlahkan mengikut produk dahulu: satu invois boleh
+        // menyenaraikan produk yang sama pada dua baris, dan pesanan hanya
+        // mempunyai satu baris bagi setiap produk.
+        $mengikutProduk = $baris->groupBy('product_id')->map(fn ($kumpulan) => (int) $kumpulan->sum('kuantiti'));
+
+        foreach ($pesanan->items as $item) {
+            $sampai = (int) ($mengikutProduk[$item->product_id] ?? 0);
+
+            if ($sampai <= 0) {
+                continue;
+            }
+
+            $item->increment('kuantiti_diterima', min($sampai, $item->bakiTerima()));
+        }
+
+        if ($pesanan->load('items')->penerimaanSelesai()) {
+            $pesanan->update(['status' => 'selesai']);
+        }
+    }
 
     /**
      * Mencipta produk daripada satu baris invois yang tiada padanan.

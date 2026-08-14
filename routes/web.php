@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
@@ -122,6 +123,7 @@ Route::middleware('auth')->group(function () {
     Route::get('stock/{movement}/do', [StockMovementController::class, 'deliveryOrder'])->name('stock.do');
 
     Route::get('laporan/bulanan', [ReportController::class, 'monthly'])->name('reports.monthly');
+    Route::get('analitik', [AnalyticsController::class, 'index'])->name('analytics.index');
 
     Route::resource('users', UserController::class)->except('show')->middleware('admin');
 });

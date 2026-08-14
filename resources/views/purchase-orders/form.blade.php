@@ -51,7 +51,9 @@
                             'kuantiti' => $item->kuantiti,
                             'kos_seunit' => $item->kos_seunit,
                         ])->all()
-                        : [['product_id' => '', 'kuantiti' => '', 'kos_seunit' => '']]))
+                        // Cadangan reorder daripada halaman Analitik tiba sebagai
+                        // ?produk[ID]=KUANTITI dan menjadi baris permulaan.
+                        : ($awal ?: [['product_id' => '', 'kuantiti' => '', 'kos_seunit' => '']])))
 
                     @foreach ($lama as $i => $baris)
                         <div class="flex gap-2" data-baris>

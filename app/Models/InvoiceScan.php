@@ -20,6 +20,7 @@ class InvoiceScan extends Model
         'tarikh_invois',
         'nama_pembekal',
         'supplier_id',
+        'purchase_order_id',
         'laluan_fail',
         'nama_fail_asal',
         'jenis_mime',
@@ -48,6 +49,11 @@ class InvoiceScan extends Model
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function purchaseOrder(): BelongsTo
+    {
+        return $this->belongsTo(PurchaseOrder::class);
     }
 
     public function pembuka(): BelongsTo

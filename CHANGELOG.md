@@ -10,6 +10,17 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ### Ditambah
 
+- **Halaman Analitik.** Cadangan pesanan semula yang mengira kadar penggunaan sebenar dan bukan
+  paras minimum sahaja, produk paling menguntungkan (disusun mengikut untung dan bukan kuantiti),
+  pusing ganti inventori, dan stok mati mengikut nilai yang tersekat. Tempoh boleh ditukar antara
+  30 hari hingga setahun.
+- **Cadangan reorder terus menjadi permohonan pembelian.** Tanda produk yang hendak dipesan, tekan
+  satu butang, dan borang permohonan terbuka dengan semua baris dan kuantitinya sudah terisi.
+- **Imbasan invois boleh dipautkan kepada pesanan belian.** Mengesahkan imbasan itu memajukan
+  kuantiti diterima pesanan dan menutupnya apabila lengkap. Sebelum ini pesanan kekal *Diluluskan*
+  selama-lamanya walaupun invoisnya sudah dibayar dan barangnya sudah di rak. Kuantiti yang
+  melebihi baki pesanan tetap masuk ke stok — barang itu memang sampai — tetapi tidak dikira
+  terhadap pesanan.
 - **Modul Jualan, dengan kos barang dijual dan untung kasar.** Setiap baris jualan membekukan dua
   harga — harga yang dibayar pelanggan, dan kos barang itu pada masa ia keluar. Untung kasar
   dikira daripada kedua-duanya, jadi menukar harga produk kemudian tidak menulis semula
