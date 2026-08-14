@@ -207,6 +207,16 @@ return [
 
     'auth' => [
         'ingat_saya' => 'Remember me',
+        'lupa_kata_laluan' => 'Forgot password?',
+        'lupa_tajuk' => 'Reset Password',
+        'lupa_nota' => 'Enter your account email. If that account exists, we will send a link to set a new password.',
+        'hantar_pautan' => 'Send Link',
+        'pautan_dihantar' => 'If that account exists, a reset link has been sent to it. Check your spam folder too.',
+        'set_tajuk' => 'New Password',
+        'kata_laluan_baharu' => 'New password',
+        'sahkan_kata_laluan' => 'Confirm password',
+        'set_kata_laluan' => 'Save Password',
+        'kata_laluan_ditetapkan' => 'Your password has been set. Please log in.',
         'kelayakan_salah' => 'These credentials do not match our records.',
         'daftar' => 'Register',
         'daftar_tajuk' => 'Create a New Account',
@@ -325,6 +335,17 @@ return [
         'baki_tajuk' => 'Balance by Warehouse',
         'beza' => ':beza off the total stock',
         'sahkan_padam' => 'Delete warehouse :nama?',
+    ],
+
+    /* Emails the system sends. */
+    'emel' => [
+        'reset_tajuk' => 'Reset your :app password',
+        'reset_salam' => 'Hello,',
+        'reset_baris1' => 'We received a request to reset the password for your account.',
+        'reset_butang' => 'Set New Password',
+        'reset_tempoh' => 'This link is valid for :minit minutes only.',
+        'reset_abai' => 'If this was not you, ignore this email — your password has not changed.',
+        'penutup' => 'Thanks, :app',
     ],
 
     /* Advanced module switches, per workspace. */

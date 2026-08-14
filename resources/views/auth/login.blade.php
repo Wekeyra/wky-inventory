@@ -75,10 +75,16 @@
                                          required autocomplete="current-password" />
                 </div>
 
-                <label for="ingat_saya" class="flex cursor-pointer items-center gap-2 text-sm">
-                    <input type="checkbox" id="ingat_saya" name="ingat_saya" value="1" class="!w-auto">
-                    {{ __('wky.auth.ingat_saya') }}
-                </label>
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <label for="ingat_saya" class="flex cursor-pointer items-center gap-2 text-sm">
+                        <input type="checkbox" id="ingat_saya" name="ingat_saya" value="1" class="!w-auto">
+                        {{ __('wky.auth.ingat_saya') }}
+                    </label>
+
+                    <a href="{{ route('password.request') }}" class="pautan-auth text-sm">
+                        {{ __('wky.auth.lupa_kata_laluan') }}
+                    </a>
+                </div>
 
                 <button type="submit" class="btn-nyala">{{ __('wky.aksi.log_masuk') }}</button>
             </form>

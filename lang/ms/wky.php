@@ -207,6 +207,16 @@ return [
 
     'auth' => [
         'ingat_saya' => 'Ingat saya',
+        'lupa_kata_laluan' => 'Lupa kata laluan?',
+        'lupa_tajuk' => 'Set Semula Kata Laluan',
+        'lupa_nota' => 'Masukkan emel akaun anda. Kalau akaun itu wujud, kami hantar pautan untuk menetapkan kata laluan baharu.',
+        'hantar_pautan' => 'Hantar Pautan',
+        'pautan_dihantar' => 'Kalau akaun itu wujud, pautan set semula sudah dihantar ke emel tersebut. Semak juga folder spam.',
+        'set_tajuk' => 'Kata Laluan Baharu',
+        'kata_laluan_baharu' => 'Kata laluan baharu',
+        'sahkan_kata_laluan' => 'Sahkan kata laluan',
+        'set_kata_laluan' => 'Simpan Kata Laluan',
+        'kata_laluan_ditetapkan' => 'Kata laluan anda sudah ditetapkan. Sila log masuk.',
         'kelayakan_salah' => 'Emel atau kata laluan tidak sah.',
         'daftar' => 'Daftar Akaun',
         'daftar_tajuk' => 'Daftar Akaun Baharu',
@@ -325,6 +335,17 @@ return [
         'baki_tajuk' => 'Baki Mengikut Gudang',
         'beza' => 'Beza :beza berbanding jumlah stok',
         'sahkan_padam' => 'Padam gudang :nama?',
+    ],
+
+    /* Emel yang dihantar sistem. */
+    'emel' => [
+        'reset_tajuk' => 'Set semula kata laluan :app anda',
+        'reset_salam' => 'Helo,',
+        'reset_baris1' => 'Kami menerima permintaan untuk menetapkan semula kata laluan akaun anda.',
+        'reset_butang' => 'Set Kata Laluan Baharu',
+        'reset_tempoh' => 'Pautan ini sah selama :minit minit sahaja.',
+        'reset_abai' => 'Kalau bukan anda yang memintanya, abaikan emel ini — kata laluan anda tidak berubah.',
+        'penutup' => 'Terima kasih, :app',
     ],
 
     /* Suis modul lanjutan bagi setiap ruang kerja. */

@@ -7,6 +7,7 @@ use App\Models\InvoiceScanItem;
 use App\Models\Location;
 use App\Models\Product;
 use App\Models\Supplier;
+use App\Services\Storan\Muatnaik;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -79,7 +80,7 @@ class ProductController extends Controller
      * selepas dia menekan Simpan.
      *
      * Kedua-dua destinasi ini ialah tempat pengguna berhenti seketika untuk
-     * mencipta produk yang hilang daripada senarai pilihan — bukan tempat dia
+     * mencipta produk yang hilang daripada senarai pilihan â€” bukan tempat dia
      * datang untuk menguruskan produk.
      */
     private function kembali(Request $request): ?string
@@ -132,7 +133,7 @@ class ProductController extends Controller
         return view('products.show', [
             'product' => $product,
             'movements' => $product->movements()->with(['user', 'batch', 'location', 'tujuan'])->latest()->paginate(15),
-            // Baki setiap gudang, termasuk gudang yang kosong buat masa ini —
+            // Baki setiap gudang, termasuk gudang yang kosong buat masa ini â€”
             // "tiada di cawangan Ampang" ialah jawapan yang berguna, bukan
             // baris yang patut disembunyikan.
             'balances' => Location::aktif()
@@ -181,7 +182,7 @@ class ProductController extends Controller
         // Gambar lama dibuang selepas rekod dikemas kini, supaya kegagalan
         // pengesahan tidak meninggalkan produk yang gambarnya sudah lesap.
         if ($lama !== null && $product->laluan_gambar !== $lama) {
-            Storage::disk('local')->delete($lama);
+            Muatnaik::cakera()->delete($lama);
         }
 
         return redirect()->route('products.index')->with('status', __('wky.flash.produk_kemas_kini'));
@@ -194,7 +195,7 @@ class ProductController extends Controller
         $product->delete();
 
         if ($gambar !== null) {
-            Storage::disk('local')->delete($gambar);
+            Muatnaik::cakera()->delete($gambar);
         }
 
         return redirect()->route('products.index')->with('status', __('wky.flash.produk_padam'));
@@ -204,16 +205,16 @@ class ProductController extends Controller
      * Menstrim gambar produk.
      *
      * Gambar disimpan pada cakera peribadi dan bukan dalam public/, jadi ia
-     * melalui pengikatan model yang berskop ruang kerja — sama seperti fail
+     * melalui pengikatan model yang berskop ruang kerja â€” sama seperti fail
      * invois. Produk syarikat lain memulangkan 404 dan bukan gambar.
      */
     public function gambar(Product $product): StreamedResponse
     {
         abort_if($product->laluan_gambar === null, 404);
-        abort_unless(Storage::disk('local')->exists($product->laluan_gambar), 404);
+        abort_unless(Muatnaik::cakera()->exists($product->laluan_gambar), 404);
 
-        return Storage::disk('local')->response($product->laluan_gambar, null, [
-            'Content-Type' => Storage::disk('local')->mimeType($product->laluan_gambar),
+        return Muatnaik::cakera()->response($product->laluan_gambar, null, [
+            'Content-Type' => Muatnaik::cakera()->mimeType($product->laluan_gambar),
             // Gambar produk jarang berubah dan setiap baris senarai memintanya,
             // jadi ia dicache pada pelayar. URL kekal sama apabila gambar
             // ditukar, jadi cache sengaja dipendekkan kepada sejam.
@@ -225,7 +226,7 @@ class ProductController extends Controller
      * Baris imbasan yang sah untuk dipautkan dengan produk baharu.
      *
      * Skop global pada InvoiceScan menapis mengikut ruang kerja, jadi whereHas
-     * di sini menyebabkan baris milik syarikat lain langsung tidak dijumpai —
+     * di sini menyebabkan baris milik syarikat lain langsung tidak dijumpai â€”
      * id yang disuap terus ke dalam URL tidak mendedahkan mahupun mengubah
      * apa-apa.
      *
@@ -248,7 +249,7 @@ class ProductController extends Controller
     private function simpanGambar(Request $request): ?string
     {
         return $request->hasFile('gambar')
-            ? $request->file('gambar')->store('produk', 'local')
+            ? $request->file('gambar')->store('produk', Muatnaik::nama())
             : null;
     }
 

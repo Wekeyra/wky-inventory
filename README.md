@@ -7,6 +7,72 @@ Setiap syarikat yang mendaftar mendapat **ruang kerjanya sendiri** dengan invent
 berasingan sepenuhnya, jadi satu pemasangan boleh menampung banyak syarikat tanpa data
 bertemu antara satu sama lain.
 
+## Kesiapan operasi
+
+Ujian automatik meliputi logik sistem, tetapi **empat perkara ini tidak boleh disahkan oleh ujian**
+— ia sifat hos dan peranti, bukan sifat kod. Semak keempat-empatnya sebelum menyerahkan sistem
+kepada pengguna sebenar.
+
+### 1. Storan fail — semak dahulu, ini yang paling berisiko
+
+Gambar invois dan gambar produk disimpan pada cakera `MUAT_NAIK_DISK` (lalai `local`, iaitu
+`storage/app/private`). Pada hos berkontena, cakera tempatan selalunya **dibina semula pada setiap
+deploy**: rekod pangkalan data kekal, gambarnya lenyap, dan tiada apa dalam sistem memberitahu ia
+telah hilang sehingga seseorang cuba membuka invois lama.
+
+```bash
+# 1. Muat naik satu invois melalui antara muka, kemudian:
+php artisan wky:semak-storan          # patut lapor 0 hilang
+
+# 2. Buat satu deploy, kemudian jalankan sekali lagi:
+php artisan wky:semak-storan          # kalau "hilang" melompat, cakera itu sementara
+```
+
+Kalau fail hilang, tetapkan `MUAT_NAIK_DISK=s3` dan isi `AWS_*`. **Tiada kod perlu disentuh** —
+semua pemanggil membaca nama cakera itu daripada satu tempat
+([`Services/Storan/Muatnaik.php`](app/Services/Storan/Muatnaik.php)).
+
+### 2. Emel — gagal paling senyap yang mungkin
+
+`MAIL_MAILER=log` ialah lalai Laravel, dan ia bermakna emel **tidak dihantar ke mana-mana**. Ia
+ditulis ke `storage/logs/laravel.log`. Borang *Lupa Kata Laluan* tetap berkata "pautan sudah
+dihantar", tiada ralat muncul, dan pengguna menunggu emel yang tidak akan tiba.
+
+```bash
+php artisan wky:semak-emel anda@syarikat.com
+```
+
+Arahan itu **gagal dengan sengaja** apabila pemacu ialah `log`, supaya kegagalan senyap itu
+menjadi kegagalan yang kelihatan. Tetapkan `MAIL_MAILER=smtp` dan butiran pembekal pada produksi.
+
+### 3. Ujian tangan pada peranti sebenar
+
+Perkara ini tidak boleh diuji secara automatik, dan **belum disahkan sesiapa**:
+
+| Apa | Cara semak | Kenapa ia berisiko |
+|---|---|---|
+| Kamera imbas invois | Buka *Imbas Invois* pada telefon sebenar | Emulator DevTools hanya ada webcam hadapan; `facingMode: environment` tidak pernah diuji |
+| Bacaan AI hujung ke hujung | Imbas satu invois pembekal sebenar dengan `ANTHROPIC_API_KEY` sebenar | Ujian menggunakan pengekstrak palsu; tiada ujian menyentuh API sebenar |
+| Pengimbas barcode | Imbas barcode produk sebenar pada borang produk dan carian | Bergantung pada `BarcodeDetector`, yang tiada pada sesetengah pelayar |
+| Cetakan | Cetak Delivery Order dan Laporan Bulanan ke PDF | Mod cetak memaksa hitam-putih; susun aturnya belum pernah dilihat di atas kertas |
+| Log masuk Google | Log masuk dengan akaun Google sebenar | Memerlukan `GOOGLE_*` dan URL panggil balik yang betul |
+| Laci nav telefon | Buka menu, tekan Escape, sentuh latar, putar telefon | Logik `matchMedia` hanya diuji melalui markup |
+
+### 4. Sandaran
+
+**Dua perkara** mesti disandarkan, dan kehilangan mana-mana satu memusnahkan yang satu lagi:
+
+| Apa | Kenapa |
+|---|---|
+| Pangkalan data | Seluruh inventori, jejak audit, dan setiap dokumen |
+| Fail `MUAT_NAIK_DISK` | Gambar invois ialah **bukti** kemasukan stok; tanpanya jejak audit kehilangan sumbernya |
+
+Sandaran pangkalan data sahaja **tidak memadai**. Rekod imbasan yang menunjuk kepada gambar yang
+sudah tiada ialah rekod yang tidak boleh disemak sesiapa.
+
+> ⚠️ Sandaran yang tidak pernah dipulihkan bukan sandaran — ia andaian. Sekurang-kurangnya sekali,
+> pulihkan ke pangkalan data kosong dan jalankan `php artisan wky:semak-storan` terhadapnya.
+
 ## Ciri lanjutan
 
 Sistem ini tumbuh melepasi MVP jauh lebih cepat daripada pengguna barunya. Syarikat yang baru
@@ -913,6 +979,9 @@ kod. Langkah itu turut mengesahkan binaan aset masih berjaya sebelum deploy.
   yang boleh memohon tetapi tidak boleh meluluskan, keputusan yang direkod berserta pemutusnya,
   penerimaan penuh dan separa, penolakan penerimaan melebihi baki, pembatalan yang dihalang
   selepas ada barang diterima, dan status akhir yang tiada laluan keluar.
+- `tests/Feature/LupaKataLaluanTest.php` — set semula kata laluan: pautan yang dihantar, notifikasi
+  terbina Laravel yang tidak digunakan, jawapan yang sama bagi emel wujud dan tidak wujud, token
+  palsu yang ditolak, dan token *ingat saya* yang dikitar semula selepas kata laluan ditukar.
 - `tests/Feature/CiriLanjutanTest.php` — suis modul lanjutan: pendaftaran baharu yang bermula
   dengan MVP sahaja, ruang kerja tanpa ciri dinyatakan yang mendapat semuanya, nav yang ditapis,
   laluan tertutup yang memulangkan 404, data yang kekal selepas modul dimatikan dan dihidupkan

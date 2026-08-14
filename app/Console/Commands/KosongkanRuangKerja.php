@@ -12,6 +12,7 @@ use App\Models\StockMovement;
 use App\Models\StockTransfer;
 use App\Models\Supplier;
 use App\Models\Workspace;
+use App\Services\Storan\Muatnaik;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -98,10 +99,10 @@ class KosongkanRuangKerja extends Command
         $this->skop(InvoiceScan::class, $ruang)
             ->pluck('laluan_fail')
             ->filter()
-            ->each(fn (string $laluan) => Storage::disk('local')->delete($laluan));
+            ->each(fn (string $laluan) => Muatnaik::cakera()->delete($laluan));
 
         DB::transaction(function () use ($ruang) {
-            // Baris anak dibuang melalui cascade pada kunci asing induknya —
+            // Baris anak dibuang melalui cascade pada kunci asing induknya â€”
             // termasuk baki gudang dan batch, yang bergantung pada produk.
             $this->skop(InvoiceScan::class, $ruang)->delete();
             $this->skop(StockCount::class, $ruang)->delete();
@@ -117,7 +118,7 @@ class KosongkanRuangKerja extends Command
             $this->skop(Supplier::class, $ruang)->delete();
 
             // Gudang tidak dibuang. Ia struktur ruang kerja dan bukan data
-            // inventori — sama seperti akaun penggunanya — dan setiap ruang
+            // inventori â€” sama seperti akaun penggunanya â€” dan setiap ruang
             // kerja mesti sentiasa ada satu gudang lalai untuk menerima stok.
         });
     }

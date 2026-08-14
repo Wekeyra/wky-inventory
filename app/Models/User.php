@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Notifications\AturSemulaKataLaluan;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -35,6 +36,18 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->peranan === 'admin';
+    }
+
+    /**
+     * Notifikasi terbina Laravel diganti supaya emelnya mengikut bahasa sistem.
+     *
+     * Emel yang tiba dalam bahasa berlainan daripada skrin yang baru sahaja
+     * diminta pengguna kelihatan seperti emel palsu — tepat pada saat pengguna
+     * paling berhati-hati tentang pautan yang diterimanya.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new AturSemulaKataLaluan($token));
     }
 
     public function workspace(): BelongsTo

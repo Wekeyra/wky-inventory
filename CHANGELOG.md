@@ -23,6 +23,17 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ### Ditambah
 
+- **Lupa Kata Laluan.** Pautan pada halaman log masuk menghantar emel set semula. Sebelum ini staf
+  yang lupa kata laluannya bergantung sepenuhnya pada admin, dan admin yang lupa kata laluannya
+  sendiri terkunci di luar tanpa jalan langsung. Emelnya dwibahasa mengikut bahasa sistem.
+- **Cakera fail muat naik kini satu tetapan, bukan sepuluh tempat.** `MUAT_NAIK_DISK=s3` sudah
+  cukup untuk memindahkan gambar invois dan gambar produk ke storan kekal, tanpa menyentuh kod.
+- **`php artisan wky:semak-storan`** membandingkan fail yang direkod dalam pangkalan data dengan
+  fail yang benar-benar ada pada cakera. Ia menjawab satu soalan yang tidak boleh dijawab daripada
+  kod: adakah cakera hos ini kekal merentas deploy?
+- **`php artisan wky:semak-emel`** menghantar emel ujian, dan **gagal dengan sengaja** apabila
+  pemacu masih `log` — kerana pemacu itu menulis emel ke fail log sambil setiap borang berkata
+  ia sudah dihantar.
 - **Ciri lanjutan kini boleh dihidup-matikan setiap ruang kerja** melalui *Tetapan → Ciri
   Lanjutan* (admin sahaja). Syarikat yang baru mendaftar bermula dengan lapan fungsi teras sahaja
   — pendaftaran produk, stok masuk, stok keluar, baki masa nyata, amaran stok rendah, pelarasan,

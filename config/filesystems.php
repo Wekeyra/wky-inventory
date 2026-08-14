@@ -17,6 +17,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Cakera fail muat naik pengguna
+    |--------------------------------------------------------------------------
+    |
+    | Gambar invois dan gambar produk. Diasingkan daripada 'default' kerana ia
+    | fail yang MESTI kekal: kehilangan cache boleh diterima, kehilangan gambar
+    | invois yang menjadi bukti kemasukan stok tidak.
+    |
+    | Lalainya 'local' supaya pemasangan tempatan berfungsi tanpa konfigurasi.
+    | Pada hos berkontena, tukar kepada 's3' — cakera tempatan di situ
+    | selalunya dibina semula pada setiap deploy.
+    |
+    */
+
+    'muat_naik' => env('MUAT_NAIK_DISK', 'local'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |

@@ -7,6 +7,7 @@ use App\Http\Controllers\CiriController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\InvoiceScanController;
+use App\Http\Controllers\KataLaluanController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\LocationController;
@@ -35,6 +36,16 @@ Route::middleware('guest')->group(function () {
 
     Route::get('daftar', [RegisterController::class, 'showRegister'])->name('register');
     Route::post('daftar', [RegisterController::class, 'register']);
+
+    /*
+     | Lupa kata laluan. Nama laluan mengikut konvensyen Laravel
+     | (password.request/email/reset/update) kerana broker kata laluan terbina
+     | dan notifikasinya merujuk nama-nama itu.
+     */
+    Route::get('lupa-kata-laluan', [KataLaluanController::class, 'showLupa'])->name('password.request');
+    Route::post('lupa-kata-laluan', [KataLaluanController::class, 'hantarPautan'])->name('password.email');
+    Route::get('set-kata-laluan/{token}', [KataLaluanController::class, 'showReset'])->name('password.reset');
+    Route::post('set-kata-laluan', [KataLaluanController::class, 'reset'])->name('password.update');
 
     Route::get('auth/google', [GoogleController::class, 'redirect'])->name('google.redirect');
     Route::get('auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');

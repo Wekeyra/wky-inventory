@@ -10,6 +10,7 @@ use App\Models\StockMovement;
 use App\Models\Supplier;
 use App\Services\Stok\BakiLokasi;
 use App\Services\Stok\LotPenerimaan;
+use App\Services\Storan\Muatnaik;
 use App\Services\Invoice\ExtractedInvoice;
 use App\Services\Invoice\ExtractedLine;
 use App\Services\Invoice\InvoiceExtractionException;
@@ -61,7 +62,7 @@ class InvoiceScanController extends Controller
         $imbasan = InvoiceScan::create([
             'kod' => $this->kodSeterusnya(),
             'status' => 'draf',
-            'laluan_fail' => $fail->store('invois', 'local'),
+            'laluan_fail' => $fail->store('invois', Muatnaik::nama()),
             'nama_fail_asal' => $fail->getClientOriginalName(),
             'jenis_mime' => $fail->getMimeType(),
             'dibuka_oleh' => $request->user()?->id,
@@ -108,7 +109,7 @@ class InvoiceScanController extends Controller
 
         try {
             $hasil = $extractor->extract(
-                Storage::disk('local')->get($imbasan->laluan_fail),
+                Muatnaik::cakera()->get($imbasan->laluan_fail),
                 $imbasan->jenis_mime,
             );
         } catch (InvoiceExtractionException $e) {
@@ -186,9 +187,9 @@ class InvoiceScanController extends Controller
     /** Menstrim fail invois asal supaya pengguna boleh membandingkannya dengan padanan. */
     public function file(InvoiceScan $invoiceScan): StreamedResponse
     {
-        abort_unless(Storage::disk('local')->exists($invoiceScan->laluan_fail), 404);
+        abort_unless(Muatnaik::cakera()->exists($invoiceScan->laluan_fail), 404);
 
-        return Storage::disk('local')->response(
+        return Muatnaik::cakera()->response(
             $invoiceScan->laluan_fail,
             $invoiceScan->nama_fail_asal,
             ['Content-Type' => $invoiceScan->jenis_mime],
@@ -265,7 +266,7 @@ class InvoiceScanController extends Controller
 
         // Invois tidak menyebut gudang mana yang menerima barang, jadi ia masuk
         // ke gudang lalai. Pindahkan kemudian jika ia sepatutnya di tempat lain
-        // — itu pergerakan yang berhak mendapat rekodnya sendiri.
+        // â€” itu pergerakan yang berhak mendapat rekodnya sendiri.
         $lokasi = Location::lalai();
         $direkod = 0;
 
@@ -292,7 +293,7 @@ class InvoiceScanController extends Controller
                 // penerimaan ini, jadi ia dibekukan pada pergerakan dan pada lot
                 // penerimaannya. Baris tanpa harga jatuh kepada harga kos produk,
                 // dan produk yang harga kosnya belum ditetapkan langsung
-                // meninggalkan kos sebagai "tidak direkod" — bukan sifar.
+                // meninggalkan kos sebagai "tidak direkod" â€” bukan sifar.
                 $kos = $item->harga_unit !== null
                     ? (float) $item->harga_unit
                     : ((float) $product->harga_kos > 0 ? (float) $product->harga_kos : null);
@@ -341,7 +342,7 @@ class InvoiceScanController extends Controller
      *
      * Hanya draf boleh dipadam. Imbasan yang telah disahkan sudah menjana
      * pergerakan stok yang merujuk kodnya, dan membuangnya akan meninggalkan
-     * pergerakan yang menunjuk kepada imbasan yang tidak lagi wujud —
+     * pergerakan yang menunjuk kepada imbasan yang tidak lagi wujud â€”
      * pastikanDraf() menahannya di sini, bukan hanya menyembunyikan butang.
      */
     public function destroy(InvoiceScan $invoiceScan): RedirectResponse
@@ -355,7 +356,7 @@ class InvoiceScanController extends Controller
         // rekod tanpa fail masih boleh dipadam, tetapi fail tanpa rekod menjadi
         // sampah yang tiada sesiapa boleh capai. Baris barangnya dibuang melalui
         // cascade pada kunci asing invoice_scan_items.
-        Storage::disk('local')->delete($invoiceScan->laluan_fail);
+        Muatnaik::cakera()->delete($invoiceScan->laluan_fail);
 
         $invoiceScan->delete();
 
@@ -369,7 +370,7 @@ class InvoiceScanController extends Controller
      * Invois tidak membawa nombor batch, jadi satu penghantaran dianggap satu
      * lot dan dinamakan mengikut rujukan invois itu. Tanpa ini, baki batch akan
      * tertinggal di belakang baki produk setiap kali stok masuk melalui
-     * imbasan — dan angka batch yang tidak boleh dipercayai lebih buruk
+     * imbasan â€” dan angka batch yang tidak boleh dipercayai lebih buruk
      * daripada tiada batch langsung.
      *
      * Tarikh luputnya dibiarkan kosong kerana ia memang tidak diketahui di
@@ -386,7 +387,7 @@ class InvoiceScanController extends Controller
      * "diluluskan" selama-lamanya walaupun invoisnya sudah dibayar dan
      * barangnya sudah di rak.
      *
-     * Invois boleh membawa lebih daripada baki pesanan — pembekal menghantar
+     * Invois boleh membawa lebih daripada baki pesanan â€” pembekal menghantar
      * lebih, atau invois yang sama menutup dua pesanan. Lebihan itu **tetap
      * masuk ke stok**, kerana barang itu memang sampai; yang dihadkan hanyalah
      * berapa banyak daripadanya dikira terhadap pesanan ini. Menolak
