@@ -15,7 +15,45 @@ class Workspace extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nama'];
+    /**
+     * Modul lanjutan yang boleh dihidupkan, mengikut turutan ia biasanya
+     * diperlukan.
+     *
+     * Yang TIADA dalam senarai ini ialah teras yang sentiasa hidup: produk,
+     * kategori, pembekal, pergerakan stok, kiraan stok, laporan bulanan dan
+     * pengguna. Itulah lapan fungsi minimum sebuah sistem inventori, dan
+     * mematikan mana-mana daripadanya bermakna sistem itu tidak lagi berfungsi
+     * sebagai sistem inventori.
+     *
+     * @var list<string>
+     */
+    public const CIRI = ['gudang', 'imbas', 'po', 'jualan', 'analitik'];
+
+    protected $fillable = ['nama', 'ciri'];
+
+    protected function casts(): array
+    {
+        return ['ciri' => 'array'];
+    }
+
+    /**
+     * Ciri lanjutan yang dihidupkan untuk ruang kerja ini.
+     *
+     * Nilai disaring terhadap CIRI supaya nama yang sudah dibuang daripada
+     * sistem — atau yang tersalah tulis ke dalam pangkalan data — tidak boleh
+     * membuka apa-apa.
+     *
+     * @return list<string>
+     */
+    public function ciriAktif(): array
+    {
+        return array_values(array_intersect($this->ciri ?? [], self::CIRI));
+    }
+
+    public function adaCiri(string $ciri): bool
+    {
+        return in_array($ciri, $this->ciriAktif(), true);
+    }
 
     /**
      * Setiap ruang kerja baharu bermula dengan satu gudang.
@@ -27,6 +65,26 @@ class Workspace extends Model
      */
     protected static function booted(): void
     {
+        /*
+         | Ruang kerja yang dicipta tanpa menyatakan cirinya — ujian, seeder,
+         | arahan konsol — mendapat semuanya. Hanya pendaftaran syarikat baharu
+         | yang sengaja bermula dengan MVP sahaja, dan ia menyatakannya secara
+         | eksplisit.
+         |
+         | Keputusan "mula ringkas" itu milik saat sebuah syarikat mendaftar,
+         | bukan milik setiap baris dalam jadual ini. Meletakkannya di sini
+         | bermakna setiap ruang kerja yang dicipta melalui jalan lain akan
+         | senyap-senyap kehilangan modulnya.
+         |
+         | Perbandingan dengan null dan bukan blank(): array kosong ialah
+         | pilihan yang sah — ia bermaksud "MVP sahaja".
+         */
+        static::creating(function (Workspace $ruangKerja) {
+            if ($ruangKerja->ciri === null) {
+                $ruangKerja->ciri = self::CIRI;
+            }
+        });
+
         static::created(function (Workspace $ruangKerja) {
             Location::withoutGlobalScopes()->create([
                 'workspace_id' => $ruangKerja->id,

@@ -13,24 +13,31 @@
 <a href="#kandungan-utama" class="pautan-langkau">{{ __('wky.umum.langkau_ke_kandungan') }}</a>
 
 @php
-    $menu = [
-        ['dashboard', 'dashboard', 'dashboard', 'nav.dashboard'],
-        ['products.index', 'products.*', 'kotak', 'nav.produk'],
-        ['categories.index', 'categories.*', 'tag', 'nav.kategori'],
-        ['suppliers.index', 'suppliers.*', 'trak', 'nav.pembekal'],
-        ['locations.index', 'locations.*', 'gudang', 'nav.lokasi'],
-        ['purchase-orders.index', 'purchase-orders.*', 'papan-klip', 'nav.pesanan_belian'],
-        ['sales.index', 'sales.*', 'wang', 'nav.jualan'],
-        ['invoice-scans.index', 'invoice-scans.*', 'imbas', 'nav.imbas_invois'],
-        ['stock-counts.index', 'stock-counts.*', 'papan-klip', 'nav.kiraan_stok'],
-        ['transfers.index', 'transfers.*', 'pindah', 'nav.pindah_stok'],
-        ['stock.index', 'stock.*', 'anak-panah-dua-arah', 'nav.pergerakan_stok'],
-        ['reports.monthly', 'reports.*', 'dokumen-carta', 'nav.laporan_bulanan'],
-        ['analytics.index', 'analytics.*', 'carta-naik', 'nav.analitik'],
-    ];
+    /*
+        Elemen kelima setiap baris ialah ciri lanjutan yang mengawalnya; null
+        bermakna teras yang sentiasa hidup. Menapis di sini dan bukan menulis
+        @if pada setiap pautan bermakna satu senarai kekal menjadi satu-satunya
+        tempat menu ditakrifkan.
+    */
+    $menu = collect([
+        ['dashboard', 'dashboard', 'dashboard', 'nav.dashboard', null],
+        ['products.index', 'products.*', 'kotak', 'nav.produk', null],
+        ['categories.index', 'categories.*', 'tag', 'nav.kategori', null],
+        ['suppliers.index', 'suppliers.*', 'trak', 'nav.pembekal', null],
+        ['locations.index', 'locations.*', 'gudang', 'nav.lokasi', 'gudang'],
+        ['purchase-orders.index', 'purchase-orders.*', 'papan-klip', 'nav.pesanan_belian', 'po'],
+        ['sales.index', 'sales.*', 'wang', 'nav.jualan', 'jualan'],
+        ['invoice-scans.index', 'invoice-scans.*', 'imbas', 'nav.imbas_invois', 'imbas'],
+        ['stock-counts.index', 'stock-counts.*', 'papan-klip', 'nav.kiraan_stok', null],
+        ['transfers.index', 'transfers.*', 'pindah', 'nav.pindah_stok', 'gudang'],
+        ['stock.index', 'stock.*', 'anak-panah-dua-arah', 'nav.pergerakan_stok', null],
+        ['reports.monthly', 'reports.*', 'dokumen-carta', 'nav.laporan_bulanan', null],
+        ['analytics.index', 'analytics.*', 'carta-naik', 'nav.analitik', 'analitik'],
+    ])->filter(fn ($baris) => $baris[4] === null || auth()->user()->workspace?->adaCiri($baris[4]));
 
     if (auth()->user()->isAdmin()) {
-        $menu[] = ['users.index', 'users.*', 'pengguna-ramai', 'nav.pengguna'];
+        $menu->push(['users.index', 'users.*', 'pengguna-ramai', 'nav.pengguna', null]);
+        $menu->push(['ciri.edit', 'ciri.*', 'segar-semula', 'nav.ciri', null]);
     }
 @endphp
 
@@ -58,7 +65,7 @@
         </div>
 
         <nav class="flex flex-col gap-1">
-            @foreach ($menu as [$laluan, $corak, $ikon, $label])
+            @foreach ($menu as [$laluan, $corak, $ikon, $label, $ciri])
                 <a href="{{ route($laluan) }}"
                    class="nav-pautan {{ request()->routeIs($corak) ? 'nav-pautan-aktif' : '' }}"
                    @if (request()->routeIs($corak)) aria-current="page" @endif>

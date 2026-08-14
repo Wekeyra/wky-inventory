@@ -28,7 +28,21 @@ class RegisterController extends Controller
         ]);
 
         $pengguna = DB::transaction(function () use ($data) {
-            $ruangKerja = Workspace::create(['nama' => $data['nama_syarikat']]);
+            /*
+             | Syarikat baharu bermula dengan MVP sahaja: produk, stok
+             | masuk/keluar, baki, amaran stok rendah, pelarasan, laporan dan
+             | jejak audit. Modul lanjutan dibuka dalam Tetapan → Ciri Lanjutan
+             | apabila ia benar-benar diperlukan.
+             |
+             | Menayangkan Pesanan Belian, COGS dan analitik pusing ganti kepada
+             | syarikat yang belum memasukkan produk pertamanya hanya
+             | menjadikan sistem kelihatan lebih rumit daripada kerja yang
+             | hendak dibuat.
+             */
+            $ruangKerja = Workspace::create([
+                'nama' => $data['nama_syarikat'],
+                'ciri' => [],
+            ]);
 
             // Pendaftar menjadi admin ruang kerjanya sendiri supaya dia boleh
             // menambah staf. Peranan ditetapkan di sini, bukan dari borang.

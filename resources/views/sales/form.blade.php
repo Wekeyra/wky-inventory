@@ -13,15 +13,17 @@
                     @error('pelanggan') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
                 </div>
 
-                <div>
-                    <label for="location_id" class="mb-1 block font-medium">{{ __('wky.medan.lokasi') }}</label>
-                    <select id="location_id" name="location_id">
-                        @foreach ($locations as $lokasi)
-                            <option value="{{ $lokasi->id }}" @selected(old('location_id', $lokasiTerpilih) == $lokasi->id)>{{ $lokasi->nama }}</option>
-                        @endforeach
-                    </select>
-                    @error('location_id') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
-                </div>
+                @if (auth()->user()->workspace?->adaCiri('gudang'))
+                    <div>
+                        <label for="location_id" class="mb-1 block font-medium">{{ __('wky.medan.lokasi') }}</label>
+                        <select id="location_id" name="location_id">
+                            @foreach ($locations as $lokasi)
+                                <option value="{{ $lokasi->id }}" @selected(old('location_id', $lokasiTerpilih) == $lokasi->id)>{{ $lokasi->nama }}</option>
+                            @endforeach
+                        </select>
+                        @error('location_id') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
+                    </div>
+                @endif
             </div>
 
             <div>

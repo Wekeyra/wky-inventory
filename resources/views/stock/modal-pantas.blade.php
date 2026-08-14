@@ -54,14 +54,26 @@
                     </div>
                 </div>
 
-                <div>
-                    <label for="pantas_location_id" class="mb-1 block font-medium">{{ __('wky.medan.lokasi') }} <span class="text-bahaya">*</span></label>
-                    <select id="pantas_location_id" name="location_id" required>
-                        @foreach ($locations as $lokasi)
-                            <option value="{{ $lokasi->id }}" @selected(old('location_id', $lokasiLalai) == $lokasi->id)>{{ $lokasi->nama }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                {{--
+                    Medan lokasi hilang sepenuhnya apabila gudang berbilang
+                    dimatikan — bukan sekadar disembunyikan. Medan `required`
+                    yang tersembunyi menahan penghantaran borang tanpa
+                    menunjukkan kepada pengguna apa yang menahannya, dan dengan
+                    satu gudang sahaja pilihan itu memang tiada makna.
+
+                    Pengawal jatuh kepada Location::lalai() apabila tiada
+                    lokasi dihantar, jadi tiada apa yang berubah pada rekod.
+                --}}
+                @if (auth()->user()->workspace?->adaCiri('gudang'))
+                    <div>
+                        <label for="pantas_location_id" class="mb-1 block font-medium">{{ __('wky.medan.lokasi') }} <span class="text-bahaya">*</span></label>
+                        <select id="pantas_location_id" name="location_id" required>
+                            @foreach ($locations as $lokasi)
+                                <option value="{{ $lokasi->id }}" @selected(old('location_id', $lokasiLalai) == $lokasi->id)>{{ $lokasi->nama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
 
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div>

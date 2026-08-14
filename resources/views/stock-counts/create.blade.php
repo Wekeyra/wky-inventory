@@ -6,16 +6,20 @@
         @csrf
 
         <div class="kad-badan space-y-4">
-            <div>
-                <label for="location_id" class="mb-1 block font-medium">{{ __('wky.medan.lokasi') }} <span class="text-bahaya">*</span></label>
-                <select id="location_id" name="location_id" required @error('location_id') class="medan-ralat" @enderror>
-                    @foreach ($locations as $lokasi)
-                        <option value="{{ $lokasi->id }}" @selected(old('location_id', $lokasiLalai) == $lokasi->id)>{{ $lokasi->nama }}</option>
-                    @endforeach
-                </select>
-                <p class="mt-1 text-xs text-malap">{{ __('wky.kiraan.nota_lokasi') }}</p>
-                @error('location_id') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
-            </div>
+            {{-- Pengawal jatuh kepada gudang lalai apabila tiada lokasi
+                 dihantar, jadi medan ini hilang bersama modul gudang. --}}
+            @if (auth()->user()->workspace?->adaCiri('gudang'))
+                <div>
+                    <label for="location_id" class="mb-1 block font-medium">{{ __('wky.medan.lokasi') }} <span class="text-bahaya">*</span></label>
+                    <select id="location_id" name="location_id" required @error('location_id') class="medan-ralat" @enderror>
+                        @foreach ($locations as $lokasi)
+                            <option value="{{ $lokasi->id }}" @selected(old('location_id', $lokasiLalai) == $lokasi->id)>{{ $lokasi->nama }}</option>
+                        @endforeach
+                    </select>
+                    <p class="mt-1 text-xs text-malap">{{ __('wky.kiraan.nota_lokasi') }}</p>
+                    @error('location_id') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
+                </div>
+            @endif
 
             <div>
                 <label for="category_id" class="mb-1 block font-medium">{{ __('wky.kiraan.skop_kiraan') }}</label>

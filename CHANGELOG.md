@@ -19,6 +19,15 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ### Ditambah
 
+- **Ciri lanjutan kini boleh dihidup-matikan setiap ruang kerja** melalui *Tetapan → Ciri
+  Lanjutan* (admin sahaja). Syarikat yang baru mendaftar bermula dengan lapan fungsi teras sahaja
+  — pendaftaran produk, stok masuk, stok keluar, baki masa nyata, amaran stok rendah, pelarasan,
+  laporan dan jejak audit. Gudang berbilang, Imbas Invois, Pesanan Belian, Jualan dan Analitik
+  dibuka kemudian, apabila syarikat itu benar-benar memerlukannya.
+- **Ruang kerja sedia ada tidak berubah.** Semua modul kekal hidup selepas naik taraf, kerana
+  mematikan modul yang sudah berdata bukan naik taraf — itu kehilangan.
+- **Mematikan modul hanya menyembunyikannya.** Datanya kekal dan menghidupkannya semula
+  memulangkan segala-galanya seperti sedia kala; suis ini bukan butang padam yang menyamar.
 - **Butang tambah produk pada borang stok dan modal Tambah Stok Pantas.** Produk yang hilang
   paling kerap disedari tepat semasa cuba merekod stoknya. Ia paling ketara pada pemasangan
   baharu, yang bermula tanpa satu produk pun — sebelum ini borang stok pertama yang dilihat

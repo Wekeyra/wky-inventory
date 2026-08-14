@@ -3,6 +3,7 @@
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CiriController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\InvoiceScanController;
@@ -46,7 +47,12 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('categories', CategoryController::class)->except('show');
     Route::resource('suppliers', SupplierController::class);
-    Route::resource('locations', LocationController::class);
+    /*
+     | Modul lanjutan dijaga middleware ciri:*. Nav sisi dan butang tindakan
+     | pantas sudah menapis pautannya; ini menahan URL yang ditaip terus atau
+     | ditanda buku sebelum ciri itu dimatikan.
+     */
+    Route::resource('locations', LocationController::class)->middleware('ciri:gudang');
     Route::resource('products', ProductController::class);
 
     // Gambar dihidangkan melalui laluan kerana ia disimpan pada cakera peribadi,
@@ -64,7 +70,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('{stockCount}', 'destroy')->name('destroy');
     });
 
-    Route::controller(InvoiceScanController::class)->prefix('imbas-invois')->name('invoice-scans.')->group(function () {
+    Route::middleware('ciri:imbas')->controller(InvoiceScanController::class)->prefix('imbas-invois')->name('invoice-scans.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('create', 'create')->name('create');
         Route::post('/', 'store')->name('store');
@@ -76,7 +82,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('{invoiceScan}', 'destroy')->name('destroy');
     });
 
-    Route::controller(StockTransferController::class)->prefix('pindah-stok')->name('transfers.')->group(function () {
+    Route::middleware('ciri:gudang')->controller(StockTransferController::class)->prefix('pindah-stok')->name('transfers.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('create', 'create')->name('create');
         Route::post('/', 'store')->name('store');
@@ -90,7 +96,7 @@ Route::middleware('auth')->group(function () {
      | hanya keputusan lulus/tolak dijaga middleware admin, supaya staf boleh
      | memohon tetapi tidak boleh meluluskan permohonannya sendiri.
      */
-    Route::controller(PurchaseOrderController::class)->prefix('pesanan-belian')->name('purchase-orders.')->group(function () {
+    Route::middleware('ciri:po')->controller(PurchaseOrderController::class)->prefix('pesanan-belian')->name('purchase-orders.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('create', 'create')->name('create');
         Route::post('/', 'store')->name('store');
@@ -110,7 +116,7 @@ Route::middleware('auth')->group(function () {
      | semula sejarah pergerakan yang terhasil daripadanya. Kesilapan dibetulkan
      | dengan pergerakan stok pemulangan, seperti mana-mana rekod kewangan.
      */
-    Route::controller(SaleController::class)->prefix('jualan')->name('sales.')->group(function () {
+    Route::middleware('ciri:jualan')->controller(SaleController::class)->prefix('jualan')->name('sales.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('create', 'create')->name('create');
         Route::post('/', 'store')->name('store');
@@ -123,7 +129,12 @@ Route::middleware('auth')->group(function () {
     Route::get('stock/{movement}/do', [StockMovementController::class, 'deliveryOrder'])->name('stock.do');
 
     Route::get('laporan/bulanan', [ReportController::class, 'monthly'])->name('reports.monthly');
-    Route::get('analitik', [AnalyticsController::class, 'index'])->name('analytics.index');
+    Route::get('analitik', [AnalyticsController::class, 'index'])->name('analytics.index')->middleware('ciri:analitik');
+
+    // Suis ciri lanjutan. Admin sahaja: menghidupkan modul mengubah apa yang
+    // seluruh syarikat nampak, bukan hanya pengguna yang menekannya.
+    Route::get('tetapan/ciri', [CiriController::class, 'edit'])->name('ciri.edit')->middleware('admin');
+    Route::put('tetapan/ciri', [CiriController::class, 'update'])->name('ciri.update')->middleware('admin');
 
     Route::resource('users', UserController::class)->except('show')->middleware('admin');
 });

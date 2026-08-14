@@ -52,16 +52,27 @@
                 @error('product_id') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
             </div>
 
-            <div>
-                <label for="location_id" class="mb-1 block font-medium">{{ __('wky.medan.lokasi') }} <span class="text-bahaya">*</span></label>
-                <select id="location_id" name="location_id" required @error('location_id') class="medan-ralat" @enderror>
-                    @foreach ($locations as $lokasi)
-                        <option value="{{ $lokasi->id }}" @selected(old('location_id', $lokasiTerpilih) == $lokasi->id)>{{ $lokasi->nama }}</option>
-                    @endforeach
+            {{-- Lihat nota pada modal stok pantas: medan ini hilang sepenuhnya
+                 apabila gudang berbilang dimatikan, dan pengawal jatuh kepada
+                 gudang lalai. Elemen #bakiLokasi dikekalkan tersembunyi kerana
+                 JavaScript borang ini menulis ke dalamnya tanpa syarat. --}}
+            @if (auth()->user()->workspace?->adaCiri('gudang'))
+                <div>
+                    <label for="location_id" class="mb-1 block font-medium">{{ __('wky.medan.lokasi') }} <span class="text-bahaya">*</span></label>
+                    <select id="location_id" name="location_id" required @error('location_id') class="medan-ralat" @enderror>
+                        @foreach ($locations as $lokasi)
+                            <option value="{{ $lokasi->id }}" @selected(old('location_id', $lokasiTerpilih) == $lokasi->id)>{{ $lokasi->nama }}</option>
+                        @endforeach
+                    </select>
+                    <p class="mt-1 text-xs text-malap" id="bakiLokasi"></p>
+                    @error('location_id') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
+                </div>
+            @else
+                <select id="location_id" name="location_id" class="hidden">
+                    <option value="{{ $lokasiTerpilih }}" selected>{{ __('wky.medan.lokasi') }}</option>
                 </select>
-                <p class="mt-1 text-xs text-malap" id="bakiLokasi"></p>
-                @error('location_id') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
-            </div>
+                <p class="hidden" id="bakiLokasi"></p>
+            @endif
 
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>

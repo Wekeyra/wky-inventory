@@ -150,7 +150,9 @@
                 pautan ini, pesanan kekal "diluluskan" selama-lamanya walaupun
                 barangnya sudah lama tiba melalui imbasan.
             --}}
-            <div class="sm:col-span-3">
+            {{-- Pemilih pesanan hanya bermakna apabila modul Pesanan Belian
+                 dihidupkan; tanpanya tiada pesanan untuk dipautkan. --}}
+            <div class="sm:col-span-3" @unless (auth()->user()->workspace?->adaCiri('po')) hidden @endunless>
                 <label for="purchase_order_id" class="mb-1 block font-medium">{{ __('wky.imbas.pesanan') }}</label>
                 <select id="purchase_order_id" name="purchase_order_id" @disabled(! $imbasan->isDraf())>
                     <option value="">— {{ __('wky.umum.tiada') }} —</option>

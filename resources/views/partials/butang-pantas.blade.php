@@ -14,17 +14,22 @@
     membuka borang yang sudah betul dan bukan sekadar borang kosong.
 --}}
 @php
-    $tindakan = [
-        [
+    // Pintasan imbas invois hanya wujud apabila modul itu dihidupkan; laluannya
+    // sendiri dijaga middleware ciri:imbas, jadi menawarkan butang yang akan
+    // memulangkan 404 hanya menjanjikan sesuatu yang tidak ada.
+    $adaImbas = auth()->user()->workspace?->adaCiri('imbas');
+
+    $tindakan = array_values(array_filter([
+        $adaImbas ? [
             'label' => __('wky.pantas.imbas_resit'),
             'ikon' => 'imbas',
             'url' => route('invoice-scans.create', ['mod' => 'kamera']),
-        ],
-        [
+        ] : null,
+        $adaImbas ? [
             'label' => __('wky.pantas.muat_naik'),
             'ikon' => 'simpan',
             'url' => route('invoice-scans.create', ['mod' => 'fail']),
-        ],
+        ] : null,
         [
             'label' => __('wky.pantas.stok_masuk'),
             'ikon' => 'masuk',
@@ -35,7 +40,7 @@
             'ikon' => 'keluar',
             'url' => route('stock.create', ['jenis' => 'keluar']),
         ],
-    ];
+    ]));
 @endphp
 
 <div class="tanpa-cetak fixed right-5 bottom-5 z-40 flex flex-col items-end gap-3">

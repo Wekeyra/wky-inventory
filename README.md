@@ -7,6 +7,60 @@ Setiap syarikat yang mendaftar mendapat **ruang kerjanya sendiri** dengan invent
 berasingan sepenuhnya, jadi satu pemasangan boleh menampung banyak syarikat tanpa data
 bertemu antara satu sama lain.
 
+## Ciri lanjutan
+
+Sistem ini tumbuh melepasi MVP jauh lebih cepat daripada pengguna barunya. Syarikat yang baru
+memasukkan produk pertamanya tidak perlu melihat Pesanan Belian, COGS dan analitik pusing ganti
+pada hari pertama — ia hanya menjadikan sistem kelihatan lebih rumit daripada kerja yang hendak
+dibuat.
+
+**Lapan fungsi teras sentiasa hidup** dan tidak boleh dimatikan. Tanpa mana-mana daripadanya,
+sistem tidak lagi berfungsi sebagai sistem inventori:
+
+| Teras |
+|---|
+| Pendaftaran produk · Stok masuk · Stok keluar · Baki masa nyata |
+| Amaran stok rendah · Pelarasan & kiraan fizikal · Laporan inventori · Jejak audit |
+
+**Lima modul lanjutan** ditogol dalam **Tetapan → Ciri Lanjutan** (admin sahaja):
+
+| Kunci | Modul | Yang disembunyikan bersamanya |
+|---|---|---|
+| `gudang` | Gudang berbilang | Nav Gudang & Pindah Stok, dan medan lokasi pada setiap borang stok |
+| `imbas` | Imbas Invois (AI) | Nav, butang dashboard, dan dua pintasan pada butang tindakan pantas |
+| `po` | Pesanan Belian | Nav, dan pemilih pesanan pada halaman imbasan invois |
+| `jualan` | Jualan & COGS | Nav |
+| `analitik` | Analitik | Nav |
+
+### Siapa mendapat apa
+
+| Ruang kerja | Ciri awal | Kenapa |
+|---|---|---|
+| **Pendaftaran syarikat baharu** | Tiada — MVP sahaja | Ditetapkan secara eksplisit dalam `RegisterController` |
+| **Sedia ada semasa naik taraf** | Semua | Migrasi mengisinya; mematikan modul yang sudah berdata bukan naik taraf, itu kehilangan |
+| **Ujian, seeder, arahan konsol** | Semua | Lalai model apabila `ciri` tidak dinyatakan |
+
+> ⚠️ Lalai "semua" itu berada pada **model**, dan keputusan "mula ringkas" pada **pendaftaran**.
+> Meletakkan lalai MVP pada model bermakna setiap ruang kerja yang dicipta melalui jalan lain akan
+> senyap-senyap kehilangan modulnya — dan itu ditemui hanya selepas seseorang bertanya ke mana
+> perginya menu.
+
+### Mematikan bukan memadam
+
+Modul yang dimatikan hanya **disembunyikan**. Datanya kekal, dan menghidupkannya semula
+memulangkan segala-galanya seperti sedia kala. Ini penting kerana data itu bersilang: mematikan
+Jualan tidak bermakna jualan itu tidak pernah berlaku, dan pergerakan stok yang terhasil
+daripadanya masih merujuk kodnya.
+
+Laluan dijaga middleware `ciri:<nama>`, yang memulangkan **404 dan bukan 403**. Modul yang tidak
+dihidupkan sepatutnya tidak wujud dari sudut pandang ruang kerja itu; 403 memberitahu "ada sesuatu
+di sini yang anda tidak boleh sentuh", yang menimbulkan soalan tentang kebenaran sedangkan
+jawapannya cuma satu suis dalam Tetapan.
+
+Menyembunyikan medan lokasi selamat kerana **setiap** aliran stok sudah jatuh kepada
+`Location::lalai()` apabila tiada lokasi dihantar — itu sudah menjadi tingkah lakunya sejak modul
+gudang ditambah, supaya syarikat satu premis tidak pernah perlu memikirkannya.
+
 ## Modul
 
 | Modul | Keterangan |
@@ -859,6 +913,11 @@ kod. Langkah itu turut mengesahkan binaan aset masih berjaya sebelum deploy.
   yang boleh memohon tetapi tidak boleh meluluskan, keputusan yang direkod berserta pemutusnya,
   penerimaan penuh dan separa, penolakan penerimaan melebihi baki, pembatalan yang dihalang
   selepas ada barang diterima, dan status akhir yang tiada laluan keluar.
+- `tests/Feature/CiriLanjutanTest.php` — suis modul lanjutan: pendaftaran baharu yang bermula
+  dengan MVP sahaja, ruang kerja tanpa ciri dinyatakan yang mendapat semuanya, nav yang ditapis,
+  laluan tertutup yang memulangkan 404, data yang kekal selepas modul dimatikan dan dihidupkan
+  semula, staf yang tidak boleh menukar suis, dan borang stok yang masih boleh dihantar tanpa
+  medan lokasi.
 - `tests/Feature/TambahProdukDariStokTest.php` — butang tambah produk: kehadirannya pada modal
   stok pantas dan borang stok, pulang ke dashboard, pulang ke borang stok dengan produk baharu
   sudah terpilih, dan nilai `kembali` yang tidak dikenali yang jatuh semula ke senarai produk.

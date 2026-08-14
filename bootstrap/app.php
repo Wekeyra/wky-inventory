@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+            'ciri' => \App\Http\Middleware\EnsureCiriAktif::class,
         ]);
 
         // Selepas StartSession supaya pilihan bahasa dalam sesi boleh dibaca.
