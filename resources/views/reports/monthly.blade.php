@@ -36,9 +36,9 @@
         ];
     @endphp
 
-    <div class="mb-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div class="grid-stat mb-4">
         @foreach ($ringkasan as [$label, $nilai, $ikon])
-            <div class="kad kad-badan flex items-center gap-4">
+            <div class="kad kad-badan kad-stat">
                 <div class="ikon-bulat"><x-ikon :nama="$ikon" kelas="size-6" /></div>
                 <div class="min-w-0">
                     <p class="label-stat">{{ $label }}</p>

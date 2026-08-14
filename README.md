@@ -1180,6 +1180,23 @@ Empat perkara yang menjadikannya selamat untuk papan kekunci dan telefon:
 > ⚠️ Kelas `bar-sisi` mesti kekal pada elemen itu. Mod cetak menyembunyikannya dengan nama itu,
 > dan laci yang tercetak di tepi setiap muka surat membazir dakwat.
 
+## Kad statistik
+
+Baris kad statistik pada Dashboard, Laporan Bulanan dan Analitik menggunakan `.grid-stat`:
+**dua lajur pada telefon**, empat pada skrin lebar.
+
+Satu lajur pada telefon bermakna empat kad memakan hampir keseluruhan skrin pertama, dan
+kandungan sebenar halaman — amaran stok rendah, pergerakan terkini — ditolak jauh ke bawah
+lipatan. Angka statistik pendek; ia tidak memerlukan lebar penuh telefon untuk dibaca.
+
+`.kad-stat` pula meletakkan ikon **di atas** teks pada telefon dan bersebelahan dari `sm` ke atas.
+Dalam kad selebar separuh telefon, ikon bulat di sebelah kiri hanya menyisakan lebar yang tidak
+cukup untuk label dan angka.
+
+> ⚠️ Grid **butiran** pada halaman Pesanan Belian dan Jualan sengaja **tidak** menggunakan kelas
+> ini. Ia membawa nama pembekal, nama pemohon dan tarikh — teks yang perlu lebar penuh telefon,
+> bukan angka pendek. Dua lajur di situ hanya memotong nama.
+
 ## Antara muka
 
 Dibina dengan **Tailwind CSS v4** melalui Vite. Tiada CDN — CSS, JavaScript, dan fon semuanya

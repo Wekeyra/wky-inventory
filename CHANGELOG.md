@@ -10,6 +10,10 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ### Diperbaiki
 
+- **Kad statistik dua lajur pada telefon**, bukan satu kad selebar skrin setiap satu. Sebelum ini
+  empat kad memakan hampir keseluruhan skrin pertama, dan kandungan sebenar halaman — amaran stok
+  rendah, pergerakan terkini — ditolak jauh ke bawah lipatan. Terpakai pada Dashboard, Laporan
+  Bulanan dan Analitik.
 - **Ruang kamera invois jauh lebih besar pada telefon.** Modal kamera kini penuh skrin, dan
   pratontonnya mengambil semua ruang tinggi yang tinggal dan bukan lagi kotak landskap 4:3.
   Invois potret pada skrin potret: kotak lama membuang lebih separuh skrin dan memaksa pengguna

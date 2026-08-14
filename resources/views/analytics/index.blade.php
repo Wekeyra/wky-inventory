@@ -20,7 +20,7 @@
                 <span class="font-semibold">{{ __('wky.analitik.pusing_ganti') }}</span>
             </div>
 
-            <div class="kad-badan grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="kad-badan grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
                 <div>
                     <p class="label-stat">{{ __('wky.analitik.kadar') }}</p>
                     <p class="nilai-stat mt-1">{{ number_format($pusingGanti['kadar'], 2) }}&times;</p>

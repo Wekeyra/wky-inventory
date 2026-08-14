@@ -1310,6 +1310,29 @@
         @apply block;
     }
 
+    /* ---------- Kad statistik ---------- */
+
+    /*
+     | Baris kad statistik: dua lajur pada telefon, empat pada skrin lebar.
+     |
+     | Satu lajur pada telefon bermakna empat kad memakan hampir keseluruhan
+     | skrin pertama, dan kandungan sebenar halaman — amaran stok rendah,
+     | pergerakan terkini — ditolak jauh ke bawah lipatan. Angka statistik
+     | pendek; ia tidak memerlukan lebar penuh telefon untuk dibaca.
+     */
+    .grid-stat {
+        @apply grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4;
+    }
+
+    /*
+     | Isi kad: ikon di atas teks pada telefon, bersebelahan dari sm ke atas.
+     | Dalam kad selebar separuh telefon, ikon bulat di sebelah kiri hanya
+     | menyisakan lebar yang tidak cukup untuk label dan angka.
+     */
+    .kad-stat {
+        @apply flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4;
+    }
+
     /* ---------- Lain-lain ---------- */
 
     .ikon-bulat {
