@@ -520,6 +520,32 @@ Senarai **sebab** pada borang pergerakan stok ditapis mengikut jenis oleh JavaSc
 penapis itu dijalankan sekali semasa halaman dimuat. Jadi pintasan ini membuka borang yang sudah
 betul sepenuhnya — jenis dipilih dan senarai sebabnya sepadan — bukan sekadar borang kosong.
 
+## Tambah produk dari borang stok
+
+Pemilih produk pada **borang Pergerakan Stok** dan **modal Tambah Stok Pantas** membawa butang
+**+** di sebelahnya, yang membuka borang produk baharu. Produk yang hilang paling kerap disedari
+di situ — tepat semasa cuba merekod stoknya.
+
+Ia paling ketara pada pemasangan baharu, yang bermula tanpa satu produk pun: tanpa butang ini,
+borang stok pertama yang dilihat pengguna ialah borang yang **tidak boleh dihantar**, dan tiada
+apa pada skrin itu memberitahunya ke mana perlu pergi.
+
+Borang produk menerima `?kembali=`, dengan dua kata kunci:
+
+| Nilai | Simpan & Batal pulang ke |
+|---|---|
+| `dashboard` | Dashboard (dari modal stok pantas) |
+| `stok` | Borang stok, **dengan produk baharu itu sudah terpilih** |
+
+Destinasi `stok` membawa `?product_id=` sekali. Pulang ke borang kosong tidak cukup: pengguna
+datang ke sana untuk merekod stok produk itu, jadi memaksanya mencari semula produk yang baru
+sahaja dia cipta hanya memindahkan kerja, bukan membuangnya.
+
+> ⚠️ Sama seperti kategori, `kembali` ialah **kata kunci dan bukan URL**, dan
+> `ProductController::kembali()` hanya menerima dua nilai di atas. Menerima URL penuh daripada
+> permintaan bermakna sesiapa boleh menghantar pautan yang mengalihkan pengguna ke tapak lain
+> sebaik sahaja dia menekan *Simpan*.
+
 ## Tambah kategori dari penapis Produk
 
 Penapis kategori pada halaman Produk membawa butang **+** di sebelahnya, yang membuka borang
@@ -833,6 +859,9 @@ kod. Langkah itu turut mengesahkan binaan aset masih berjaya sebelum deploy.
   yang boleh memohon tetapi tidak boleh meluluskan, keputusan yang direkod berserta pemutusnya,
   penerimaan penuh dan separa, penolakan penerimaan melebihi baki, pembatalan yang dihalang
   selepas ada barang diterima, dan status akhir yang tiada laluan keluar.
+- `tests/Feature/TambahProdukDariStokTest.php` — butang tambah produk: kehadirannya pada modal
+  stok pantas dan borang stok, pulang ke dashboard, pulang ke borang stok dengan produk baharu
+  sudah terpilih, dan nilai `kembali` yang tidak dikenali yang jatuh semula ke senarai produk.
 - `tests/Feature/LaciNavTest.php` — laci navigasi telefon: kehadirannya pada setiap halaman
   sistem, menu yang muncul sekali sahaja dan bukan sebagai salinan kedua, latar dan butang
   tutupnya, kelas `bar-sisi` yang kekal untuk mod cetak, dan ketiadaannya pada halaman awam.

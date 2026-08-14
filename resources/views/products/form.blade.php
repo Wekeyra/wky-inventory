@@ -21,6 +21,13 @@
             <input type="hidden" name="baris_imbasan" value="{{ $barisImbasan->id }}">
         @endif
 
+        {{-- Dibawa melalui borang atas sebab yang sama seperti di atas, dan
+             supaya destinasi selepas simpan bertahan walaupun pengesahan gagal
+             dan borang ini dipaparkan semula. --}}
+        @if ($kembali !== null)
+            <input type="hidden" name="kembali" value="{{ $kembali }}">
+        @endif
+
         <div class="kad kad-badan lg:col-span-2">
             <div class="grid gap-4 sm:grid-cols-3">
                 <div>
@@ -154,7 +161,15 @@
 
             <div class="kad-kaki">
                 <button type="submit" class="btn-utama">{{ $product->exists ? __('wky.aksi.kemas_kini') : __('wky.aksi.simpan') }}</button>
-                <a href="{{ route('products.index') }}" class="btn-garis">{{ __('wky.aksi.batal') }}</a>
+                {{-- Batal pulang ke tempat yang sama seperti Simpan. Butang yang
+                     membuang pengguna ke senarai produk sedangkan dia datang dari
+                     borang stok terasa seperti dia tersesat, bukan seperti dia
+                     membatalkan sesuatu. --}}
+                <a href="{{ match ($kembali) {
+                        'dashboard' => route('dashboard'),
+                        'stok' => route('stock.create'),
+                        default => route('products.index'),
+                    } }}" class="btn-garis">{{ __('wky.aksi.batal') }}</a>
             </div>
         </div>
     </form>

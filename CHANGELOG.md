@@ -19,6 +19,12 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ### Ditambah
 
+- **Butang tambah produk pada borang stok dan modal Tambah Stok Pantas.** Produk yang hilang
+  paling kerap disedari tepat semasa cuba merekod stoknya. Ia paling ketara pada pemasangan
+  baharu, yang bermula tanpa satu produk pun — sebelum ini borang stok pertama yang dilihat
+  pengguna ialah borang yang tidak boleh dihantar, tanpa apa-apa pada skrin itu memberitahunya ke
+  mana perlu pergi. Menyimpan produk daripada borang stok memulangkannya ke situ dengan produk
+  baharu itu **sudah terpilih**.
 - **Menu navigasi pada telefon.** Butang hamburger di sebelah tajuk halaman membuka laci yang
   menyelinap masuk dari kiri. Sebelum ini bar sisi tersembunyi sepenuhnya di bawah saiz tablet,
   jadi pengguna telefon langsung tiada navigasi — hanya butang tindakan pantas yang terapung.

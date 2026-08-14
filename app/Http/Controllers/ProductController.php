@@ -67,7 +67,26 @@ class ProductController extends Controller
             'barisImbasan' => $baris,
             'categories' => Category::orderBy('nama')->get(),
             'suppliers' => Supplier::orderBy('nama')->get(),
+            'kembali' => $this->kembali($request),
         ]);
+    }
+
+    /**
+     * Ke mana borang ini patut pulang selepas disimpan.
+     *
+     * Kata kunci, bukan URL. Menerima URL penuh daripada permintaan bermakna
+     * sesiapa boleh menghantar pautan yang mengalihkan pengguna ke tapak lain
+     * selepas dia menekan Simpan.
+     *
+     * Kedua-dua destinasi ini ialah tempat pengguna berhenti seketika untuk
+     * mencipta produk yang hilang daripada senarai pilihan — bukan tempat dia
+     * datang untuk menguruskan produk.
+     */
+    private function kembali(Request $request): ?string
+    {
+        return in_array($request->input('kembali'), ['dashboard', 'stok'], true)
+            ? $request->input('kembali')
+            : null;
     }
 
     public function store(Request $request): RedirectResponse
@@ -87,6 +106,20 @@ class ProductController extends Controller
 
             return redirect()->route('invoice-scans.show', $baris->invoice_scan_id)
                 ->with('status', __('wky.flash.produk_tambah_padan', ['nama' => $product->nama]));
+        }
+
+        // Produk yang dicipta daripada borang stok pulang ke situ dengan
+        // produk baharu itu sudah terpilih, supaya pengguna tidak perlu
+        // mencarinya semula dalam senarai yang baru sahaja dia tambah.
+        $kembali = $this->kembali($request);
+
+        if ($kembali === 'stok') {
+            return redirect()->route('stock.create', ['product_id' => $product->id])
+                ->with('status', __('wky.flash.produk_tambah'));
+        }
+
+        if ($kembali === 'dashboard') {
+            return redirect()->route('dashboard')->with('status', __('wky.flash.produk_tambah'));
         }
 
         return redirect()->route('products.index')->with('status', __('wky.flash.produk_tambah'));
@@ -120,11 +153,14 @@ class ProductController extends Controller
 
     public function edit(Product $product): View
     {
+        // Menyunting produk sedia ada sentiasa bermula daripada senarai produk,
+        // jadi tiada tempat lain untuk pulang.
         return view('products.form', [
             'product' => $product,
             'barisImbasan' => null,
             'categories' => Category::orderBy('nama')->get(),
             'suppliers' => Supplier::orderBy('nama')->get(),
+            'kembali' => null,
         ]);
     }
 

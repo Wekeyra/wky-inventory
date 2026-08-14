@@ -24,14 +24,34 @@
             <div class="kad-badan space-y-4">
                 <div>
                     <label for="pantas_product_id" class="mb-1 block font-medium">{{ __('wky.medan.produk') }} <span class="text-bahaya">*</span></label>
-                    <select id="pantas_product_id" name="product_id" required>
-                        <option value="">{{ __('wky.umum.pilih_produk') }}</option>
-                        @foreach ($products as $produk)
-                            <option value="{{ $produk->id }}" @selected(old('product_id') == $produk->id)>
-                                {{ $produk->nama }} ({{ $produk->sku }}) — {{ __('wky.stok.baki') }} {{ $produk->stok }} {{ $produk->unit }}
-                            </option>
-                        @endforeach
-                    </select>
+
+                    {{--
+                        Produk yang hilang paling kerap disedari di sini — tepat
+                        semasa cuba merekod stoknya. Pemasangan baharu pula
+                        bermula tanpa satu produk pun, jadi tanpa butang ini
+                        borang pertama yang dilihat pengguna ialah borang yang
+                        tidak boleh dihantar.
+
+                        min-w-0 pada select dan shrink-0 pada butang: nama produk
+                        boleh panjang, dan tanpa kedua-duanya select enggan
+                        mengecil lalu menolak butang keluar daripada modal.
+                    --}}
+                    <div class="flex gap-2">
+                        <select id="pantas_product_id" name="product_id" class="min-w-0" required>
+                            <option value="">{{ __('wky.umum.pilih_produk') }}</option>
+                            @foreach ($products as $produk)
+                                <option value="{{ $produk->id }}" @selected(old('product_id') == $produk->id)>
+                                    {{ $produk->nama }} ({{ $produk->sku }}) — {{ __('wky.stok.baki') }} {{ $produk->stok }} {{ $produk->unit }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <a href="{{ route('products.create', ['kembali' => 'dashboard']) }}"
+                           class="btn-garis btn-ikon shrink-0" title="{{ __('wky.produk.tambah') }}"
+                           aria-label="{{ __('wky.produk.tambah') }}">
+                            <x-ikon nama="tambah" />
+                        </a>
+                    </div>
                 </div>
 
                 <div>

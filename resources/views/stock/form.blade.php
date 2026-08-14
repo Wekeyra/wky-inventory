@@ -17,7 +17,12 @@
 
             <div>
                 <label for="product_id" class="mb-1 block font-medium">{{ __('wky.medan.produk') }} <span class="text-bahaya">*</span></label>
-                <select id="product_id" name="product_id" required @error('product_id') class="medan-ralat" @enderror>
+
+                {{-- Butang yang sama seperti pada modal stok pantas: produk yang
+                     hilang disedari tepat semasa cuba merekod stoknya, bukan
+                     semasa melawat halaman Produk. --}}
+                <div class="flex gap-2">
+                <select id="product_id" name="product_id" class="min-w-0" required @error('product_id') class="medan-ralat" @enderror>
                     <option value="">{{ __('wky.umum.pilih_produk') }}</option>
                     @foreach ($products as $produk)
                         {{--
@@ -37,6 +42,13 @@
                         </option>
                     @endforeach
                 </select>
+
+                    <a href="{{ route('products.create', ['kembali' => 'stok']) }}"
+                       class="btn-garis btn-ikon shrink-0" title="{{ __('wky.produk.tambah') }}"
+                       aria-label="{{ __('wky.produk.tambah') }}">
+                        <x-ikon nama="tambah" />
+                    </a>
+                </div>
                 @error('product_id') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
             </div>
 
