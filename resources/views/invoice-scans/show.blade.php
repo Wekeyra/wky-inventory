@@ -10,8 +10,8 @@
         $belumDibaca = $imbasan->isDraf() && $imbasan->belumDibaca();
     @endphp
 
-    <div class="mb-4 grid gap-4 {{ $belumDibaca ? '' : 'lg:grid-cols-3' }}">
-        <div class="kad kad-badan {{ $belumDibaca ? '' : 'lg:col-span-2' }}">
+    <div class="mb-4 grid grid-cols-1 gap-4 {{ $belumDibaca ? '' : 'lg:grid-cols-3' }}">
+        <div class="kad kad-badan min-w-0 {{ $belumDibaca ? '' : 'lg:col-span-2' }}">
             <div class="mb-3 flex flex-wrap items-center gap-2">
                 <span class="{{ $imbasan->kelasStatus() }}">{{ $imbasan->labelStatus() }}</span>
                 <code>{{ $imbasan->kod }}</code>

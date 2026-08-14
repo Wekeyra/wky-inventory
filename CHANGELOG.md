@@ -10,7 +10,11 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ### Diperbaiki
 
-- **Memadam produk tidak lagi memusnahkan jejak auditnya.** Sebelum ini satu klik memadam baris
+- **Kandungan dashboard tidak lagi terkeluar dari tepi skrin telefon.** Butang *Imbas Invois*,
+  *Tambah Stok Pantas* dan kad di bawahnya lebih lebar daripada empat kad statistik di atasnya,
+  kerana jadual di dalam salah satu kad menolak seluruh lajur melebihi skrin — dan segala-galanya
+  dalam lajur itu turut menjadi selebar jadual. Halaman butiran Produk, Pembekal, Kiraan Stok dan
+  Imbasan Invois membawa pepijat yang sama dan turut dibetulkan. Sebelum ini satu klik memadam baris
   daripada tujuh jadual sekali gus — termasuk setiap pergerakan stok produk itu — tanpa amaran dan
   tanpa apa-apa yang boleh dipulihkan. Produk yang pernah menyentuh apa-apa rekod kini
   **diarkibkan**: ia hilang daripada borang stok, jualan dan pesanan, tetapi kekal pada setiap

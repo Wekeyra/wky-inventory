@@ -23,11 +23,24 @@
         @endforeach
     </div>
 
-    <div class="grid gap-4 xl:grid-cols-12">
-        <div class="space-y-4 xl:col-span-7">
+    {{--
+        grid-cols-1 dan min-w-0 kedua-duanya perlu, dan bukan hiasan.
+
+        Grid tanpa grid-cols-* menghasilkan lajur bersaiz kandungan, dan anak
+        grid tidak mengecil di bawah saiz kandungannya (min-width: auto). Satu
+        jadual lebar di dalam kad menolak seluruh lajur melebihi skrin — dan
+        segala-galanya dalam lajur itu, termasuk butang di atas jadual, turut
+        menjadi selebar itu.
+
+        grid-cols-1 menjadikan lajurnya minmax(0,1fr); min-w-0 membenarkan anak
+        itu mengecil. overflow-x-auto pada jadual hanya berkuat kuasa selepas
+        kedua-duanya ada.
+    --}}
+    <div class="grid grid-cols-1 gap-4 xl:grid-cols-12">
+        <div class="min-w-0 space-y-4 xl:col-span-7">
             {{-- Grid mengecil kepada dua lajur apabila imbas invois dimatikan,
                  supaya dua butang yang tinggal tidak meninggalkan lubang. --}}
-            <div class="tanpa-cetak grid gap-4 {{ auth()->user()->workspace?->adaCiri('imbas') ? 'sm:grid-cols-3' : 'sm:grid-cols-2' }}">
+            <div class="tanpa-cetak grid grid-cols-1 gap-4 {{ auth()->user()->workspace?->adaCiri('imbas') ? 'sm:grid-cols-3' : 'sm:grid-cols-2' }}">
                 @if (auth()->user()->workspace?->adaCiri('imbas'))
                     <a href="{{ route('invoice-scans.create') }}" class="btn-wky py-3">
                         <x-ikon nama="imbas" />
@@ -169,7 +182,7 @@
             </div>
         </div>
 
-        <div class="space-y-4 xl:col-span-5">
+        <div class="min-w-0 space-y-4 xl:col-span-5">
             <div class="kad">
                 <div class="kad-kepala !block">
                     <p class="flex items-center gap-2 font-semibold">

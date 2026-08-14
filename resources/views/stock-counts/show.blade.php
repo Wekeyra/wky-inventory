@@ -9,8 +9,8 @@
         $kurang = $dikira->sum(fn ($item) => min($item->beza(), 0));
     @endphp
 
-    <div class="mb-4 grid gap-4 lg:grid-cols-3">
-        <div class="kad kad-badan lg:col-span-2">
+    <div class="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div class="kad kad-badan min-w-0 lg:col-span-2">
             <div class="mb-3 flex items-center gap-2">
                 <span class="{{ $sesi->kelasStatus() }}">{{ $sesi->labelStatus() }}</span>
                 <code>{{ $sesi->kod }}</code>

@@ -2,7 +2,7 @@
 @section('tajuk', $supplier->nama)
 
 @section('kandungan')
-    <div class="grid gap-4 lg:grid-cols-3">
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div class="kad flex flex-col">
             <div class="kad-badan flex-1">
                 <dl class="grid grid-cols-2 gap-y-3 text-sm">
@@ -37,7 +37,7 @@
             </div>
         </div>
 
-        <div class="kad lg:col-span-2">
+        <div class="kad min-w-0 lg:col-span-2">
             <div class="kad-kepala">
                 <span class="flex items-center gap-2 font-semibold">
                     <x-ikon nama="kotak" kelas="size-5 text-aksen" />

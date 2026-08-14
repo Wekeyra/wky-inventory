@@ -1307,6 +1307,28 @@ puncak cabangnya sendiri; tiada tempat untuk pulang.
 > sendiri dalam markup. Menanam `md:hidden` ke dalam kelas itu bermakna setiap pengguna baharunya
 > terpaksa membatalkannya dengan `!`.
 
+## Grid yang membawa jadual
+
+Setiap grid yang mana-mana anaknya mengandungi jadual **mesti** membawa dua perkara:
+
+```html
+<div class="grid grid-cols-1 gap-4 xl:grid-cols-12">   <!-- lajur boleh mengecil -->
+    <div class="min-w-0 xl:col-span-7">                 <!-- anak boleh mengecil -->
+        <div class="kad">
+            <div class="overflow-x-auto">               <!-- jadual menatal sendiri -->
+                <table class="jadual"> … </table>
+```
+
+Ketiga-tiganya perlu, dan `overflow-x-auto` **sahaja tidak cukup**:
+
+- Grid tanpa `grid-cols-*` menghasilkan lajur **bersaiz kandungan**, bukan `minmax(0,1fr)`.
+- Anak grid tidak mengecil di bawah saiz kandungannya (`min-width: auto`).
+
+Tanpa kedua-dua yang pertama, satu jadual lebar menolak seluruh lajur melebihi skrin — dan
+**segala-galanya dalam lajur itu** turut menjadi selebar jadual, termasuk butang dan kad yang
+langsung tiada kaitan dengannya. Pada telefon ia kelihatan seperti separuh halaman terkeluar dari
+tepi skrin, sedangkan jadualnya sendiri kelihatan baik.
+
 ## Kad statistik
 
 Baris kad statistik pada Dashboard, Laporan Bulanan dan Analitik menggunakan `.grid-stat`:

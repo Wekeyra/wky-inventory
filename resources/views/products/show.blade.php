@@ -2,7 +2,7 @@
 @section('tajuk', $product->nama)
 
 @section('kandungan')
-    <div class="grid gap-4 lg:grid-cols-3">
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div class="kad flex flex-col">
             @if ($product->laluan_gambar)
                 <img src="{{ route('products.gambar', $product) }}" alt="{{ $product->nama }}"
@@ -68,7 +68,10 @@
             </div>
         </div>
 
-        <div class="lg:col-span-2 lg:space-y-4">
+        {{-- min-w-0: lajur ini membawa jadual, dan anak grid tidak mengecil di
+             bawah saiz kandungannya tanpa ini — overflow-x-auto pada jadual itu
+             hanya berkuat kuasa selepas lajurnya dibenarkan mengecil. --}}
+        <div class="min-w-0 lg:col-span-2 lg:space-y-4">
         <div class="kad mb-4 lg:mb-0">
             <div class="kad-kepala">
                 <span class="flex items-center gap-2 font-semibold">
