@@ -9,7 +9,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 {{-- overflow-x-hidden sahaja supaya halaman panjang ini kekal boleh diskrol. --}}
-<body class="latar-log-masuk relative min-h-screen overflow-x-hidden">
+<body class="latar-log-masuk latar-hero relative min-h-screen overflow-x-hidden">
     <x-latar-log-masuk />
 
     @php

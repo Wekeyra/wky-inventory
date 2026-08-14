@@ -4,10 +4,16 @@
 @source '../../storage/framework/views/*.php';
 
 /*
-| Palet WKY Inventory — terang & lembut secara lalai, dengan mod gelap sebagai
-| togol pilihan. Warna jenama ialah tanah liat/terakota hangat (aksen), dan
-| merah sebenar disimpan berasingan (bahaya) khusus untuk amaran/ralat —
-| supaya menukar warna jenama tidak turut melembutkan makna "bahaya".
+| Palet WKY Inventory — matahari terbenam gudang: oren panas di atas, magenta
+| di tengah, ungu pekat di bawah. Jenama membawa dua tona: magenta (aksen)
+| untuk isian pejal seperti butang dan pautan aktif, dan oren (aksen-terang)
+| untuk aksen teks dan kata jenama. Kedua-duanya bertemu sebagai kecerunan
+| pada tindakan utama.
+|
+| Merah sebenar tetap disimpan berasingan (bahaya) khusus untuk amaran/ralat.
+| Kerana jenama kini condong ke merah jambu, pengasingan itu bergantung pada
+| bentuk dan bukan warna semata: tindakan merosakkan sentiasa bergaya garis
+| dengan ikon, manakala tindakan utama ialah blok berkecerunan.
 |
 | Token ditakrifkan sebagai @theme supaya tersedia sebagai utiliti Tailwind
 | (bg-permukaan, text-aksen, border-bingkai, dan seterusnya). Nilai di sini
@@ -18,22 +24,22 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 
-    --color-latar: #faf7f3;
+    --color-latar: #fdf6f3;
     --color-permukaan: #ffffff;
-    --color-tinggi: #f3ece3;
-    --color-bingkai: #e4d9cb;
-    --color-bingkai-aksen: #e8c9ac;
+    --color-tinggi: #fbeae7;
+    --color-bingkai: #f0d8d6;
+    --color-bingkai-aksen: #f4c2a8;
 
-    --color-aksen: #9e572e;
-    --color-aksen-terang: #ab4f21;
-    --color-aksen-gelap: #6b4024;
-    --color-aksen-pekat: #7e4625;
+    --color-aksen: #c92a5c;
+    --color-aksen-terang: #c2451b;
+    --color-aksen-gelap: #7a1a3c;
+    --color-aksen-pekat: #a81f4c;
 
-    --color-bahaya: #ae2d29;
-    --color-bahaya-terang: #be312d;
+    --color-bahaya: #b91c1c;
+    --color-bahaya-terang: #c62828;
 
-    --color-teks: #2b211a;
-    --color-malap: #6e665e;
+    --color-teks: #2e1233;
+    --color-malap: #6e5766;
 }
 
 /*
@@ -47,63 +53,95 @@
 | apabila <html> membawa kelas itu.
 */
 :root {
-    --rgb-aksen: 158, 87, 46;
-    --rgb-aksen-terang: 171, 79, 33;
-    --rgb-bahaya: 174, 45, 41;
-    --rgb-bayang: 43, 33, 26;
+    --rgb-aksen: 201, 42, 92;
+    --rgb-aksen-terang: 194, 69, 27;
+    --rgb-bahaya: 185, 28, 28;
+    --rgb-bayang: 46, 18, 51;
     --rgb-cair: 255, 255, 255;
 
-    --login-g1: #ffffff;
-    --login-g2: #fbf3e9;
-    --login-g3: #f3e4d2;
-    --login-input-bg: rgba(255, 255, 255, 0.6);
-    --login-input-bg-autofill: #fdfbf9;
+    /*
+     | Kecerunan jenama: oren ke magenta, arah yang sama seperti butang Log
+     | Masuk pada reka bentuk. Ia satu pemboleh ubah dan bukan ditulis pada
+     | setiap kelas, supaya butang utama, butang auth dan butang terapung
+     | sentiasa membawa kecerunan yang sama.
+     |
+     | Versi -pekat ialah keadaan tuding: kedua-dua hujungnya digelapkan
+     | sekali gus, kerana background-image tidak boleh dianimasikan seperti
+     | background-color dan menukar keseluruhan imej itu lebih mudah dibaca
+     | daripada menindihnya dengan satu lapisan legap.
+     */
+    --kecerunan-aksen: linear-gradient(100deg, #e2701f 0%, #c92a5c 100%);
+    --kecerunan-aksen-pekat: linear-gradient(100deg, #c25c14 0%, #a81f4c 100%);
 
-    /* Perhentian kecerunan siluet bandar dalam <x-latar-log-masuk>. Warna
-       tanah lembut supaya bentuk bangunan tidak menjadi blok gelap berat di
-       atas latar terang. */
-    --siluet-atas: #e3d5c3;
-    --siluet-bawah: #cdb79c;
+    --login-g1: #fff4ee;
+    --login-g2: #fde4e6;
+    --login-g3: #f4dcf0;
+    --login-input-bg: rgba(255, 255, 255, 0.6);
+    --login-input-bg-autofill: #fffaf7;
+
+    /* Perhentian kecerunan siluet bandar dalam <x-latar-log-masuk>. Merah
+       jambu lilac lembut supaya bentuk bangunan tidak menjadi blok gelap
+       berat di atas latar terang. */
+    --siluet-atas: #f2d6e4;
+    --siluet-bawah: #e0bbd3;
 }
 
 /*
-| Mod gelap. Ditogol dengan kelas "dark" pada <html> (lihat togolTema dalam
-| app.js). Palet neutralnya sama seperti versi asal aplikasi ini; hanya aksen
-| jenama yang berubah daripada merah kepada terakota terang supaya kekal
-| jelas di atas latar gelap.
+| Mod gelap — versi palet yang paling hampir dengan reka bentuk: permukaan
+| ungu plum dan bukan kelabu neutral, supaya kad dan bar sisi duduk dalam
+| keluarga warna yang sama seperti latar kecerunan halaman auth.
+|
+| Tona jenama ditukar arah berbanding tema terang: di sini oren dinaikkan
+| menjadi cerah (aksen-terang) kerana ia perlu dibaca di atas ungu gelap,
+| sedangkan pada tema terang oren itu digelapkan supaya boleh dibaca di atas
+| putih.
 */
 .dark {
-    --color-latar: #0d0d0f;
-    --color-permukaan: #17171a;
-    --color-tinggi: #1e1e22;
-    --color-bingkai: #2a2a30;
-    --color-bingkai-aksen: #3a2419;
+    --color-latar: #2b1033;
+    --color-permukaan: #3a1745;
+    --color-tinggi: #47204f;
+    --color-bingkai: #5a2a63;
+    --color-bingkai-aksen: #8a3a66;
 
-    --color-aksen: #c4491c;
-    --color-aksen-terang: #db8757;
-    --color-aksen-gelap: #522b14;
-    --color-aksen-pekat: #813f18;
+    --color-aksen: #d9376b;
+    --color-aksen-terang: #ff9147;
+    --color-aksen-gelap: #6e1d3c;
+    --color-aksen-pekat: #b62a57;
 
-    --color-bahaya: #dc2626;
-    --color-bahaya-terang: #ef4444;
+    --color-bahaya: #e5342a;
+    --color-bahaya-terang: #ff6b5e;
 
-    --color-teks: #e5e7eb;
-    --color-malap: #9096a1;
+    /*
+     | Teks sekunder sengaja jauh lebih cerah daripada kelabu biasa. Ia perlu
+     | dibaca bukan sahaja di atas kad ungu, tetapi juga di atas jalur magenta
+     | kecerunan halaman auth — lavender pertengahan hilang sepenuhnya di situ.
+     */
+    --color-teks: #f7ecf4;
+    --color-malap: #dcbcd4;
 
-    --rgb-aksen: 196, 73, 28;
-    --rgb-aksen-terang: 219, 135, 87;
-    --rgb-bahaya: 220, 38, 38;
-    --rgb-bayang: 0, 0, 0;
-    --rgb-cair: 148, 163, 184;
+    --rgb-aksen: 217, 55, 107;
+    --rgb-aksen-terang: 255, 145, 71;
+    --rgb-bahaya: 229, 52, 42;
+    --rgb-bayang: 12, 2, 16;
+    --rgb-cair: 196, 132, 214;
 
-    --login-g1: #14151a;
-    --login-g2: #0d0d0f;
-    --login-g3: #08080a;
-    --login-input-bg: rgba(0, 0, 0, 0.45);
-    --login-input-bg-autofill: #0b0b0d;
+    --kecerunan-aksen: linear-gradient(100deg, #f5943c 0%, #ed3c63 100%);
+    --kecerunan-aksen-pekat: linear-gradient(100deg, #e07f28 0%, #d42952 100%);
 
-    --siluet-atas: #1c1e26;
-    --siluet-bawah: #08080a;
+    /*
+     | Perhentian latar halaman auth: oren panas di atas, magenta di tengah,
+     | ungu pekat di bawah. Perhentian tengah dicondongkan ke atas (lihat
+     | .latar-log-masuk) supaya bahagian bawah skrin — tempat borang dan
+     | siluet bandar duduk — kekal ungu gelap dan cukup kontras.
+     */
+    --login-g1: #f0762f;
+    --login-g2: #c43c63;
+    --login-g3: #2b1033;
+    --login-input-bg: rgba(43, 16, 51, 0.5);
+    --login-input-bg-autofill: #351440;
+
+    --siluet-atas: #7a3878;
+    --siluet-bawah: #3a1543;
 }
 
 @layer base {
@@ -223,8 +261,20 @@
                active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 disabled:active:scale-100;
     }
 
+    /*
+     | Tindakan utama membawa kecerunan jenama, bukan blok sewarna. Kerana
+     | background-image tidak boleh dianimasikan, tudingnya bertukar serta-merta
+     | sementara warna sempadan dan skala tetap mengikut peralihan pada peraturan
+     | asas di atas — pertukaran yang cukup halus untuk tidak kelihatan janggal.
+     */
     .btn-utama {
-        @apply border-aksen bg-aksen text-white hover:bg-aksen-pekat;
+        @apply border-transparent text-white;
+
+        background-image: var(--kecerunan-aksen);
+    }
+
+    .btn-utama:hover {
+        background-image: var(--kecerunan-aksen-pekat);
     }
 
     .btn-wky {
@@ -359,9 +409,29 @@
     .latar-log-masuk {
         background:
             radial-gradient(68rem 44rem at 50% -14%, rgba(var(--rgb-aksen), 0.16), transparent 64%),
-            radial-gradient(46rem 30rem at 50% 112%, rgba(var(--rgb-cair), 0.10), transparent 72%),
-            linear-gradient(180deg, var(--login-g1) 0%, var(--login-g2) 55%, var(--login-g3) 100%);
+            radial-gradient(46rem 30rem at 50% 112%, rgba(var(--rgb-cair), 0.1), transparent 72%),
+            linear-gradient(180deg, var(--login-g1) 0%, var(--login-g2) 40%, var(--login-g3) 92%);
         background-attachment: fixed;
+    }
+
+    /*
+     | Varian halaman pendaratan. Halaman itu jauh lebih panjang daripada satu
+     | skrin, dan kecerunan yang dilekatkan pada viewport bermakna setiap
+     | seksyen yang ditatal akan melalui jalur oren paling cerah — teks
+     | sekunder tidak boleh dibaca di atasnya.
+     |
+     | Di sini kecerunan dihadkan kepada skrin pertama sahaja: hero mendapat
+     | matahari terbenam penuh, dan selebihnya halaman menatal ke atas warna
+     | hujung kecerunan yang rata.
+     */
+    .latar-hero {
+        background-repeat: no-repeat;
+        background-attachment: scroll;
+        background-size:
+            100% 100vh,
+            100% 100vh,
+            100% 100vh;
+        background-color: var(--login-g3);
     }
 
     /* Rangkaian titik dan garis; dijana sekali dalam Blade dan tidak berinteraksi. */
@@ -849,12 +919,16 @@
     /* ---------- Butang tindakan pantas (terapung) ---------- */
 
     .butang-pantas {
-        @apply grid size-14 cursor-pointer place-items-center rounded-full border border-aksen
-               bg-aksen text-white transition-[background-color,transform] duration-150
-               hover:bg-aksen-pekat active:scale-90
+        @apply grid size-14 cursor-pointer place-items-center rounded-full border border-transparent
+               text-white transition-transform duration-150 active:scale-90
                focus-visible:ring-2 focus-visible:ring-aksen/50 focus-visible:outline-none;
 
+        background-image: var(--kecerunan-aksen);
         box-shadow: 0 12px 28px -8px rgba(var(--rgb-aksen), 0.5);
+    }
+
+    .butang-pantas:hover {
+        background-image: var(--kecerunan-aksen-pekat);
     }
 
     /* Tanda tambah berputar menjadi silang apabila menu terbuka. */
@@ -913,12 +987,17 @@
             inset 0 1px 0 rgba(var(--rgb-cair), 0.5);
     }
 
+    /*
+     | Kad pada tema gelap sengaja separa lut sinar dan bukan legap: latar
+     | kecerunan di belakangnya ialah sebahagian daripada reka bentuk, dan kad
+     | yang legap akan mengetip satu lubang gelap di tengah-tengahnya.
+     */
     .dark .kad-log-masuk {
-        background: linear-gradient(160deg, rgba(26, 27, 33, 0.88), rgba(10, 10, 12, 0.93));
+        background: linear-gradient(160deg, rgba(58, 23, 69, 0.62), rgba(33, 11, 40, 0.82));
         box-shadow:
-            0 0 0 1px rgba(var(--rgb-aksen), 0.08),
-            0 25px 60px -20px rgba(0, 0, 0, 0.9),
-            inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            0 0 0 1px rgba(var(--rgb-aksen), 0.12),
+            0 25px 60px -20px rgba(12, 2, 16, 0.75),
+            inset 0 1px 0 rgba(255, 255, 255, 0.07);
     }
 
     .kad-log-masuk::before {
@@ -979,25 +1058,32 @@
             inset 0 0 0 100px var(--login-input-bg-autofill);
     }
 
-    /* Butang logam seperti dalam reka bentuk yang diminta. Sengaja kekal
-       perak/putih tanpa mengira tema — ia kontras terhadap kedua-duanya. */
-    .btn-logam {
-        @apply w-full cursor-pointer rounded-lg border border-black/10 py-3 text-base font-semibold tracking-wide
-               text-[#141416] transition-all
+    /*
+     | Butang hantar pada halaman auth: kecerunan jenama selebar kad, seperti
+     | dalam reka bentuk. Ia menggantikan butang logam perak yang pernah ada di
+     | sini — perak itu neutral terhadap kedua-dua tema, tetapi pada latar
+     | matahari terbenam ia kelihatan seperti kawalan sistem pengendalian yang
+     | tersasar masuk dan bukan tindakan utama halaman.
+     |
+     | Bayangnya bertona aksen dan bukan hitam, supaya butang itu nampak
+     | bercahaya di atas latar dan bukan terapung di atasnya.
+     */
+    .btn-nyala {
+        @apply w-full cursor-pointer rounded-lg border border-transparent py-3 text-base font-semibold
+               tracking-wide text-white transition-transform
                focus-visible:ring-2 focus-visible:ring-aksen/50 focus-visible:outline-none;
 
-        background: linear-gradient(180deg, #f3f4f6 0%, #c9cbd1 45%, #9ca0a8 55%, #d6d8dd 100%);
+        background-image: var(--kecerunan-aksen);
         box-shadow:
-            0 1px 0 rgba(255, 255, 255, 0.6) inset,
-            0 -1px 0 rgba(0, 0, 0, 0.25) inset,
-            0 10px 24px -10px rgba(var(--rgb-bayang), 0.4);
+            0 1px 0 rgba(255, 255, 255, 0.25) inset,
+            0 12px 28px -12px rgba(var(--rgb-aksen), 0.75);
     }
 
-    .btn-logam:hover {
-        background: linear-gradient(180deg, #ffffff 0%, #d9dbe0 45%, #aeb2b9 55%, #e5e7ea 100%);
+    .btn-nyala:hover {
+        background-image: var(--kecerunan-aksen-pekat);
     }
 
-    .btn-logam:active {
+    .btn-nyala:active {
         @apply translate-y-px;
     }
 
@@ -1046,7 +1132,7 @@
     }
 
     .dark .kad-ciri {
-        background: rgba(0, 0, 0, 0.35);
+        background: rgba(43, 16, 51, 0.45);
     }
 
     .kad-ciri:hover {
@@ -1090,7 +1176,7 @@
     }
 
     .dark .kad-harga {
-        background: rgba(0, 0, 0, 0.4);
+        background: rgba(43, 16, 51, 0.5);
     }
 
     .kad-harga-utama {
@@ -1102,7 +1188,7 @@
     }
 
     .dark .kad-harga-utama {
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(43, 16, 51, 0.7);
     }
 
     /* Butang kad harga ditolak ke bawah supaya ketiga-tiganya sebaris walaupun

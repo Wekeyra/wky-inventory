@@ -225,6 +225,23 @@
             const kanvas = document.getElementById('cartaRingkasan');
             const data = @json($ringkasanBulanan);
 
+            /*
+                Warna carta dibaca daripada token tema dan bukan ditulis tetap,
+                supaya carta mengikut palet yang sama seperti seluruh halaman.
+
+                Ia dibaca sekali semasa carta dibina. Menogol tema selepas itu
+                tidak mengecat semula carta — Chart.js menyimpan warna ini dalam
+                konfigurasinya sendiri — jadi carta hanya bertukar tona selepas
+                halaman dimuat semula.
+            */
+            const gaya = getComputedStyle(document.documentElement);
+            const token = (nama) => gaya.getPropertyValue(nama).trim();
+
+            const warnaMasuk = `rgb(${token('--rgb-aksen')})`;
+            const warnaKeluar = `rgb(${token('--rgb-aksen-terang')})`;
+            const warnaLabel = token('--color-malap');
+            const warnaGrid = token('--color-bingkai');
+
             const kecerunan = (ctx, warna) => {
                 const g = ctx.createLinearGradient(0, 0, 0, 200);
                 g.addColorStop(0, warna.replace(')', ', 0.45)').replace('rgb', 'rgba'));
@@ -240,8 +257,8 @@
                         {
                             label: @json(__('wky.dashboard.kemasukan')),
                             data: data.masuk,
-                            borderColor: 'rgb(220, 38, 38)',
-                            backgroundColor: kecerunan(kanvas.getContext('2d'), 'rgb(220, 38, 38)'),
+                            borderColor: warnaMasuk,
+                            backgroundColor: kecerunan(kanvas.getContext('2d'), warnaMasuk),
                             fill: true,
                             tension: 0.4,
                             pointRadius: 3,
@@ -249,8 +266,8 @@
                         {
                             label: @json(__('wky.dashboard.pengeluaran')),
                             data: data.keluar,
-                            borderColor: 'rgb(148, 163, 184)',
-                            backgroundColor: kecerunan(kanvas.getContext('2d'), 'rgb(148, 163, 184)'),
+                            borderColor: warnaKeluar,
+                            backgroundColor: kecerunan(kanvas.getContext('2d'), warnaKeluar),
                             fill: true,
                             tension: 0.4,
                             pointRadius: 3,
@@ -261,11 +278,11 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { labels: { color: '#9096a1', boxWidth: 12, font: { size: 11 } } },
+                        legend: { labels: { color: warnaLabel, boxWidth: 12, font: { size: 11 } } },
                     },
                     scales: {
-                        x: { ticks: { color: '#9096a1', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        y: { beginAtZero: true, ticks: { color: '#9096a1', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        x: { ticks: { color: warnaLabel, font: { size: 10 } }, grid: { color: warnaGrid } },
+                        y: { beginAtZero: true, ticks: { color: warnaLabel, font: { size: 10 } }, grid: { color: warnaGrid } },
                     },
                 },
             });

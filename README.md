@@ -794,6 +794,23 @@ kelima-lima medan.
 Label *Tunjuk*/*Sembunyi* dibawa sebagai atribut `data-*` pada butang, jadi JavaScript menukarnya
 tanpa perlu tahu bahasa halaman.
 
+### Latar matahari terbenam
+
+Halaman log masuk, pendaftaran dan pendaratan berkongsi kelas `.latar-log-masuk`: kecerunan
+oren → magenta → ungu, dua cahaya bulat, konstelasi titik, dan siluet bandar. Perhentiannya
+datang daripada `--login-g1/2/3`, yang ditulis semula oleh `.dark`, jadi kelas itu sendiri tidak
+perlu tahu tema mana yang aktif.
+
+Latar itu **dilekatkan pada viewport** (`background-attachment: fixed`) supaya halaman yang lebih
+panjang daripada skrin — seperti halaman pendaftaran — kekal sama rupa semasa ditatal.
+
+> ⚠️ Halaman pendaratan menambah `.latar-hero` di sebelah `.latar-log-masuk`, dan ini **bukan
+> hiasan**. Halaman itu berpuluh skrin panjangnya; dengan latar yang dilekatkan pada viewport,
+> setiap seksyen yang ditatal akan melalui jalur oren paling cerah, dan teks sekunder tidak
+> boleh dibaca di atasnya. `.latar-hero` menghadkan kecerunan kepada skrin pertama sahaja
+> (`background-size: 100% 100vh`, tidak berulang) dan mengecat selebihnya dengan `--login-g3`
+> yang rata. Jangan buang kelas itu untuk "menyeragamkan" halaman.
+
 ### Hiasan 3D pada halaman auth
 
 Halaman log masuk dan pendaftaran membawa empat objek gudang — kotak terbuka di atas palet,
@@ -875,29 +892,53 @@ memerlukan dua fail logo berasingan.
 
 ### Palet
 
-Warna jenama ialah **tanah liat/terakota hangat** (`aksen`), dan merah sebenar disimpan
-berasingan sebagai `bahaya` khusus untuk amaran, ralat pengesahan, dan tindakan memadam.
+Palet ialah **matahari terbenam gudang**: oren panas di atas, magenta di tengah, ungu pekat di
+bawah. Jenama membawa **dua tona**, bukan satu:
 
-Pengasingan itu sengaja. Ketika kedua-duanya merah yang sama, butang *Padam* dan butang *Simpan*
-hanya berbeza pada bentuk. Kini menukar warna jenama tidak boleh secara senyap melembutkan makna
-"bahaya", dan sebaliknya.
+| Token | Tema terang | Tema gelap | Kegunaan |
+|---|---|---|---|
+| `--color-aksen` | `#c92a5c` | `#d9376b` | Magenta — isian pejal: lencana, pautan nav aktif, gelang fokus |
+| `--color-aksen-terang` | `#c2451b` | `#ff9147` | Oren — aksen teks, kata jenama *WKY*, keadaan tuding |
+
+Kedua-duanya bertemu sebagai kecerunan pada tindakan utama. Kecerunan itu ialah satu pemboleh
+ubah, `--kecerunan-aksen` (dan `--kecerunan-aksen-pekat` untuk keadaan tuding), supaya `.btn-utama`,
+`.btn-nyala` dan `.butang-pantas` tidak boleh terpesong antara satu sama lain.
+
+Perhatikan arah tona **bertukar** antara dua tema: pada tema gelap oren dinaikkan menjadi cerah
+kerana ia perlu dibaca di atas ungu, sedangkan pada tema terang oren yang sama digelapkan supaya
+boleh dibaca di atas putih.
 
 | Kumpulan token | Kegunaan |
 |---|---|
 | `--color-latar`, `--color-permukaan`, `--color-tinggi`, `--color-bingkai` | Permukaan dan sempadan |
 | `--color-aksen*` | Warna jenama: butang utama, pautan aktif, sorotan |
+| `--kecerunan-aksen*` | Kecerunan jenama oren→magenta untuk tindakan utama |
 | `--color-bahaya*` | Amaran, ralat, butang padam |
 | `--color-teks`, `--color-malap` | Teks utama dan teks sekunder |
+| `--login-g1/2/3`, `--siluet-*` | Perhentian kecerunan dan siluet bandar halaman auth |
+
+> ⚠️ Merah `bahaya` masih token berasingan, tetapi jenama kini **condong ke merah jambu** — jadi
+> warna sahaja tidak lagi cukup untuk membezakan *Padam* daripada *Simpan*. Pengasingan itu kini
+> bergantung pada **bentuk**: tindakan merosakkan sentiasa bergaya garis (`.btn-bahaya`, latar
+> lutsinar) dengan ikon, manakala tindakan utama ialah blok berkecerunan pejal. Jangan tukar
+> `.btn-bahaya` kepada isian pejal tanpa memikirkan semula perbezaan ini.
 
 Token `@theme` di bahagian atas `app.css` ialah nilai **tema terang**; blok `.dark` selepasnya
 menulis semula token yang sama. Kerana `.dark` ditulis kemudian dalam fail, ia menang apabila
 `<html>` membawa kelas itu. Tukar nilai di situ dan jalankan `npm run build` untuk menukar rupa
 seluruh aplikasi.
 
-Empat perkara yang perlu diberi perhatian apabila menyunting:
+Perkara yang perlu diberi perhatian apabila menyunting:
 
 - `@apply` dalam Tailwind v4 hanya menerima **utiliti**, bukan kelas komponen tersuai. Kelas
   seperti `.btn-utama` ditulis penuh dan tidak saling `@apply` antara satu sama lain.
+- Butang berkecerunan menetapkan `background-image`, bukan `background-color`. `background-image`
+  **tidak boleh dianimasikan**, jadi keadaan tudingnya bertukar serta-merta walaupun peraturan
+  asas butang menyenaraikan `transition`. Ia disengajakan; jangan cuba membetulkannya dengan
+  menindih lapisan legap di atas kecerunan.
+- `--color-malap` pada tema gelap sengaja **jauh lebih cerah** daripada kelabu sekunder biasa
+  (`#dcbcd4`). Teks itu bukan sahaja duduk di atas kad ungu tetapi juga di atas jalur magenta
+  kecerunan halaman auth, dan lavender pertengahan hilang sepenuhnya di situ.
 - Nama kelas mesti muncul sebagai teks penuh supaya Tailwind dapat mengesannya. Sebab itu
   `StockCount::kelasStatus()` dan `StockMovement::kelasJenis()` memulangkan nama kelas lengkap
   (`lencana-kuning`) dan bukan potongan yang dicantum (`lencana-` . `$warna`).
@@ -973,6 +1014,8 @@ Empat perkara dikendalikan untuk pengguna papan kekunci dan pembaca skrin:
   meminta pengesahan sebelum menyentuh apa-apa. `--force` hanya untuk skrip bukan interaktif.
 - Mod cetak memaksa hitam di atas putih tanpa mengira tema semasa, jadi mencetak Laporan Bulanan
   dalam tema gelap tetap menghasilkan kertas putih dan bukan blok dakwat hitam.
-- Butang logam pada halaman log masuk sengaja kekal perak/putih pada kedua-dua tema. Ia satu-satunya
-  elemen yang tidak mengikut token warna, kerana kecerunan logamnya memang berkontras terhadap
-  latar terang mahupun gelap.
+- Butang hantar pada halaman auth (`.btn-nyala`) membawa kecerunan jenama yang sama seperti
+  `.btn-utama`, cuma selebar kad dan dengan bayang bertona aksen. Ia pernah menjadi butang logam
+  perak yang sengaja tidak mengikut token warna; perak itu neutral terhadap kedua-dua tema,
+  tetapi pada latar matahari terbenam ia kelihatan seperti kawalan sistem pengendalian yang
+  tersasar masuk dan bukan tindakan utama halaman.

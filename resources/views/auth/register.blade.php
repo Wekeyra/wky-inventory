@@ -91,7 +91,7 @@
                                          required autocomplete="new-password" />
                 </div>
 
-                <button type="submit" class="btn-logam">{{ __('wky.auth.daftar') }}</button>
+                <button type="submit" class="btn-nyala">{{ __('wky.auth.daftar') }}</button>
             </form>
 
             @include('partials.butang-google')

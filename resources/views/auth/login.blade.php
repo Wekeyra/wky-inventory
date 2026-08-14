@@ -80,7 +80,7 @@
                     {{ __('wky.auth.ingat_saya') }}
                 </label>
 
-                <button type="submit" class="btn-logam">{{ __('wky.aksi.log_masuk') }}</button>
+                <button type="submit" class="btn-nyala">{{ __('wky.aksi.log_masuk') }}</button>
             </form>
 
             @include('partials.butang-google')

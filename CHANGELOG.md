@@ -6,6 +6,44 @@ Projek ini belum menggunakan nombor versi, jadi entri dikumpulkan mengikut tarik
 Setiap entri menerangkan perubahan dari sudut pengguna sistem; sebab teknikal di
 sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
+## 2026-08-14
+
+### Diubah
+
+- **Palet baharu: matahari terbenam gudang.** Oren panas di atas, magenta di tengah, ungu pekat
+  di bawah. Halaman log masuk, pendaftaran dan pendaratan membawa kecerunan itu penuh, berserta
+  siluet bandar lilac dan hiasan gudang 3D yang kini bertona merah jambu-oren.
+- **Jenama kini dua tona, bukan satu.** Magenta untuk isian pejal (lencana, pautan nav aktif,
+  gelang fokus) dan oren untuk aksen teks serta kata jenama *WKY*. Kedua-duanya bertemu sebagai
+  kecerunan pada setiap tindakan utama — butang *Simpan*, butang *Log Masuk*, dan butang tindakan
+  pantas yang terapung.
+- **Halaman sistem turut bertukar.** Tema gelap tidak lagi kelabu neutral: kad, bar sisi dan
+  jadual kini duduk atas ungu plum, dalam keluarga warna yang sama seperti halaman auth. Tema
+  terang menjadi krim kemerahan dengan teks ungu pekat.
+- **Butang Log Masuk dan Daftar bukan lagi butang logam perak**, sebaliknya membawa kecerunan
+  jenama selebar kad seperti dalam reka bentuk.
+- **Carta Ringkasan Bulanan mengikut tema.** Warna garis, label dan grid dahulunya ditulis tetap
+  dalam halaman dashboard — nilai tema gelap yang tidak pernah berubah walaupun pada tema terang.
+  Kini ia dibaca daripada token tema. Carta masih perlu dimuat semula selepas menogol tema,
+  kerana Chart.js menyimpan warna dalam konfigurasinya sendiri.
+- **Teks sekunder pada tema gelap dicerahkan** daripada kelabu kepada lavender terang. Ia perlu
+  dibaca di atas jalur magenta halaman auth, bukan hanya di atas kad.
+
+### Diperbaiki
+
+- **Halaman pendaratan tidak lagi menatal melalui jalur oren.** Latar kecerunan yang dilekatkan
+  pada viewport bermakna setiap seksyen halaman yang panjang itu akan melalui bahagian paling
+  cerah, dan teks sekunder hilang di atasnya. Kecerunan kini dihadkan kepada skrin pertama;
+  selebihnya halaman menatal ke atas warna hujung yang rata.
+
+### Nota
+
+- Merah `bahaya` masih token berasingan daripada warna jenama, tetapi jenama kini condong ke
+  merah jambu — jadi warna sahaja tidak lagi cukup untuk membezakan *Padam* daripada *Simpan*.
+  Pengasingan itu kini bergantung pada bentuk: tindakan merosakkan bergaya garis dengan ikon,
+  tindakan utama ialah blok berkecerunan pejal.
+- Fail logo tidak disentuh. `public/images/logo-wky.png` dan `logo-wky-w.png` kekal seperti asal.
+
 ## 2026-08-13
 
 ### Ditambah
