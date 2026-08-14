@@ -40,6 +40,7 @@ class StockMovement extends Model
         'jenis',
         'sebab',
         'kuantiti',
+        'kos_seunit',
         'stok_sebelum',
         'stok_selepas',
         'rujukan',
@@ -47,6 +48,28 @@ class StockMovement extends Model
         'penerima',
         'catatan',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'kos_seunit' => 'decimal:2',
+        ];
+    }
+
+    /**
+     * Nilai kos keseluruhan pergerakan ini, atau null kalau kosnya tidak direkod.
+     *
+     * Dipulangkan sebagai null dan bukan 0 supaya laporan boleh membezakan
+     * "pergerakan bernilai sifar" daripada "pergerakan yang berlaku sebelum kos
+     * mula direkod". Kedua-duanya menjumlah kepada 0, tetapi hanya satu
+     * daripadanya benar.
+     */
+    public function nilaiKos(): ?float
+    {
+        return $this->kos_seunit === null
+            ? null
+            : (float) $this->kos_seunit * $this->kuantiti;
+    }
 
     public function product(): BelongsTo
     {

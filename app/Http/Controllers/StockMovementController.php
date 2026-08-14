@@ -117,6 +117,10 @@ class StockMovementController extends Controller
             // masuk akal tidak boleh disuap terus ke dalam borang.
             'sebab' => ['required', Rule::in(StockMovement::SEBAB[$jenis] ?? [])],
             'kuantiti' => ['required', 'integer', 'min:1'],
+            // Kos hanya diminta pada stok masuk. Stok keluar tidak boleh
+            // memilih kosnya sendiri — kos barang yang keluar ialah kos barang
+            // itu semasa ia masuk, dan itu sudah pun direkod.
+            'kos_seunit' => [$jenis === 'masuk' ? 'nullable' : 'prohibited', 'numeric', 'min:0'],
             'no_batch' => [$perluBatch && $jenis === 'masuk' ? 'required' : 'nullable', 'string', 'max:100'],
             'no_siri' => ['nullable', 'string', 'max:100'],
             'tarikh_luput' => ['nullable', 'date'],
@@ -150,6 +154,7 @@ class StockMovementController extends Controller
                     'jenis' => $data['jenis'],
                     'sebab' => $data['sebab'],
                     'kuantiti' => $data['kuantiti'],
+                    'kos_seunit' => $this->kosSeunit($product, $batch, $data),
                     'stok_sebelum' => $sebelum,
                     'stok_selepas' => $selepas,
                     'rujukan' => $data['rujukan'] ?? null,
@@ -230,6 +235,44 @@ class StockMovementController extends Controller
     }
 
     /**
+     * Kos seunit yang dicap pada pergerakan ini.
+     *
+     * Stok masuk membawa kosnya sendiri: itulah harga yang dibayar hari ini,
+     * dan ia yang perlu dibekukan supaya laporan bulan ini tidak berubah
+     * apabila harga pembekal naik bulan depan.
+     *
+     * Stok keluar daripada lot yang dipilih membawa kos lot itu. Kita tahu
+     * dengan tepat unit mana yang keluar, jadi tiada anggaran diperlukan dan
+     * tiada kaedah kos seperti FIFO yang perlu dipilih.
+     *
+     * Selebihnya — stok keluar produk tanpa batch, dan pelarasan — jatuh
+     * kepada harga kos semasa produk. Ini **anggaran**, bukan kos sebenar:
+     * tanpa lot, sistem tidak tahu unit yang mana keluar. Ia tetap lebih baik
+     * daripada tiada apa-apa, kerana ia sekurang-kurangnya dibekukan pada masa
+     * pergerakan itu berlaku dan tidak lagi berubah selepas itu.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    private function kosSeunit(Product $product, ?ProductBatch $batch, array $data): ?float
+    {
+        // Nilai yang ditaip diterima seadanya, termasuk 0: seseorang yang
+        // menaip sifar sedang menyatakan barang itu memang percuma.
+        if ($data['jenis'] === 'masuk' && isset($data['kos_seunit'])) {
+            return (float) $data['kos_seunit'];
+        }
+
+        if ($data['jenis'] === 'keluar' && $batch?->kos_seunit !== null) {
+            return (float) $batch->kos_seunit;
+        }
+
+        // harga_kos lalainya 0 dan wajib diisi pada borang produk, jadi sifar
+        // di sini bermakna "tidak pernah ditetapkan" dan bukan "percuma".
+        // Merekodkannya sebagai 0 akan mendakwa barang itu tidak berkos, dan
+        // dakwaan itu akan mengalir terus ke dalam setiap laporan.
+        return (float) $product->harga_kos > 0 ? (float) $product->harga_kos : null;
+    }
+
+    /**
      * Menambah atau menolak baki lot yang terlibat.
      *
      * Stok masuk mencari batch dengan nombor yang sama sebelum menciptanya,
@@ -252,7 +295,13 @@ class StockMovementController extends Controller
                 'tarikh_luput' => $data['tarikh_luput'] ?? null,
             ]));
 
-            $batch->kuantiti = ($batch->kuantiti ?? 0) + $data['kuantiti'];
+            // Kos diserap sebelum kuantiti dinaikkan, kerana purata berwajaran
+            // memerlukan baki lama lot itu — selepas kenaikan, baki lama sudah
+            // hilang.
+            $sedia = (int) ($batch->kuantiti ?? 0);
+            $batch->serapKos($sedia, (int) $data['kuantiti'], $this->kosSeunit($product, null, $data));
+
+            $batch->kuantiti = $sedia + $data['kuantiti'];
             $batch->save();
 
             return $batch;

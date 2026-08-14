@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\StockMovement;
+use App\Services\Stok\NilaiStok;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -43,7 +44,7 @@ class ReportController extends Controller
             'jumlahMasuk' => $baris->sum('masuk'),
             'jumlahKeluar' => $baris->sum('keluar'),
             'jumlahTransaksi' => $pergerakan->count(),
-            'nilaiStokSemasa' => Product::query()->selectRaw('SUM(harga_kos * stok) as nilai')->value('nilai') ?? 0,
+            'nilaiStokSemasa' => NilaiStok::kini(),
             'pilihanBulan' => $this->pilihanBulan(),
         ]);
     }

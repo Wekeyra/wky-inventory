@@ -10,6 +10,19 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ### Ditambah
 
+- **Kos seunit pada setiap pergerakan stok dan setiap lot batch.** Kos yang dibayar dibekukan
+  pada rekod, jadi laporan bulan lepas tidak lagi berubah nilainya apabila harga pembekal naik
+  bulan ini. Borang stok masuk meminta kos (kosong bermakna guna harga kos produk), dan imbasan
+  invois menyimpan harga unit yang sudah pun dibacanya daripada invois — sebelum ini harga itu
+  dibaca kemudian dibuang.
+- **Stok keluar daripada lot membawa kos lot itu**, bukan harga kos semasa produk. Apabila lot
+  dipilih, sistem tahu dengan tepat unit mana yang keluar.
+- **Kos dipaparkan** pada senarai Pergerakan Stok (kos seunit dan jumlahnya) dan pada senarai lot
+  di halaman produk. Pergerakan yang berlaku sebelum ciri ini dipasang berbunyi *Tidak direkod*,
+  bukan RM 0.00.
+- **Nilai stok dikira daripada kos lot** bagi produk yang dijejak batchnya, dan bukan lagi
+  daripada harga kos semasa produk. Produk lain kekal seperti dahulu, dan lot yang belum berkos
+  jatuh kepada harga kos produk supaya tiada stok lama lenyap daripada jumlah.
 - **Butang tambah kategori pada penapis halaman Produk.** Kategori yang hilang paling kerap
   disedari tepat semasa cuba menapis dengannya, jadi butang **+** kecil di sebelah penapis itu
   membuka borang kategori baharu terus. Simpan dan Batal kedua-duanya pulang ke halaman Produk,

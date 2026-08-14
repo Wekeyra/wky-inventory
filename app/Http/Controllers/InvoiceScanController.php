@@ -271,14 +271,24 @@ class InvoiceScanController extends Controller
 
                 $product->update(['stok' => $selepas]);
 
+                // Harga unit yang dibaca AI daripada invois ialah kos sebenar
+                // penerimaan ini, jadi ia dibekukan pada pergerakan dan pada lot
+                // penerimaannya. Baris tanpa harga jatuh kepada harga kos produk,
+                // dan produk yang harga kosnya belum ditetapkan langsung
+                // meninggalkan kos sebagai "tidak direkod" — bukan sifar.
+                $kos = $item->harga_unit !== null
+                    ? (float) $item->harga_unit
+                    : ((float) $product->harga_kos > 0 ? (float) $product->harga_kos : null);
+
                 StockMovement::create([
                     'product_id' => $product->id,
-                    'product_batch_id' => $this->batchPenerimaan($product, $invoiceScan, $item->kuantiti)?->id,
+                    'product_batch_id' => $this->batchPenerimaan($product, $invoiceScan, $item->kuantiti, $kos)?->id,
                     'location_id' => $lokasi?->id,
                     'user_id' => $request->user()?->id,
                     'jenis' => 'masuk',
                     'sebab' => 'pembelian',
                     'kuantiti' => $item->kuantiti,
+                    'kos_seunit' => $kos,
                     'stok_sebelum' => $sebelum,
                     'stok_selepas' => $selepas,
                     'rujukan' => $invoiceScan->rujukanStok(),
@@ -338,7 +348,7 @@ class InvoiceScanController extends Controller
      * Tarikh luputnya dibiarkan kosong kerana ia memang tidak diketahui di
      * sini; ia diisi pada halaman produk selepas kotak sebenar diperiksa.
      */
-    private function batchPenerimaan(Product $product, InvoiceScan $imbasan, int $kuantiti): ?ProductBatch
+    private function batchPenerimaan(Product $product, InvoiceScan $imbasan, int $kuantiti, ?float $kos = null): ?ProductBatch
     {
         if (! $product->jejak_batch) {
             return null;
@@ -349,7 +359,12 @@ class InvoiceScanController extends Controller
             'no_batch' => $imbasan->rujukanStok(),
         ]);
 
-        $batch->kuantiti = ($batch->kuantiti ?? 0) + $kuantiti;
+        // Kos diserap sebelum kuantiti dinaikkan: purata berwajaran memerlukan
+        // baki lama lot itu, yang hilang selepas kenaikan.
+        $sedia = (int) ($batch->kuantiti ?? 0);
+        $batch->serapKos($sedia, $kuantiti, $kos);
+
+        $batch->kuantiti = $sedia + $kuantiti;
         $batch->save();
 
         return $batch;

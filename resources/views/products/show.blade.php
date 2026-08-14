@@ -154,6 +154,7 @@
                                 <th>{{ __('wky.batch.no_siri') }}</th>
                                 <th>{{ __('wky.batch.tarikh_luput') }}</th>
                                 <th class="text-right">{{ __('wky.medan.kuantiti') }}</th>
+                                <th class="text-right">{{ __('wky.medan.kos_seunit') }}</th>
                                 <th class="text-right">{{ __('wky.medan.tindakan') }}</th>
                             </tr>
                         </thead>
@@ -177,6 +178,17 @@
                                     </div>
                                 </td>
                                 <td class="text-right font-medium">{{ $batch->kuantiti }} {{ $product->unit }}</td>
+                                {{-- Kos lot dibaca sahaja: ia terbina daripada kos setiap
+                                     penerimaan ke dalam lot ini, jadi menyuntingnya di sini
+                                     akan memutuskan hubungannya dengan pergerakan yang
+                                     membentuknya. --}}
+                                <td class="text-right whitespace-nowrap">
+                                    @if ($batch->kos_seunit === null)
+                                        <span class="text-malap">{{ __('wky.stok.kos_tidak_direkod') }}</span>
+                                    @else
+                                        {{ number_format((float) $batch->kos_seunit, 2) }}
+                                    @endif
+                                </td>
                                 <td class="text-right">
                                     <button type="submit" form="batch-{{ $batch->id }}" class="btn-garis btn-ikon"
                                             title="{{ __('wky.aksi.simpan') }}">
@@ -185,7 +197,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="5" class="py-8 text-center text-malap">{{ __('wky.batch.tiada') }}</td></tr>
+                            <tr><td colspan="6" class="py-8 text-center text-malap">{{ __('wky.batch.tiada') }}</td></tr>
                         @endforelse
                         </tbody>
                     </table>

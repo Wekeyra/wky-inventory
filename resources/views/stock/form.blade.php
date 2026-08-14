@@ -31,6 +31,7 @@
                                 data-barcode="{{ $produk->barcode }}" data-sku="{{ $produk->sku }}"
                                 data-jejak="{{ $produk->jejak_batch ? '1' : '' }}"
                                 data-unit="{{ $produk->unit }}"
+                                data-kos="{{ $produk->harga_kos }}"
                                 data-baki="{{ $produk->balances->pluck('kuantiti', 'location_id')->toJson() }}">
                             {{ $produk->nama }} ({{ $produk->sku }}) — {{ __('wky.stok.baki') }} {{ $produk->stok }} {{ $produk->unit }}
                         </option>
@@ -79,6 +80,20 @@
                 </select>
                 <p class="mt-1 text-xs text-malap">{{ __('wky.stok.nota_sebab') }}</p>
                 @error('sebab') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
+            </div>
+
+            {{--
+                Kos hanya diminta pada stok masuk. Stok keluar tidak memilih
+                kosnya sendiri: kos barang yang keluar ialah kos barang itu
+                semasa ia masuk, dan pengawal mengambilnya daripada lot atau
+                daripada harga kos produk.
+            --}}
+            <div class="hidden" data-masuk-sahaja>
+                <label for="kos_seunit" class="mb-1 block font-medium">{{ __('wky.medan.kos_seunit') }}</label>
+                <input type="number" step="0.01" min="0" id="kos_seunit" name="kos_seunit"
+                       value="{{ old('kos_seunit') }}" @error('kos_seunit') class="medan-ralat" @enderror>
+                <p class="mt-1 text-xs text-malap">{{ __('wky.stok.nota_kos') }}</p>
+                @error('kos_seunit') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
             </div>
 
             {{--
@@ -172,6 +187,7 @@
             const kotakMasuk = borang.querySelector('[data-batch-masuk]');
             const kotakKeluar = borang.querySelector('[data-batch-keluar]');
             const medanBatch = kotakMasuk.querySelector('#no_batch');
+            const medanKos = document.getElementById('kos_seunit');
 
             const lokasi = document.getElementById('location_id');
             const paparBaki = document.getElementById('bakiLokasi');
@@ -246,6 +262,22 @@
 
                 borang.querySelectorAll('[data-keluar-sahaja]')
                     .forEach((el) => el.classList.toggle('hidden', arah !== 'keluar'));
+
+                borang.querySelectorAll('[data-masuk-sahaja]')
+                    .forEach((el) => el.classList.toggle('hidden', arah !== 'masuk'));
+
+                // Medan kos dilumpuhkan apabila tersembunyi, bukan sekadar
+                // disembunyikan. Peraturan pengesahan menolak kos pada stok
+                // keluar, jadi nilai yang tertinggal daripada saat pengguna
+                // memilih "masuk" akan menyebabkan borang ditolak tanpa
+                // sebarang medan yang kelihatan untuk dibetulkan.
+                medanKos.disabled = arah !== 'masuk';
+
+                // Harga kos produk ditunjukkan sebagai placeholder dan bukan
+                // ditulis sebagai nilai: pengawal sudah jatuh kepada harga itu
+                // apabila medan dibiarkan kosong, dan nilai yang ditulis sendiri
+                // akan menjadi angka yang pengguna sangka dia sahkan.
+                medanKos.placeholder = pilihan?.dataset.kos ?? '';
 
                 // required diselaraskan dengan apa yang kelihatan, kerana medan
                 // wajib yang tersembunyi menghalang penghantaran tanpa

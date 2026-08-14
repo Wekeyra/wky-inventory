@@ -173,6 +173,12 @@ class StockCountController extends Controller
                     'jenis' => 'pelarasan',
                     'sebab' => 'kiraan_fizikal',
                     'kuantiti' => $item->kuantiti_fizikal,
+                    // Kiraan fizikal yang mendapati stok kurang ialah kerugian
+                    // sebenar, jadi ia perlu membawa nilai. Harga kos semasa
+                    // produk ialah anggaran terbaik yang ada di sini; sifar
+                    // dibiarkan sebagai "tidak direkod" kerana harga kos yang
+                    // tidak pernah ditetapkan bukan bermakna barang itu percuma.
+                    'kos_seunit' => (float) $product->harga_kos > 0 ? (float) $product->harga_kos : null,
                     'stok_sebelum' => $sebelum,
                     'stok_selepas' => $selepas,
                     'rujukan' => $stockCount->kod,

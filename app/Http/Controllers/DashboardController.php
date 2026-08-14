@@ -9,6 +9,7 @@ use App\Models\ProductBatch;
 use App\Models\StockCount;
 use App\Models\StockMovement;
 use App\Models\Supplier;
+use App\Services\Stok\NilaiStok;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -21,7 +22,7 @@ class DashboardController extends Controller
             'jumlahProduk' => Product::count(),
             'jumlahKategori' => Category::count(),
             'jumlahPembekal' => Supplier::count(),
-            'nilaiStok' => Product::query()->selectRaw('SUM(harga_kos * stok) as nilai')->value('nilai') ?? 0,
+            'nilaiStok' => NilaiStok::kini(),
             'stokRendah' => Product::stokRendah()->with('category')->orderBy('stok')->limit(10)->get(),
             // Lot yang sudah luput disenaraikan sekali dengan yang hampir luput:
             // barang yang terlepas tarikhnya masih di rak sehingga seseorang

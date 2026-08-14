@@ -175,6 +175,11 @@ class StockTransferController extends Controller
      * `stok_sebelum` dan `stok_selepas` adalah sama kerana jumlah stok syarikat
      * memang tidak berubah — yang berubah ialah gudang tempat barang itu
      * berada, dan itu dibaca daripada lokasi asal dan tujuan pada baris ini.
+     *
+     * `kos_seunit` sengaja dibiarkan kosong atas sebab yang sama. Memindahkan
+     * barang antara gudang sendiri bukan peristiwa kos: tiada apa yang dibeli
+     * dan tiada apa yang digunakan. Mengecapkan kos di sini akan menjadikan
+     * jumlah kos laporan berganda setiap kali barang berpindah rak.
      */
     private function rekod(StockTransfer $pemindahan, Product $product, int $kuantiti, string $sebab, Request $request): void
     {

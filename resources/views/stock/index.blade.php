@@ -52,6 +52,7 @@
                         <th>{{ __('wky.medan.lokasi') }}</th>
                         <th>{{ __('wky.medan.sebab') }}</th>
                         <th class="text-right">{{ __('wky.medan.kuantiti') }}</th>
+                        <th class="text-right">{{ __('wky.medan.kos_seunit') }}</th>
                         <th class="text-right">{{ __('wky.stok.sebelum') }}</th>
                         <th class="text-right">{{ __('wky.stok.selepas') }}</th>
                         <th>{{ __('wky.medan.rujukan') }}</th>
@@ -82,6 +83,22 @@
                                 <span class="mt-0.5 block text-xs font-normal text-malap">{{ $gerak->batch->no_batch }}</span>
                             @endif
                         </td>
+                        {{--
+                            Kos yang tidak direkod dipaparkan sebagai teks dan
+                            bukan RM 0.00. Pergerakan lama berlaku sebelum kos
+                            mula disimpan, dan sifar akan mendakwa barang itu
+                            memang percuma.
+                        --}}
+                        <td class="text-right whitespace-nowrap">
+                            @if ($gerak->kos_seunit === null)
+                                <span class="text-malap">{{ __('wky.stok.kos_tidak_direkod') }}</span>
+                            @else
+                                {{ number_format((float) $gerak->kos_seunit, 2) }}
+                                <span class="mt-0.5 block text-xs font-normal text-malap">
+                                    {{ number_format($gerak->nilaiKos(), 2) }}
+                                </span>
+                            @endif
+                        </td>
                         <td class="text-right text-malap">{{ $gerak->stok_sebelum }}</td>
                         <td class="text-right font-medium">{{ $gerak->stok_selepas }}</td>
                         <td>
@@ -102,7 +119,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="11" class="py-10 text-center text-malap">{{ __('wky.stok.tiada_rekod') }}</td></tr>
+                    <tr><td colspan="12" class="py-10 text-center text-malap">{{ __('wky.stok.tiada_rekod') }}</td></tr>
                 @endforelse
                 </tbody>
             </table>

@@ -24,13 +24,51 @@ class ProductBatch extends Model
         'no_siri',
         'tarikh_luput',
         'kuantiti',
+        'kos_seunit',
     ];
 
     protected function casts(): array
     {
         return [
             'tarikh_luput' => 'date',
+            'kos_seunit' => 'decimal:2',
         ];
+    }
+
+    /**
+     * Menyerap kemasukan baharu ke dalam kos lot ini secara purata berwajaran.
+     *
+     * Nombor lot unik bagi setiap produk, jadi kemasukan kedua bagi lot yang
+     * sama tidak boleh dipecahkan menjadi dua lot dengan kos berbeza — lot itu
+     * memang mengandungi unit daripada kedua-dua kemasukan, bercampur. Purata
+     * berwajaran ialah satu-satunya jawapan yang tepat untuk satu bekas.
+     *
+     * Ini bukan pemilihan kaedah kos seperti FIFO. FIFO memilih lot **mana**
+     * yang keluar dahulu; ini cuma memberi satu lot satu nilai kos.
+     *
+     * @param  int  $kuantitiSedia  Baki lot sebelum kemasukan ini
+     */
+    public function serapKos(int $kuantitiSedia, int $kuantitiMasuk, ?float $kosMasuk): void
+    {
+        if ($kosMasuk === null) {
+            return;
+        }
+
+        $kosSedia = $this->kos_seunit;
+
+        // Lot yang belum berkos, atau yang kosong sebelum ini, terus mengambil
+        // kos kemasukan ini: tiada apa-apa untuk dipuratakan dengannya.
+        if ($kosSedia === null || $kuantitiSedia <= 0) {
+            $this->kos_seunit = $kosMasuk;
+
+            return;
+        }
+
+        $jumlah = $kuantitiSedia + $kuantitiMasuk;
+
+        $this->kos_seunit = $jumlah > 0
+            ? (((float) $kosSedia * $kuantitiSedia) + ($kosMasuk * $kuantitiMasuk)) / $jumlah
+            : $kosMasuk;
     }
 
     public function product(): BelongsTo

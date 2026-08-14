@@ -34,7 +34,9 @@ Supaya jelas apa yang sistem ini belum lakukan, dan tidak disangka hilang:
 - **Purchase Order.** Tiada permohonan pembelian, kelulusan, penerimaan separa, mahupun
   padanan PO dengan invois pembekal.
 - **Kewangan.** Tiada jualan/POS, kos barang dijual (COGS), untung kasar, mahupun kaedah
-  kos berlapis seperti FIFO. Nilai stok dikira pada harga kos semasa produk.
+  kos berlapis seperti FIFO. Setiap pergerakan stok **sudah** membawa kos seunitnya
+  (lihat [Kos pada setiap pergerakan](#kos-pada-setiap-pergerakan)), jadi asas untuk COGS
+  sudah ada — yang belum ada ialah modul jualan yang menggunakannya.
 - **Kawalan kelulusan berperingkat.** Peranan admin/staf sahaja; tiada had kuasa kelulusan
   mahupun maker-checker.
 - **Analitik lanjutan.** Tiada produk paling laris, inventory turnover, DIO, dead stock,
@@ -253,6 +255,58 @@ DO dijana daripada rekod pergerakan dan tidak disimpan sebagai dokumen berasinga
 yang dicetak sentiasa sepadan dengan apa yang benar-benar keluar daripada stok. Satu DO membawa
 satu baris kerana ia terikat pada satu pergerakan; menggabungkan beberapa produk ke dalam satu
 dokumen memerlukan lapisan pesanan penghantarannya sendiri.
+
+## Kos pada setiap pergerakan
+
+Setiap baris `stock_movements` dan setiap lot `product_batches` membawa `kos_seunit` — kos
+seunit **pada masa pergerakan itu berlaku**.
+
+Sebelum ini satu-satunya kos dalam sistem ialah `products.harga_kos`, satu nilai semasa yang
+ditulis ganti setiap kali produk dikemas kini. Nilai stok dan laporan dikira daripadanya, jadi
+menaikkan harga pembekal hari ini turut menukar nilai laporan bulan lepas — sedangkan stok itu
+dibeli pada harga lama.
+
+### Dari mana kos datang
+
+| Pergerakan | Kos yang dicap |
+|---|---|
+| **Stok masuk** (borang) | Nilai yang ditaip. Kosong → `harga_kos` produk |
+| **Stok masuk** (imbas invois) | Harga unit yang dibaca AI daripada invois. Tiada → `harga_kos` produk |
+| **Stok keluar** daripada lot | Kos lot itu — kita tahu dengan tepat unit mana yang keluar |
+| **Stok keluar** tanpa lot | `harga_kos` produk pada masa itu (**anggaran**) |
+| **Pelarasan** & kiraan fizikal | `harga_kos` produk pada masa itu (**anggaran**) |
+| **Pemindahan antara gudang** | Tiada. Bukan peristiwa kos — tiada apa dibeli, tiada apa digunakan |
+
+Stok keluar **tidak boleh** menghantar kosnya sendiri; peraturan pengesahannya `prohibited`. Kos
+barang yang keluar ialah kos barang itu semasa ia masuk, dan itu sudah pun direkod.
+
+> ⚠️ `kos_seunit` boleh **NULL**, dan NULL bukan sifar. Baris yang wujud sebelum ciri ini
+> dipasang memang tiada kos, dan produk yang `harga_kos`-nya masih 0 dianggap "belum ditetapkan"
+> dan bukan "percuma" — kerana lajur itu lalainya 0. Merekodkan 0 akan mendakwa barang diterima
+> percuma, dan dakwaan itu mengalir terus ke dalam setiap laporan yang menjumlahkannya. Sifar
+> yang **ditaip sendiri** tetap disimpan sebagai 0: itu satu kenyataan, bukan medan terlepas.
+
+### Kos lot dipuratakan, bukan FIFO
+
+Nombor lot unik bagi setiap produk, jadi kemasukan kedua bagi lot yang sama tidak boleh
+dipecahkan menjadi dua lot dengan kos berbeza — lot itu memang mengandungi unit daripada
+kedua-dua kemasukan, bercampur. `ProductBatch::serapKos()` memuratakannya secara berwajaran.
+
+Ini **bukan** pemilihan kaedah kos. FIFO memilih lot *mana* yang keluar dahulu; ini cuma memberi
+satu lot satu nilai kos.
+
+### Nilai stok
+
+[`Services/Stok/NilaiStok.php`](app/Services/Stok/NilaiStok.php) ialah satu-satunya tempat nilai
+stok semasa dikira, dan dashboard serta laporan bulanan kedua-duanya memanggilnya. Ia dua bahagian
+yang tidak bertindih:
+
+- Produk **tanpa** jejak batch — `harga_kos × stok`, seperti dahulu.
+- Produk **dengan** jejak batch — jumlah setiap lot pada kosnya sendiri.
+
+Lot yang belum berkos jatuh kepada `harga_kos` produk. Tanpa itu, semua stok yang wujud sebelum
+kos mula direkod akan lenyap daripada jumlah, dan nilai stok nampak jatuh mendadak pada hari ciri
+ini dipasang.
 
 ## Butang tindakan pantas
 
