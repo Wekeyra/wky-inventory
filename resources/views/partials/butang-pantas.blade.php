@@ -7,6 +7,11 @@
     Imbas Resit dan Muat Naik kedua-duanya menuju ke halaman imbas yang sama —
     ia memang satu halaman — tetapi membawa ?mod= supaya halaman itu membuka
     alat yang betul dan pengguna tidak perlu mencarinya sendiri.
+
+    Stok Masuk dan Stok Keluar mengikut corak yang sama: satu borang pergerakan
+    stok, dengan ?jenis= yang memilih jenis pergerakan terlebih dahulu. Senarai
+    sebab pada borang itu turut ditapis mengikut jenis, jadi pintasan ini
+    membuka borang yang sudah betul dan bukan sekadar borang kosong.
 --}}
 @php
     $tindakan = [
@@ -21,14 +26,14 @@
             'url' => route('invoice-scans.create', ['mod' => 'fail']),
         ],
         [
-            'label' => __('wky.pantas.tambah_produk'),
-            'ikon' => 'kotak',
-            'url' => route('products.create'),
+            'label' => __('wky.pantas.stok_masuk'),
+            'ikon' => 'masuk',
+            'url' => route('stock.create', ['jenis' => 'masuk']),
         ],
         [
-            'label' => __('wky.pantas.tambah_kategori'),
-            'ikon' => 'tag',
-            'url' => route('categories.create'),
+            'label' => __('wky.pantas.stok_keluar'),
+            'ikon' => 'keluar',
+            'url' => route('stock.create', ['jenis' => 'keluar']),
         ],
     ];
 @endphp

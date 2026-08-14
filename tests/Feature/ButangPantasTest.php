@@ -41,8 +41,43 @@ class ButangPantasTest extends TestCase
 
         $respons->assertSee(__('wky.pantas.imbas_resit'))
             ->assertSee(__('wky.pantas.muat_naik'))
-            ->assertSee(__('wky.pantas.tambah_produk'))
-            ->assertSee(__('wky.pantas.tambah_kategori'));
+            ->assertSee(__('wky.pantas.stok_masuk'))
+            ->assertSee(__('wky.pantas.stok_keluar'));
+    }
+
+    /*
+     | Sama seperti pasangan imbas: kedua-dua pintasan stok menuju ke borang
+     | pergerakan stok yang sama, jadi ?jenis= yang membezakannya.
+     */
+    public function test_pintasan_stok_membawa_jenis_yang_berbeza(): void
+    {
+        $respons = $this->actingAs($this->pengguna())->get(route('dashboard'));
+
+        $respons->assertSee(route('stock.create', ['jenis' => 'masuk']), false)
+            ->assertSee(route('stock.create', ['jenis' => 'keluar']), false);
+    }
+
+    /*
+     | Pintasan itu tidak berguna kalau borang tetap terbuka pada "masuk":
+     | pengguna yang menekan Stok Keluar akan merekod stok masuk tanpa sedar.
+     */
+    public function test_borang_stok_membuka_jenis_yang_diminta(): void
+    {
+        $this->actingAs($this->pengguna())
+            ->get(route('stock.create', ['jenis' => 'keluar']))
+            ->assertSee('<option value="keluar" selected>', false);
+    }
+
+    /*
+     | ?jenis= datang daripada URL, jadi ia boleh membawa apa sahaja. Nilai
+     | yang tidak dikenali mesti jatuh kembali kepada "masuk"; kalau tidak
+     | borang terbuka tanpa satu pun jenis dipilih.
+     */
+    public function test_jenis_yang_tidak_dikenali_jatuh_kembali_kepada_masuk(): void
+    {
+        $this->actingAs($this->pengguna())
+            ->get(route('stock.create', ['jenis' => 'entah-apa']))
+            ->assertSee('<option value="masuk" selected>', false);
     }
 
     /*

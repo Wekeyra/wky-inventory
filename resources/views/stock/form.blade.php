@@ -54,9 +54,9 @@
                 <div>
                     <label for="jenis" class="mb-1 block font-medium">{{ __('wky.medan.jenis') }} <span class="text-bahaya">*</span></label>
                     <select id="jenis" name="jenis" required @error('jenis') class="medan-ralat" @enderror>
-                        <option value="masuk" @selected(old('jenis') === 'masuk')>{{ __('wky.stok.masuk_tambah') }}</option>
-                        <option value="keluar" @selected(old('jenis') === 'keluar')>{{ __('wky.stok.keluar_tolak') }}</option>
-                        <option value="pelarasan" @selected(old('jenis') === 'pelarasan')>{{ __('wky.stok.pelarasan_set') }}</option>
+                        <option value="masuk" @selected(old('jenis', $jenisAwal) === 'masuk')>{{ __('wky.stok.masuk_tambah') }}</option>
+                        <option value="keluar" @selected(old('jenis', $jenisAwal) === 'keluar')>{{ __('wky.stok.keluar_tolak') }}</option>
+                        <option value="pelarasan" @selected(old('jenis', $jenisAwal) === 'pelarasan')>{{ __('wky.stok.pelarasan_set') }}</option>
                     </select>
                     @error('jenis') <p class="maklum-balas-ralat">{{ $message }}</p> @enderror
                 </div>
@@ -73,7 +73,7 @@
                 <select id="sebab" name="sebab" data-sebab required @error('sebab') class="medan-ralat" @enderror>
                     @foreach ($sebabPilihan as $jenisSebab => $senarai)
                         @foreach ($senarai as $nilai => $label)
-                            <option value="{{ $nilai }}" data-jenis="{{ $jenisSebab }}" @selected(old('sebab') === $nilai && old('jenis', 'masuk') === $jenisSebab)>{{ $label }}</option>
+                            <option value="{{ $nilai }}" data-jenis="{{ $jenisSebab }}" @selected(old('sebab') === $nilai && old('jenis', $jenisAwal) === $jenisSebab)>{{ $label }}</option>
                         @endforeach
                     @endforeach
                 </select>

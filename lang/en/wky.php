@@ -119,8 +119,8 @@ return [
         'tutup' => 'Close quick actions',
         'imbas_resit' => 'Scan Receipt',
         'muat_naik' => 'Upload',
-        'tambah_produk' => 'Add Product',
-        'tambah_kategori' => 'Add Category',
+        'stok_masuk' => 'Stock In',
+        'stok_keluar' => 'Stock Out',
     ],
 
     'aksi' => [

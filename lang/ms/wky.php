@@ -119,8 +119,8 @@ return [
         'tutup' => 'Tutup tindakan pantas',
         'imbas_resit' => 'Imbas Resit',
         'muat_naik' => 'Muat Naik',
-        'tambah_produk' => 'Tambah Produk',
-        'tambah_kategori' => 'Tambah Kategori',
+        'stok_masuk' => 'Stok Masuk',
+        'stok_keluar' => 'Stok Keluar',
     ],
 
     'aksi' => [

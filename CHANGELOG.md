@@ -10,6 +10,11 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ### Diubah
 
+- **Butang tindakan pantas kini menawarkan Stok Masuk dan Stok Keluar**, menggantikan Tambah
+  Produk dan Tambah Kategori. Kedua-duanya membuka borang pergerakan stok dengan jenisnya sudah
+  dipilih dan senarai sebabnya sudah ditapis — bukan sekadar borang kosong. Produk dan kategori
+  masih boleh ditambah daripada halamannya sendiri, yang sememangnya tempat kerja itu bermula.
+
 - **Palet baharu: matahari terbenam gudang.** Oren panas di atas, magenta di tengah, ungu pekat
   di bawah. Halaman log masuk, pendaftaran dan pendaratan membawa kecerunan itu penuh, berserta
   siluet bandar lilac dan hiasan gudang 3D yang kini bertona merah jambu-oren.

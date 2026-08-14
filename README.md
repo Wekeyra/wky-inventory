@@ -258,15 +258,25 @@ dokumen memerlukan lapisan pesanan penghantarannya sendiri.
 
 Setiap halaman dalam sistem membawa satu butang bulat terapung di penjuru bawah kanan
 ([`partials/butang-pantas.blade.php`](resources/views/partials/butang-pantas.blade.php)) yang
-membuka empat pintasan: **Imbas Resit, Muat Naik, Tambah Produk, Tambah Kategori**.
+membuka empat pintasan: **Imbas Resit, Muat Naik, Stok Masuk, Stok Keluar**.
 
 Ia menggunakan pencetus `data-jatuh` yang sama seperti menu lain, jadi ia mewarisi
 tutup-bila-klik-luar dan tutup-bila-Escape tanpa JavaScript baharu.
 
-Imbas Resit dan Muat Naik kedua-duanya menuju ke halaman imbas yang sama — ia memang satu
-halaman — tetapi membawa `?mod=`. `mod=kamera` menekan butang kamera terus; `mod=fail` hanya
-**menumpukan** medan fail dan tidak membuka pemilih fail, kerana pelayar menyekat pembukaan
-dialog fail tanpa gerak isyarat pengguna.
+Kedua-dua pasangan pintasan itu menuju ke satu halaman yang sama, dan parameter pertanyaan yang
+membezakannya:
+
+- **Imbas Resit / Muat Naik** → halaman imbas invois dengan `?mod=`. `mod=kamera` menekan butang
+  kamera terus; `mod=fail` hanya **menumpukan** medan fail dan tidak membuka pemilih fail, kerana
+  pelayar menyekat pembukaan dialog fail tanpa gerak isyarat pengguna.
+- **Stok Masuk / Stok Keluar** → borang pergerakan stok dengan `?jenis=`. Nilainya disaring
+  terhadap `masuk`, `keluar` dan `pelarasan` dalam `StockMovementController::create()`; nilai yang
+  tidak dikenali jatuh kembali kepada `masuk`. Tanpa saringan itu, `?jenis=` sewenang-wenangnya
+  akan membuka borang tanpa satu pun jenis dipilih.
+
+Senarai **sebab** pada borang pergerakan stok ditapis mengikut jenis oleh JavaScript, dan
+penapis itu dijalankan sekali semasa halaman dimuat. Jadi pintasan ini membuka borang yang sudah
+betul sepenuhnya — jenis dipilih dan senarai sebabnya sepadan — bukan sekadar borang kosong.
 
 ## Halaman pendaratan
 

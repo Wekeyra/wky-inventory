@@ -58,6 +58,15 @@ class StockMovementController extends Controller
             'locations' => Location::aktif()->orderByDesc('lalai')->orderBy('nama')->get(),
             'lokasiTerpilih' => $request->integer('location_id') ?: Location::lalai()?->id,
             'sebabPilihan' => self::sebabPilihan(),
+
+            // Pintasan Stok Masuk dan Stok Keluar pada butang tindakan pantas
+            // menuju ke borang yang sama, jadi ?jenis= yang menentukan mana
+            // satu dibuka. Nilai disaring terhadap senarai yang dibenarkan;
+            // tanpa itu ?jenis= sewenang-wenangnya akan memilih tiada apa-apa
+            // dan borang terbuka tanpa jenis yang dipilih.
+            'jenisAwal' => in_array($request->query('jenis'), ['masuk', 'keluar', 'pelarasan'], true)
+                ? $request->query('jenis')
+                : 'masuk',
         ]);
     }
 
