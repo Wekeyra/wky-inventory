@@ -221,9 +221,24 @@
 
 @push('skrip')
     <script>
-        (function () {
+        /*
+            Dibungkus dalam DOMContentLoaded kerana Chart.js datang daripada
+            app.js, yang dimuatkan sebagai <script type="module"> dan oleh itu
+            ditangguhkan. Skrip klasik dalam <body> seperti ini berjalan semasa
+            halaman masih dihurai — iaitu SEBELUM modul itu sempat menetapkan
+            window.Chart.
+
+            Tanpa pembungkus ini, baris `new Chart(...)` melontar
+            "Chart is not defined" dan kad Ringkasan Bulanan kekal kosong pada
+            setiap muatan.
+        */
+        document.addEventListener('DOMContentLoaded', function () {
             const kanvas = document.getElementById('cartaRingkasan');
             const data = @json($ringkasanBulanan);
+
+            if (! kanvas || typeof Chart === 'undefined') {
+                return;
+            }
 
             /*
                 Warna carta dibaca daripada token tema dan bukan ditulis tetap,
@@ -286,6 +301,6 @@
                     },
                 },
             });
-        })();
+        });
     </script>
 @endpush
