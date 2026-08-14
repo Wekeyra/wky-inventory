@@ -278,12 +278,6 @@ Senarai **sebab** pada borang pergerakan stok ditapis mengikut jenis oleh JavaSc
 penapis itu dijalankan sekali semasa halaman dimuat. Jadi pintasan ini membuka borang yang sudah
 betul sepenuhnya — jenis dipilih dan senarai sebabnya sepadan — bukan sekadar borang kosong.
 
-> ⚠️ **Imbas Invois tiada dalam nav sisi**, dan butang ini satu-satunya pintu masuknya. Ia
-> disengajakan: kerja itu bermula dengan mengambil gambar, bukan dengan melihat senarai imbasan
-> lama. Kesannya, **senarai** imbasan (`invoice-scans.index` — tempat butang *Teruskan* bagi
-> imbasan yang belum dibaca berada) hanya boleh dicapai melalui butang *Batal* pada halaman imbas
-> atau *Kembali* pada halaman imbasan. Kalau nav sisi dipulihkan kelak, buang nota ini.
-
 ## Tambah kategori dari penapis Produk
 
 Penapis kategori pada halaman Produk membawa butang **+** di sebelahnya, yang membuka borang

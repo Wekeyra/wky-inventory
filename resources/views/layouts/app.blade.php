@@ -19,9 +19,7 @@
         ['categories.index', 'categories.*', 'tag', 'nav.kategori'],
         ['suppliers.index', 'suppliers.*', 'trak', 'nav.pembekal'],
         ['locations.index', 'locations.*', 'gudang', 'nav.lokasi'],
-        // Imbas Invois sengaja tiada di sini. Ia dicapai melalui butang tindakan
-        // pantas, kerana kerjanya bermula dengan mengambil gambar dan bukan
-        // dengan melihat senarai imbasan lama.
+        ['invoice-scans.index', 'invoice-scans.*', 'imbas', 'nav.imbas_invois'],
         ['stock-counts.index', 'stock-counts.*', 'papan-klip', 'nav.kiraan_stok'],
         ['transfers.index', 'transfers.*', 'pindah', 'nav.pindah_stok'],
         ['stock.index', 'stock.*', 'anak-panah-dua-arah', 'nav.pergerakan_stok'],

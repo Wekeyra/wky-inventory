@@ -17,10 +17,6 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ### Diubah
 
-- **Imbas Invois dibuang daripada nav sisi.** Ia kini dicapai melalui butang tindakan pantas
-  sahaja, kerana kerja itu bermula dengan mengambil gambar dan bukan dengan melihat senarai
-  imbasan lama. Senarai imbasan sendiri masih boleh dicapai melalui butang *Batal* pada halaman
-  imbas dan *Kembali* pada halaman imbasan.
 - **Butang tindakan pantas kini menawarkan Stok Masuk dan Stok Keluar**, menggantikan Tambah
   Produk dan Tambah Kategori. Kedua-duanya membuka borang pergerakan stok dengan jenisnya sudah
   dipilih dan senarai sebabnya sudah ditapis — bukan sekadar borang kosong. Produk dan kategori
