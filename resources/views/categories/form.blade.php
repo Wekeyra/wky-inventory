@@ -7,6 +7,12 @@
         @csrf
         @if ($category->exists) @method('PUT') @endif
 
+        {{-- Dibawa melalui borang supaya destinasi selepas simpan bertahan
+             walaupun pengesahan gagal dan halaman ini dipaparkan semula. --}}
+        @if ($kembali !== null)
+            <input type="hidden" name="kembali" value="{{ $kembali }}">
+        @endif
+
         <div class="kad-badan space-y-4">
             <div>
                 <label for="kod" class="mb-1 block font-medium">{{ __('wky.medan.kod') }} <span class="text-bahaya">*</span></label>
@@ -28,7 +34,12 @@
 
         <div class="kad-kaki">
             <button type="submit" class="btn-utama">{{ $category->exists ? __('wky.aksi.kemas_kini') : __('wky.aksi.simpan') }}</button>
-            <a href="{{ route('categories.index') }}" class="btn-garis">{{ __('wky.aksi.batal') }}</a>
+            {{-- Batal mesti pulang ke tempat yang sama seperti Simpan. Butang
+                 yang membuang pengguna ke senarai kategori sedangkan dia datang
+                 dari halaman Produk terasa seperti dia tersesat, bukan seperti
+                 dia membatalkan sesuatu. --}}
+            <a href="{{ $kembali === 'produk' ? route('products.index') : route('categories.index') }}"
+               class="btn-garis">{{ __('wky.aksi.batal') }}</a>
         </div>
     </form>
 @endsection

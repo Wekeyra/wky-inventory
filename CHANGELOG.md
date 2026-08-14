@@ -8,6 +8,13 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ## 2026-08-14
 
+### Ditambah
+
+- **Butang tambah kategori pada penapis halaman Produk.** Kategori yang hilang paling kerap
+  disedari tepat semasa cuba menapis dengannya, jadi butang **+** kecil di sebelah penapis itu
+  membuka borang kategori baharu terus. Simpan dan Batal kedua-duanya pulang ke halaman Produk,
+  jadi kategori baharu boleh terus dipilih tanpa mencari jalan kembali.
+
 ### Diubah
 
 - **Butang tindakan pantas kini menawarkan Stok Masuk dan Stok Keluar**, menggantikan Tambah

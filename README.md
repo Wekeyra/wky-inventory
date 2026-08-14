@@ -278,6 +278,27 @@ Senarai **sebab** pada borang pergerakan stok ditapis mengikut jenis oleh JavaSc
 penapis itu dijalankan sekali semasa halaman dimuat. Jadi pintasan ini membuka borang yang sudah
 betul sepenuhnya — jenis dipilih dan senarai sebabnya sepadan — bukan sekadar borang kosong.
 
+## Tambah kategori dari penapis Produk
+
+Penapis kategori pada halaman Produk membawa butang **+** di sebelahnya, yang membuka borang
+kategori baharu. Kategori yang hilang paling kerap disedari di situ — tepat semasa cuba menapis
+dengannya — dan bukan semasa melawat halaman Kategori.
+
+Borang itu menerima `?kembali=produk`. Apabila ada:
+
+- **Simpan** pulang ke halaman Produk, bukan ke senarai Kategori, jadi kategori baharu terus
+  boleh dipilih daripada penapis.
+- **Batal** pulang ke tempat yang sama. Butang yang membuang pengguna ke senarai kategori
+  sedangkan dia datang dari halaman Produk terasa seperti dia tersesat, bukan seperti dia
+  membatalkan sesuatu.
+- Nilainya dibawa sebagai **medan tersembunyi** dalam borang, supaya destinasi itu bertahan
+  walaupun pengesahan gagal dan borang dipaparkan semula.
+
+> ⚠️ `kembali` ialah **kata kunci, bukan URL**, dan `CategoryController::kembali()` hanya menerima
+> nilai `produk`. Menerima URL penuh daripada permintaan bermakna sesiapa boleh menghantar pautan
+> yang mengalihkan pengguna ke tapak lain sebaik sahaja dia menekan *Simpan*. Kalau destinasi
+> ketiga diperlukan kelak, tambah kata kunci baharu — jangan tukar kepada URL.
+
 ## Halaman pendaratan
 
 `/` ialah halaman pendaratan awam. Pengguna yang sudah log masuk dialihkan terus ke dashboard,

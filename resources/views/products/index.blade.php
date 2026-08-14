@@ -11,12 +11,27 @@
                     <x-imbas-barcode sasaran="cari" hantar />
                 </div>
 
-                <select name="category_id">
-                    <option value="">{{ __('wky.umum.semua_kategori') }}</option>
-                    @foreach ($categories as $kategori)
-                        <option value="{{ $kategori->id }}" @selected(request('category_id') == $kategori->id)>{{ $kategori->nama }}</option>
-                    @endforeach
-                </select>
+                {{-- Penapis kategori membawa butang menciptanya sendiri: kategori
+                     yang hilang paling kerap disedari di sini, tepat semasa
+                     cuba menapis dengannya. Borang itu pulang ke halaman ini
+                     selepas simpan, jadi kategori baharu terus boleh dipilih. --}}
+                {{-- min-w-0 pada select dan shrink-0 pada butang: tanpa kedua-duanya
+                     select yang membawa nama kategori panjang enggan mengecil dan
+                     menolak butang keluar daripada bar alat. --}}
+                <div class="flex gap-2">
+                    <select name="category_id" class="min-w-0">
+                        <option value="">{{ __('wky.umum.semua_kategori') }}</option>
+                        @foreach ($categories as $kategori)
+                            <option value="{{ $kategori->id }}" @selected(request('category_id') == $kategori->id)>{{ $kategori->nama }}</option>
+                        @endforeach
+                    </select>
+
+                    <a href="{{ route('categories.create', ['kembali' => 'produk']) }}"
+                       class="btn-garis btn-ikon shrink-0" title="{{ __('wky.kategori.tambah') }}"
+                       aria-label="{{ __('wky.kategori.tambah') }}">
+                        <x-ikon nama="tambah" />
+                    </a>
+                </div>
 
                 <label for="stok_rendah" class="flex cursor-pointer items-center gap-2 whitespace-nowrap">
                     <input type="checkbox" id="stok_rendah" name="stok_rendah" value="1" class="!w-auto" @checked(request()->boolean('stok_rendah'))>

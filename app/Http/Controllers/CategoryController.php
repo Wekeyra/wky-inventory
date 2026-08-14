@@ -22,21 +22,47 @@ class CategoryController extends Controller
         return view('categories.index', compact('categories'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
-        return view('categories.form', ['category' => new Category()]);
+        return view('categories.form', [
+            'category' => new Category(),
+            'kembali' => $this->kembali($request),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
         Category::create($this->validated($request));
 
-        return redirect()->route('categories.index')->with('status', __('wky.flash.kategori_tambah'));
+        $status = __('wky.flash.kategori_tambah');
+
+        // Kategori yang dicipta daripada penapis halaman Produk pulang ke sana,
+        // kerana di situlah kerja pengguna sebenarnya berada — dia berhenti
+        // seketika untuk mencipta kategori, bukan datang untuk menguruskannya.
+        if ($this->kembali($request) === 'produk') {
+            return redirect()->route('products.index')->with('status', $status);
+        }
+
+        return redirect()->route('categories.index')->with('status', $status);
+    }
+
+    /**
+     * Ke mana borang ini patut pulang selepas disimpan.
+     *
+     * Kata kunci, bukan URL. Menerima URL penuh daripada permintaan bermakna
+     * sesiapa boleh menghantar pautan yang mengalihkan pengguna ke tapak lain
+     * selepas dia menekan Simpan.
+     */
+    private function kembali(Request $request): ?string
+    {
+        return $request->input('kembali') === 'produk' ? 'produk' : null;
     }
 
     public function edit(Category $category): View
     {
-        return view('categories.form', compact('category'));
+        // Menyunting kategori sedia ada sentiasa bermula daripada senarai
+        // kategori, jadi tiada tempat lain untuk pulang.
+        return view('categories.form', ['category' => $category, 'kembali' => null]);
     }
 
     public function update(Request $request, Category $category): RedirectResponse
