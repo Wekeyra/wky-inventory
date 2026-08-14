@@ -64,7 +64,17 @@ Route::middleware('auth')->group(function () {
      | ditanda buku sebelum ciri itu dimatikan.
      */
     Route::resource('locations', LocationController::class)->middleware('ciri:gudang');
-    Route::resource('products', ProductController::class);
+    /*
+     | Padam/arkib produk dihadkan kepada admin. Ia satu-satunya tindakan pada
+     | produk yang boleh mengeluarkan rekod daripada pandangan seluruh syarikat,
+     | dan staf yang merekod stok setiap hari tidak memerlukannya.
+     */
+    Route::resource('products', ProductController::class)
+        ->except('destroy');
+
+    Route::delete('products/{product}', [ProductController::class, 'destroy'])
+        ->name('products.destroy')
+        ->middleware('admin');
 
     // Gambar dihidangkan melalui laluan kerana ia disimpan pada cakera peribadi,
     // jadi pengikatan model yang berskop ruang kerja turut melindunginya.

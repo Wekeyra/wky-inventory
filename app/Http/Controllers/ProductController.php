@@ -188,8 +188,31 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('status', __('wky.flash.produk_kemas_kini'));
     }
 
+    /**
+     * Mengarkibkan produk yang ada sejarah; memadam yang tiada.
+     *
+     * Setiap kunci asing produk ditanda cascadeOnDelete, jadi memadam satu
+     * produk memadam baris daripada tujuh jadual sekali gus — termasuk
+     * stock_movements, iaitu jejak audit itu sendiri. Satu klik boleh
+     * memusnahkan sejarah bertahun tanpa apa-apa yang boleh dipulihkan.
+     *
+     * Sistem sudah pun menghalang kategori dan pembekal daripada dipadam
+     * semasa masih digunakan. Jejak audit berhak mendapat sekurang-kurangnya
+     * perlindungan yang sama.
+     *
+     * Produk yang belum pernah menyentuh apa-apa masih dipadam terus: tiada
+     * sejarah untuk dilindungi, dan memaksanya kekal sebagai baris arkib hanya
+     * mengotorkan senarai dengan kesilapan menaip.
+     */
     public function destroy(Product $product): RedirectResponse
     {
+        if ($product->adaSejarah()) {
+            $product->update(['aktif' => false]);
+
+            return redirect()->route('products.index')
+                ->with('status', __('wky.flash.produk_diarkib', ['nama' => $product->nama]));
+        }
+
         $gambar = $product->laluan_gambar;
 
         $product->delete();

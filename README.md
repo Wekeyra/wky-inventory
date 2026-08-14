@@ -640,6 +640,40 @@ Senarai **sebab** pada borang pergerakan stok ditapis mengikut jenis oleh JavaSc
 penapis itu dijalankan sekali semasa halaman dimuat. Jadi pintasan ini membuka borang yang sudah
 betul sepenuhnya — jenis dipilih dan senarai sebabnya sepadan — bukan sekadar borang kosong.
 
+## Padam produk: arkib, bukan padam
+
+Setiap kunci asing produk ditanda `cascadeOnDelete`, jadi memadam **satu** produk memadam baris
+daripada **tujuh** jadual sekali gus:
+
+```
+stock_movements   ← jejak audit
+sales / sale_items
+purchase_orders / purchase_order_items
+product_batches
+stock_balances
+stock_count_items
+stock_transfers / stock_transfer_items
+```
+
+Sistem sudah pun menghalang kategori dan pembekal daripada dipadam semasa masih digunakan. Jejak
+audit — salah satu daripada lapan fungsi teras yang tidak boleh dimatikan langsung — berhak
+mendapat sekurang-kurangnya perlindungan yang sama.
+
+| Keadaan produk | Butang | Apa yang berlaku |
+|---|---|---|
+| Ada sejarah | *Arkibkan* (garis, ikon lapisan) | `aktif = false`. Hilang daripada borang stok, jualan dan PO; kekal pada setiap rekod lama |
+| Tiada sejarah | *Padam* (merah, ikon tong sampah) | Dipadam terus — tiada apa yang hilang |
+
+`Product::kiraanSejarah()` mengira rekod yang terlibat, dan soalan pengesahan **menyebut
+bilangannya**. Tanpa nombor itu, "arkib" mudah dibaca sebagai "buang sahaja".
+
+Produk yang diarkibkan diaktifkan semula daripada borang produk — kotak *Produk aktif* yang sedia
+ada. Tiada skrin baharu diperlukan.
+
+> ⚠️ Laluan `products.destroy` **dijaga middleware `admin`**, berasingan daripada
+> `Route::resource`. Ia satu-satunya tindakan pada produk yang mengeluarkan rekod daripada
+> pandangan seluruh syarikat, dan staf yang merekod stok setiap hari tidak memerlukannya.
+
 ## Tambah produk dari borang stok
 
 Pemilih produk pada **borang Pergerakan Stok** dan **modal Tambah Stok Pantas** membawa butang
@@ -979,6 +1013,9 @@ kod. Langkah itu turut mengesahkan binaan aset masih berjaya sebelum deploy.
   yang boleh memohon tetapi tidak boleh meluluskan, keputusan yang direkod berserta pemutusnya,
   penerimaan penuh dan separa, penolakan penerimaan melebihi baki, pembatalan yang dihalang
   selepas ada barang diterima, dan status akhir yang tiada laluan keluar.
+- `tests/Feature/ArkibProdukTest.php` — arkib produk: jejak audit yang **kekal** selepas permintaan
+  padam, produk diarkib yang hilang daripada borang stok, produk tanpa sejarah yang masih dipadam
+  terus, staf yang tidak boleh memadam mahupun ditawarkan butangnya, dan pengaktifan semula.
 - `tests/Feature/ButangKembaliTest.php` — butang kembali: destinasi yang dikira daripada nama
   laluan, ketiadaannya pada halaman senarai dan dashboard, dan ketiadaannya pada halaman yang
   tiada senarai induk.

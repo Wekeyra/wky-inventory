@@ -99,6 +99,54 @@ class Product extends Model
         return $this->hasMany(StockBalance::class);
     }
 
+    public function saleItems(): HasMany
+    {
+        return $this->hasMany(SaleItem::class);
+    }
+
+    public function purchaseOrderItems(): HasMany
+    {
+        return $this->hasMany(PurchaseOrderItem::class);
+    }
+
+    public function invoiceScanItems(): HasMany
+    {
+        return $this->hasMany(InvoiceScanItem::class);
+    }
+
+    /**
+     * Rekod yang akan hilang bersama produk ini kalau ia dipadam.
+     *
+     * Setiap kunci asing produk ditanda cascadeOnDelete, jadi memadam satu
+     * produk memadam baris daripada tujuh jadual sekali gus — termasuk
+     * stock_movements, iaitu jejak audit itu sendiri.
+     *
+     * @return array<string, int>
+     */
+    public function kiraanSejarah(): array
+    {
+        return array_filter([
+            'pergerakan' => $this->movements()->count(),
+            'jualan' => $this->saleItems()->count(),
+            'pesanan' => $this->purchaseOrderItems()->count(),
+            'imbasan' => $this->invoiceScanItems()->count(),
+            'pemindahan' => $this->transferItems()->count(),
+            'lot' => $this->batches()->count(),
+        ]);
+    }
+
+    /**
+     * Produk ini sudah menyentuh rekod lain.
+     *
+     * Produk begini tidak boleh dipadam — ia diarkibkan. Sistem melindungi
+     * label kategori daripada dipadam semasa masih digunakan; jejak audit
+     * berhak mendapat sekurang-kurangnya perlindungan yang sama.
+     */
+    public function adaSejarah(): bool
+    {
+        return $this->kiraanSejarah() !== [];
+    }
+
     public function transferItems(): HasMany
     {
         return $this->hasMany(StockTransferItem::class);

@@ -10,6 +10,13 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ### Diperbaiki
 
+- **Memadam produk tidak lagi memusnahkan jejak auditnya.** Sebelum ini satu klik memadam baris
+  daripada tujuh jadual sekali gus — termasuk setiap pergerakan stok produk itu — tanpa amaran dan
+  tanpa apa-apa yang boleh dipulihkan. Produk yang pernah menyentuh apa-apa rekod kini
+  **diarkibkan**: ia hilang daripada borang stok, jualan dan pesanan, tetapi kekal pada setiap
+  rekod lama dan boleh diaktifkan semula. Produk yang belum pernah digunakan masih dipadam terus.
+- **Padam produk kini dihadkan kepada admin**, dan soalan pengesahannya menyebut bilangan rekod
+  yang terlibat.
 - **Aliran imbas invois tidak lagi terputus selepas disahkan.** Sebaik sahaja stok direkod,
   seluruh baris tindakan halaman itu hilang dan pengguna ditinggalkan tanpa satu pun langkah
   seterusnya. Kini ada *Imbas Invois Lain*, *Lihat Pergerakan Stok*, dan *Dashboard*.

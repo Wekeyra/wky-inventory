@@ -100,13 +100,52 @@
                                 <a href="{{ route('products.edit', $produk) }}" class="btn-garis btn-ikon" title="{{ __('wky.aksi.kemas_kini') }}">
                                     <x-ikon nama="pensel" kelas="size-4" />
                                 </a>
-                                <form method="POST" action="{{ route('products.destroy', $produk) }}"
-                                      onsubmit="return confirm('{{ __('wky.produk.sahkan_padam', ['nama' => $produk->nama]) }}')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="btn-bahaya btn-ikon" title="{{ __('wky.aksi.padam') }}">
-                                        <x-ikon nama="tong-sampah" kelas="size-4" />
-                                    </button>
-                                </form>
+                                {{--
+                                    Butang ini berkata apa yang sebenarnya akan
+                                    berlaku. Produk yang pernah bergerak
+                                    diarkibkan, bukan dipadam — dan soalan
+                                    pengesahannya menyebut bilangan rekod yang
+                                    terlibat, supaya "arkib" tidak dibaca
+                                    sebagai "buang sahaja".
+
+                                    Hanya admin: laluannya dijaga middleware
+                                    admin, jadi menawarkan butang kepada staf
+                                    hanya menjanjikan sesuatu yang akan ditolak.
+                                --}}
+                                @if (auth()->user()->isAdmin())
+                                    {{--
+                                        Mesej dibina dalam blok PHP dahulu.
+                                        Arahan json dengan array berbilang
+                                        baris terus di dalamnya menghasilkan
+                                        PHP yang tidak sah — kurungan
+                                        penutupnya tercicir semasa Blade
+                                        menghurai argumen arahan itu.
+
+                                        Nama arahan sengaja ditulis tanpa tanda
+                                        at di sini: Blade mengompil arahan
+                                        walaupun ia berada di dalam komen.
+                                    --}}
+                                    @php
+                                        $sejarah = $produk->kiraanSejarah();
+
+                                        $soalan = $sejarah === []
+                                            ? __('wky.produk.sahkan_padam', ['nama' => $produk->nama])
+                                            : __('wky.produk.sahkan_arkib', [
+                                                'nama' => $produk->nama,
+                                                'bil' => array_sum($sejarah),
+                                            ]);
+                                    @endphp
+
+                                    <form method="POST" action="{{ route('products.destroy', $produk) }}"
+                                          onsubmit="return confirm(@json($soalan))">
+                                        @csrf @method('DELETE')
+                                        <button type="submit"
+                                                class="{{ $sejarah === [] ? 'btn-bahaya' : 'btn-garis' }} btn-ikon"
+                                                title="{{ $sejarah === [] ? __('wky.aksi.padam') : __('wky.produk.arkib') }}">
+                                            <x-ikon :nama="$sejarah === [] ? 'tong-sampah' : 'lapisan'" kelas="size-4" />
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
                         </td>
                     </tr>
