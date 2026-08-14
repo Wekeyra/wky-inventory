@@ -7,6 +7,8 @@ use App\Models\Product;
 use App\Models\ProductBatch;
 use App\Models\StockMovement;
 use App\Services\Stok\BakiLokasi;
+use App\Services\Stok\KosKeluar;
+use App\Services\Stok\LotKeluar;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -261,15 +263,10 @@ class StockMovementController extends Controller
             return (float) $data['kos_seunit'];
         }
 
-        if ($data['jenis'] === 'keluar' && $batch?->kos_seunit !== null) {
-            return (float) $batch->kos_seunit;
-        }
-
-        // harga_kos lalainya 0 dan wajib diisi pada borang produk, jadi sifar
-        // di sini bermakna "tidak pernah ditetapkan" dan bukan "percuma".
-        // Merekodkannya sebagai 0 akan mendakwa barang itu tidak berkos, dan
-        // dakwaan itu akan mengalir terus ke dalam setiap laporan.
-        return (float) $product->harga_kos > 0 ? (float) $product->harga_kos : null;
+        // Peraturannya dikongsi dengan modul jualan: kalau kedua-duanya mengira
+        // kos keluar sendiri, COGS pada laporan tidak akan sepadan dengan nilai
+        // pergerakan yang membentuknya.
+        return KosKeluar::bagi($product, $data['jenis'] === 'keluar' ? $batch : null);
     }
 
     /**
@@ -307,19 +304,13 @@ class StockMovementController extends Controller
             return $batch;
         }
 
-        $batch = ProductBatch::lockForUpdate()->findOrFail($data['product_batch_id']);
-
-        if ($batch->kuantiti < $data['kuantiti']) {
-            throw new \RuntimeException(__('wky.flash.batch_tidak_cukup', [
-                'batch' => $batch->no_batch,
-                'baki' => $batch->kuantiti,
-                'unit' => $product->unit,
-            ]));
-        }
-
-        $batch->decrement('kuantiti', $data['kuantiti']);
-
-        return $batch;
+        // Semakan bakinya dikongsi dengan modul jualan, yang mengeluarkan stok
+        // daripada lot dengan cara yang sama persis.
+        return LotKeluar::ambil(
+            ProductBatch::findOrFail($data['product_batch_id']),
+            (int) $data['kuantiti'],
+            $product,
+        );
     }
 
     private function noDoSeterusnya(): string

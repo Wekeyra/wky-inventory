@@ -48,6 +48,40 @@
         @endforeach
     </div>
 
+    {{--
+        Untung kasar hanya dipaparkan apabila ada jualan bulan itu. Kad yang
+        menunjukkan RM 0.00 setiap bulan sebelum modul jualan digunakan hanya
+        mengajar pengguna mengabaikannya.
+    --}}
+    @if ($bilJualan > 0)
+        <div class="mb-4 grid gap-4 sm:grid-cols-3">
+            <div class="kad kad-badan">
+                <p class="label-stat">{{ __('wky.jual.jumlah_jualan') }}</p>
+                <p class="nilai-stat mt-1 truncate">{{ number_format($jumlahJualan, 2) }}</p>
+            </div>
+            <div class="kad kad-badan">
+                <p class="label-stat">{{ __('wky.jual.kos_barang') }}</p>
+                <p class="nilai-stat mt-1 truncate">{{ number_format($kosBarangDijual, 2) }}</p>
+            </div>
+            <div class="kad kad-badan">
+                <p class="label-stat">{{ __('wky.jual.untung_kasar') }}</p>
+                <p class="nilai-stat mt-1 truncate">{{ number_format($untungKasar, 2) }}</p>
+                @if ($jumlahJualan > 0)
+                    <p class="mt-1 text-xs text-malap">
+                        {{ __('wky.jual.margin') }}: {{ number_format($untungKasar / $jumlahJualan * 100, 1) }}%
+                    </p>
+                @endif
+            </div>
+        </div>
+
+        @if ($kosTidakLengkap)
+            <div class="amaran-gagal mb-4">
+                <x-ikon nama="amaran" kelas="size-5 shrink-0" />
+                <span>{{ __('wky.jual.kos_tidak_lengkap') }}</span>
+            </div>
+        @endif
+    @endif
+
     <div class="kad">
         <div class="kad-kepala">
             <span class="flex items-center gap-2 font-semibold">

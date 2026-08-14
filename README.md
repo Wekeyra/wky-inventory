@@ -18,6 +18,7 @@ bertemu antara satu sama lain.
 | **Gudang** | Gudang dan cawangan, dengan baki setiap produk pada setiap gudang serta catatan rak/bin |
 | **Pindah Stok** | Pemindahan antara gudang dalam dua peringkat — hantar dan terima — dengan stok dalam perjalanan di antaranya |
 | **Pesanan Belian** | Permohonan pembelian → kelulusan admin → penerimaan barang, penuh atau separa. Kos yang diluluskan dicap pada pergerakan stok semasa barang diterima |
+| **Jualan** | Rekod jualan yang menolak stok dan membekukan harga jual serta kos barang, menghasilkan COGS dan untung kasar setiap jualan dan setiap bulan |
 | **Imbas Invois** | Ambil gambar terus dengan kamera atau muat naik foto/PDF — AI membaca baris barang, memadankannya dengan produk (mencipta produk baharu bagi barang yang belum wujud), dan merekod stok masuk selepas disahkan. Boleh juga disimpan dahulu dan dibaca kemudian |
 | **Kiraan Stok** | Sesi kiraan fizikal (stock take): sistem simpan gambaran baki, staf masukkan kiraan sebenar, sistem tunjuk perbezaan dan laraskan stok selepas disahkan |
 | **Pergerakan Stok** | Rekod stok masuk, keluar, dan pelarasan — setiap satu menyimpan baki sebelum/selepas, sebab, dan lot yang terlibat. Stok keluar menjana Delivery Order yang boleh dicetak. Boleh ditapis mengikut produk, jenis, dan sebab |
@@ -35,10 +36,10 @@ Supaya jelas apa yang sistem ini belum lakukan, dan tidak disangka hilang:
 - **Padanan PO dengan invois pembekal.** Permohonan, kelulusan dan penerimaan separa **sudah
   ada** (lihat [Purchase Order](#purchase-order)), tetapi imbasan invois masih tidak dipadankan
   dengan PO yang terbuka — kedua-duanya merekod stok masuk secara berasingan.
-- **Kewangan.** Tiada jualan/POS, kos barang dijual (COGS), untung kasar, mahupun kaedah
-  kos berlapis seperti FIFO. Setiap pergerakan stok **sudah** membawa kos seunitnya
-  (lihat [Kos pada setiap pergerakan](#kos-pada-setiap-pergerakan)), jadi asas untuk COGS
-  sudah ada — yang belum ada ialah modul jualan yang menggunakannya.
+- **Kewangan penuh.** Jualan, COGS dan untung kasar **sudah ada** (lihat
+  [Jualan dan COGS](#jualan-dan-cogs)), tetapi tiada kaedah kos berlapis seperti FIFO, tiada
+  pembayaran atau akaun belum terima, tiada cukai, dan tiada peranti POS. Kos keluar diambil
+  daripada lot yang dipilih, atau daripada harga kos produk apabila tiada lot.
 - **Kawalan kelulusan berperingkat.** Peranan admin/staf sahaja; tiada had kuasa kelulusan
   mahupun maker-checker.
 - **Analitik lanjutan.** Tiada produk paling laris, inventory turnover, DIO, dead stock,
@@ -326,6 +327,56 @@ produk, yang mungkin sudah berubah antara kelulusan dan penghantaran. Lihat
 Penerimaan menggunakan `BakiLokasi` dan `LotPenerimaan` yang sama seperti aliran stok yang lain,
 jadi tiada satu aliran pun terlepas semakan bakinya sendiri. Produk yang dijejak batchnya menerima
 lot bernamakan kod PO, sama seperti imbasan invois menamakan lotnya mengikut rujukan invois.
+
+## Jualan dan COGS
+
+Setiap baris jualan membekukan **dua** harga:
+
+- `harga_jual` — apa yang dibayar pelanggan
+- `kos_seunit` — kos barang itu pada masa ia keluar
+
+Untung kasar ialah perbezaan antara kedua-duanya, dikira daripada angka yang dibekukan dan bukan
+daripada harga produk yang dibaca semula semasa laporan dibuka. Kedua-dua harga itu boleh berubah
+selepas jualan berlaku, dan menukarnya tidak boleh menulis semula keuntungan yang sudah berlaku.
+
+### Dari mana kos keluar datang
+
+[`Services/Stok/KosKeluar.php`](app/Services/Stok/KosKeluar.php) ialah satu-satunya takrifan, dan
+borang pergerakan stok menggunakannya juga. Kalau kedua-dua aliran mengira kosnya sendiri, COGS
+pada laporan tidak akan sepadan dengan nilai pergerakan yang membentuknya.
+
+1. **Lot yang dipilih** — kos lot itu. Kita tahu dengan pasti unit mana yang keluar, jadi tiada
+   anggaran dan tiada kaedah kos seperti FIFO yang perlu dipilih.
+2. **Tiada lot** — harga kos semasa produk, dibekukan pada masa itu.
+3. **Harga kos 0** — kos ditinggalkan sebagai tidak diketahui.
+
+> ⚠️ Langkah ketiga itu penting. COGS sifar menghasilkan untung kasar yang **menyamai keseluruhan
+> jualan** — angka yang kelihatan hebat dan sepenuhnya palsu. Jualan yang mana-mana barisnya tiada
+> kos ditandakan pada senarai, pada halaman jualan, dan pada laporan bulanan
+> (`Sale::kosPenuh()`), supaya nombornya tidak dibaca sebagai muktamad.
+
+### Jualan tidak menyentuh stok secara langsung
+
+Setiap barisnya menjana satu pergerakan stok **keluar** dengan sebab *jualan*, melalui
+`BakiLokasi`, `LotKeluar` dan `KosKeluar` yang sama seperti aliran stok yang lain — jadi tiada satu
+aliran pun terlepas semakan bakinya sendiri. Satu baris yang gagal menggulung keseluruhan jualan;
+jualan yang separuh tersimpan meninggalkan stok yang sudah ditolak untuk barang yang tiada pada
+dokumen.
+
+Pergerakan itu **tidak** menjana nombor DO. Satu jualan menghantar banyak baris dalam satu
+penghantaran, jadi memberi setiap baris nombor DO sendiri akan menghasilkan sekumpulan dokumen
+penghantaran bagi penghantaran yang sama. Halaman jualan itu sendiri boleh dicetak.
+
+### Jualan tidak boleh disunting atau dipadam
+
+Tiada laluan `edit`, `update` mahupun `destroy`. Jualan yang direkod sudah menolak stok dan
+mencatat kosnya; menyuntingnya bermakna menulis semula sejarah pergerakan yang terhasil
+daripadanya. Kesilapan dibetulkan dengan pergerakan stok **pemulangan**, seperti mana-mana rekod
+kewangan.
+
+Produk berulang **tidak** digabungkan menjadi satu baris — berbeza daripada PO dan pemindahan.
+Dua baris produk yang sama boleh membawa harga jual berbeza: diskaun pada sebahagian kuantiti
+ialah jualan yang sah, dan menggabungkannya akan membuang salah satu harga itu.
 
 ## Kos pada setiap pergerakan
 
@@ -716,6 +767,11 @@ kod. Langkah itu turut mengesahkan binaan aset masih berjaya sebelum deploy.
   yang boleh memohon tetapi tidak boleh meluluskan, keputusan yang direkod berserta pemutusnya,
   penerimaan penuh dan separa, penolakan penerimaan melebihi baki, pembatalan yang dihalang
   selepas ada barang diterima, dan status akhir yang tiada laluan keluar.
+- `tests/Feature/JualanCogsTest.php` — jualan dan COGS: stok yang ditolak, untung kasar yang
+  dikira daripada dua harga yang dibekukan, harga produk yang berubah tanpa menyentuh jualan lama,
+  produk tanpa harga kos yang menandakan jualan sebagai tidak lengkap, kos yang diambil daripada
+  lot, produk berbatch yang mesti menyebut lotnya, satu baris gagal yang menggulung keseluruhan
+  jualan, dan untung kasar pada laporan bulanan.
 - `tests/Feature/KosPergerakanTest.php` — kos seunit: kos yang dibekukan dan tidak berubah
   apabila harga kos produk dinaikkan kemudian, kos kosong yang jatuh kepada harga kos produk,
   produk tanpa harga kos yang meninggalkan kos sebagai tidak direkod, sifar yang ditaip sendiri,

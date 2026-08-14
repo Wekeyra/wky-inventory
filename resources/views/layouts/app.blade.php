@@ -20,6 +20,7 @@
         ['suppliers.index', 'suppliers.*', 'trak', 'nav.pembekal'],
         ['locations.index', 'locations.*', 'gudang', 'nav.lokasi'],
         ['purchase-orders.index', 'purchase-orders.*', 'papan-klip', 'nav.pesanan_belian'],
+        ['sales.index', 'sales.*', 'wang', 'nav.jualan'],
         ['invoice-scans.index', 'invoice-scans.*', 'imbas', 'nav.imbas_invois'],
         ['stock-counts.index', 'stock-counts.*', 'papan-klip', 'nav.kiraan_stok'],
         ['transfers.index', 'transfers.*', 'pindah', 'nav.pindah_stok'],

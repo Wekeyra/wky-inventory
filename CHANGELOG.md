@@ -10,6 +10,16 @@ sebalik sesuatu keputusan disimpan dalam mesej commit dan `README.md`.
 
 ### Ditambah
 
+- **Modul Jualan, dengan kos barang dijual dan untung kasar.** Setiap baris jualan membekukan dua
+  harga — harga yang dibayar pelanggan, dan kos barang itu pada masa ia keluar. Untung kasar
+  dikira daripada kedua-duanya, jadi menukar harga produk kemudian tidak menulis semula
+  keuntungan yang sudah berlaku.
+- **Untung kasar bulanan pada Laporan Bulanan**, berserta jumlah jualan, kos barang dijual dan
+  peratus margin. Ia hanya muncul pada bulan yang ada jualan.
+- **Jualan yang kosnya tidak lengkap ditandakan.** Produk yang harga kosnya belum pernah
+  ditetapkan meninggalkan kos sebagai tidak diketahui, dan COGS sifar akan menghasilkan untung
+  kasar yang menyamai keseluruhan jualan — angka yang kelihatan hebat dan sepenuhnya palsu.
+  Jualan begitu dibawa dengan amaran pada senarai, halaman jualan, dan laporan bulanan.
 - **Modul Pesanan Belian.** Permohonan pembelian → kelulusan admin → penerimaan barang, dalam
   satu rekod yang melalui keseluruhan aliran. Permohonan yang diluluskan *menjadi* PO dan bukan
   disalin menjadi dokumen kedua.

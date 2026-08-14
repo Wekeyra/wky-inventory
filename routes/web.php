@@ -13,6 +13,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SaleController;
 use App\Http\Controllers\StockCountController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\StockTransferController;
@@ -100,6 +101,19 @@ Route::middleware('auth')->group(function () {
         Route::post('{purchaseOrder}/terima', 'receive')->name('receive');
         Route::post('{purchaseOrder}/batal', 'cancel')->name('cancel');
         Route::delete('{purchaseOrder}', 'destroy')->name('destroy');
+    });
+
+    /*
+     | Jualan. Tiada laluan sunting atau padam: jualan yang sudah direkod sudah
+     | menolak stok dan mencatat kosnya, dan menyuntingnya bermakna menulis
+     | semula sejarah pergerakan yang terhasil daripadanya. Kesilapan dibetulkan
+     | dengan pergerakan stok pemulangan, seperti mana-mana rekod kewangan.
+     */
+    Route::controller(SaleController::class)->prefix('jualan')->name('sales.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('{sale}', 'show')->name('show');
     });
 
     Route::get('stock', [StockMovementController::class, 'index'])->name('stock.index');
